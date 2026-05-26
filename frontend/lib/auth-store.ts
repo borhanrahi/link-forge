@@ -29,10 +29,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   activeWorkspaceId: null,
 
   setUser: (user: User) => {
-    set({ user, activeWorkspaceId: user.default_workspace_id || null });
+    const workspaceId = user.default_workspace_id || null;
+    if (workspaceId && typeof window !== 'undefined') {
+      localStorage.setItem('active_workspace_id', workspaceId);
+    }
+    set({ user, activeWorkspaceId: workspaceId });
   },
 
   setActiveWorkspace: (id: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('active_workspace_id', id);
+    }
     set({ activeWorkspaceId: id });
   },
 
@@ -74,6 +81,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch {
       // Ignore signOut errors
     }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('active_workspace_id');
+    }
     set({
       user: null,
       isAuthenticated: false,
@@ -86,9 +96,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   fetchUser: async (fallbackEmail?: string, fallbackName?: string) => {
     try {
       const user = await api.get<User>("/me");
+      const workspaceId = user.default_workspace_id || null;
+      if (workspaceId && typeof window !== 'undefined') {
+        localStorage.setItem('active_workspace_id', workspaceId);
+      }
       set({
         user,
-        activeWorkspaceId: user.default_workspace_id || null,
+        activeWorkspaceId: workspaceId,
         isAuthenticated: true,
         isLoading: false,
         isLoadingApp: false,
@@ -104,9 +118,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             email: neonUser.email,
             name: (neonUser as any).name || neonUser.email?.split("@")[0] || "User",
           });
+          const wsId = user.default_workspace_id || null;
+          if (wsId && typeof window !== 'undefined') {
+            localStorage.setItem('active_workspace_id', wsId);
+          }
           set({
             user,
-            activeWorkspaceId: user.default_workspace_id || null,
+            activeWorkspaceId: wsId,
             isAuthenticated: true,
             isLoading: false,
             isLoadingApp: false,
@@ -124,9 +142,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             email: fallbackEmail,
             name: fallbackName || fallbackEmail.split("@")[0] || "User",
           });
+          const fbWsId = user.default_workspace_id || null;
+          if (fbWsId && typeof window !== 'undefined') {
+            localStorage.setItem('active_workspace_id', fbWsId);
+          }
           set({
             user,
-            activeWorkspaceId: user.default_workspace_id || null,
+            activeWorkspaceId: fbWsId,
             isAuthenticated: true,
             isLoading: false,
             isLoadingApp: false,

@@ -1,11 +1,14 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Button, Card, CardContent, Input, Textarea, Toggle, Badge, Divider } from "@/components/ui";
-import { useBioPages } from "@/hooks";
-import { ArrowLeft, Plus, Trash2, GripVertical } from "lucide-react";
+import { Button, Card, CardContent, Input, Divider, Badge } from "@/components/ui";
+import { useBioPages, useTogglePublish } from "@/hooks";
+import { ArrowLeft, Plus, Trash2, GripVertical, Globe, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
+
+const BLOG_DOMAIN = "http://localhost:8000";
 
 const BLOCK_TYPES = [
   { id: "link", label: "Link", description: "A single link button" },
@@ -16,10 +19,13 @@ const BLOCK_TYPES = [
 
 export default function BioPageEditorPage() {
   const { id } = useParams();
+  const router = useRouter();
   const { data: bioPages } = useBioPages();
+  const togglePublish = useTogglePublish();
   const page = bioPages?.find((p: any) => p.id === id);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [title, setTitle] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (page) {
@@ -36,6 +42,15 @@ export default function BioPageEditorPage() {
     setBlocks(blocks.filter((b) => b.id !== blockId));
   };
 
+  const handlePublish = async () => {
+    try {
+      await togglePublish.mutateAsync(id as string);
+      toast.success(page?.is_published ? "Page unpublished" : "Page published!");
+    } catch {
+      toast.error("Failed to toggle publish");
+    }
+  };
+
   if (!page) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -43,6 +58,8 @@ export default function BioPageEditorPage() {
       </div>
     );
   }
+
+  const pageUrl = `${BLOG_DOMAIN}/b/${page.slug}`;
 
   return (
     <div className="max-w-3xl space-y-6 animate-fade-in">
@@ -59,11 +76,36 @@ export default function BioPageEditorPage() {
             <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
               {title || "Untitled Page"}
             </h1>
-            <p className="mt-0.5 text-sm text-neutral-400">/{page.slug}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <a
+                href={pageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-terracotta-500 hover:text-terracotta-600 underline underline-offset-2"
+              >
+                {pageUrl}
+              </a>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(pageUrl);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
+                }}
+                className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+              </button>
+            </div>
           </div>
-          <Badge variant={page.is_published ? "success" : "default"}>
-            {page.is_published ? "Live" : "Draft"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handlePublish}>
+              <Globe className="h-3.5 w-3.5" />
+              {page.is_published ? "Unpublish" : "Publish"}
+            </Button>
+            <Badge variant={page.is_published ? "success" : "default"}>
+              {page.is_published ? "Live" : "Draft"}
+            </Badge>
+          </div>
         </div>
       </div>
 
@@ -95,7 +137,7 @@ export default function BioPageEditorPage() {
                       <button
                         type="button"
                         onClick={() => removeBlock(block.id)}
-                        className="text-neutral-400 hover:text-rust-500 transition-colors"
+                        className="text-neutral-400 hover:text-red-500 transition-colors"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>

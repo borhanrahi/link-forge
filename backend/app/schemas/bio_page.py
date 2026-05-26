@@ -3,6 +3,8 @@ from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
 
+from app.schemas.bio_block import BioBlockResponse
+
 
 class BioPageCreate(BaseModel):
     title: Optional[str] = None
@@ -50,7 +52,7 @@ class BioPageResponse(BaseModel):
     is_published: bool
     seo_indexable: bool
     clicks_count: int
-    blocks: List["BioBlockResponse"] = []
+    blocks: List[BioBlockResponse] = []
     created_at: datetime
     updated_at: datetime
 
@@ -68,6 +70,6 @@ class BioPagePublic(BaseModel):
     bg_color: str
     bg_image_url: Optional[str] = None
     font_family: str
-    blocks: List["BioBlockResponse"] = []
+    blocks: List[BioBlockResponse] = []
 
     model_config = {"from_attributes": True}

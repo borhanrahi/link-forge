@@ -2,7 +2,8 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies.auth import get_current_user, get_db, hash_password
@@ -13,7 +14,8 @@ from app.models.bio_page import BioPage
 from app.models.bio_block import BioBlock
 from app.schemas.bio_page import BioPageCreate, BioPageUpdate, BioPageResponse
 from app.schemas.bio_block import BioBlockCreate, BioBlockUpdate, BioBlockResponse, ReorderRequest
-from app.services.quota_enforcer import check_feature_limit, increment_feature_usage
+
+BIOPAGE_LIMITS = {"free": 10, "pro": 50, "business": None}
 
 router = APIRouter(prefix="/bio-pages", tags=["bio-pages"])
 
@@ -25,7 +27,10 @@ async def list_bio_pages(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(BioPage).where(BioPage.workspace_id == workspace.id).order_by(BioPage.created_at.desc())
+        select(BioPage)
+        .options(selectinload(BioPage.blocks))
+        .where(BioPage.workspace_id == workspace.id)
+        .order_by(BioPage.created_at.desc())
     )
     pages = result.scalars().all()
     return [BioPageResponse.model_validate(p) for p in pages]
@@ -38,8 +43,13 @@ async def create_bio_page(
     workspace: Workspace = Depends(get_active_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    if not await check_feature_limit(db, workspace.id, "bio_pages"):
-        raise HTTPException(status_code=403, detail="Bio page limit reached")
+    limit = BIOPAGE_LIMITS.get(workspace.plan)
+    if limit is not None:
+        count = await db.execute(
+            select(func.count(BioPage.id)).where(BioPage.workspace_id == workspace.id)
+        )
+        if (count.scalar() or 0) >= limit:
+            raise HTTPException(status_code=403, detail="Bio page limit reached")
 
     existing = await db.execute(select(BioPage).where(BioPage.slug == body.slug))
     if existing.scalar_one_or_none():
@@ -57,8 +67,8 @@ async def create_bio_page(
         font_family=body.font_family,
     )
     db.add(page)
-    await increment_feature_usage(db, workspace.id, "bio_pages")
     await db.commit()
+    await db.refresh(page)
     return BioPageResponse.model_validate(page)
 
 
@@ -70,17 +80,14 @@ async def get_bio_page(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(BioPage).where(BioPage.id == page_id, BioPage.workspace_id == workspace.id)
+        select(BioPage)
+        .options(selectinload(BioPage.blocks))
+        .where(BioPage.id == page_id, BioPage.workspace_id == workspace.id)
     )
     page = result.scalar_one_or_none()
     if not page:
         raise HTTPException(status_code=404, detail="Bio page not found")
-    blocks_result = await db.execute(
-        select(BioBlock).where(BioBlock.bio_page_id == page_id).order_by(BioBlock.position)
-    )
-    blocks = blocks_result.scalars().all()
     resp = BioPageResponse.model_validate(page)
-    resp.blocks = [BioBlockResponse.model_validate(b) for b in blocks]
     return resp
 
 

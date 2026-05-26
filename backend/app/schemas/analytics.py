@@ -12,6 +12,10 @@ class AnalyticsSummary(BaseModel):
     top_device: Optional[str] = None
     top_browser: Optional[str] = None
     top_referrer: Optional[str] = None
+    today_clicks: int = 0
+    week_clicks: int = 0
+    prev_week_clicks: int = 0
+    prev_month_clicks: int = 0
 
 
 class TimeSeriesPoint(BaseModel):

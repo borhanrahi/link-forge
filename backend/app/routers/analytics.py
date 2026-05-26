@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 from uuid import UUID
 from datetime import datetime, timedelta
@@ -58,14 +59,30 @@ async def dashboard(
             referrers=[],
         )
 
-    total = await db.execute(
-        select(func.count(Click.id)).where(
+    now = datetime.utcnow()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = now - timedelta(days=7)
+    month_start = now - timedelta(days=30)
+    prev_week_start = now - timedelta(days=14)
+    prev_week_end = now - timedelta(days=7)
+
+    async def count_clicks(since: datetime, until: datetime | None = None) -> int:
+        q = select(func.count(Click.id)).where(
             Click.link_id.in_(link_ids),
-            Click.clicked_at >= start_date,
-            Click.clicked_at <= end_date,
+            Click.clicked_at >= since,
         )
+        if until:
+            q = q.where(Click.clicked_at <= until)
+        r = await db.execute(q)
+        return r.scalar() or 0
+
+    total_clicks, unique_clicks, today_clicks, week_clicks, prev_week_clicks = await asyncio.gather(
+        count_clicks(start_date, end_date),
+        count_clicks(start_date, end_date),  # unique below
+        count_clicks(today_start),
+        count_clicks(week_start),
+        count_clicks(prev_week_start, prev_week_end),
     )
-    total_clicks = total.scalar() or 0
 
     uniq = await db.execute(
         select(func.count(func.distinct(Click.ip_hash))).where(
@@ -97,6 +114,10 @@ async def dashboard(
             unique_clicks=unique_clicks,
             total_links=len(links),
             top_country=tc[0] if tc else None,
+            today_clicks=today_clicks,
+            week_clicks=week_clicks,
+            prev_week_clicks=prev_week_clicks,
+            prev_month_clicks=0,
         ),
         timeseries=[],
         geo=[],

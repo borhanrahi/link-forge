@@ -5,14 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, Input, Card, CardContent, SectionHeading } from "@/components/ui";
 import { useCreateBioPage } from "@/hooks";
-import { ArrowLeft, Layout } from "lucide-react";
+import { ArrowLeft, Layout, Check } from "lucide-react";
 import { toast } from "sonner";
+import { BIO_TEMPLATES } from "@/lib/bio-templates";
 
-const THEME_OPTIONS = [
-  { id: "minimal", label: "Minimal" },
-  { id: "dark", label: "Dark" },
-  { id: "vibrant", label: "Vibrant" },
-];
+const SHORT_DOMAIN = "http://localhost:8000";
 
 export default function NewBioPage() {
   const router = useRouter();
@@ -20,8 +17,10 @@ export default function NewBioPage() {
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
-  const [theme, setTheme] = useState("minimal");
+  const [templateId, setTemplateId] = useState("minimal");
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const selectedTemplate = BIO_TEMPLATES.find((t) => t.id === templateId)!;
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -46,9 +45,16 @@ export default function NewBioPage() {
       await createBioPage.mutateAsync({
         title: title.trim() || undefined,
         slug: slug.trim(),
-        theme,
+        theme: selectedTemplate.theme,
+        brand_color: selectedTemplate.brand_color,
+        bg_color: selectedTemplate.bg_color,
+        font_family: selectedTemplate.font_family,
       });
-      toast.success("Bio page created!");
+      const pageUrl = `${SHORT_DOMAIN}/b/${slug.trim()}`;
+      await navigator.clipboard.writeText(pageUrl);
+      toast.success("Bio page created! URL copied to clipboard.", {
+        description: pageUrl,
+      });
       router.push("/dashboard/bio-pages");
     } catch (err: any) {
       toast.error(err?.message || "Failed to create bio page");
@@ -56,7 +62,7 @@ export default function NewBioPage() {
   };
 
   return (
-    <div className="max-w-xl space-y-6 animate-fade-in">
+    <div className="max-w-2xl space-y-6 animate-fade-in">
       <Link
         href="/dashboard/bio-pages"
         className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
@@ -76,6 +82,74 @@ export default function NewBioPage() {
 
       <Card>
         <CardContent className="p-6">
+          <div className="space-y-2 mb-6">
+            <label className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              Choose a Template
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {BIO_TEMPLATES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTemplateId(t.id)}
+                  className="relative rounded-xl border-2 overflow-hidden transition-all text-left"
+                  style={{
+                    borderColor: templateId === t.id ? t.brand_color : "transparent",
+                    boxShadow: templateId === t.id ? `0 0 0 1px ${t.brand_color}` : "none",
+                  }}
+                >
+                  {templateId === t.id && (
+                    <div className="absolute top-1 right-1 z-10">
+                      <div className="h-5 w-5 rounded-full flex items-center justify-center" style={{ backgroundColor: t.brand_color }}>
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className="h-20 flex flex-col items-center justify-center gap-1 p-2"
+                    style={{
+                      backgroundColor: t.bg_color,
+                      color: t.brand_color,
+                      fontFamily: t.font_family === "serif" ? "Georgia, serif" : "Inter, sans-serif",
+                    }}
+                  >
+                    <div
+                      className="h-6 w-6 border-2"
+                      style={{
+                        borderRadius:
+                          t.preview.avatarShape === "circle" ? "50%" :
+                          t.preview.avatarShape === "rounded" ? "6px" : "2px",
+                        borderColor: t.brand_color,
+                      }}
+                    />
+                    <div
+                      className="h-1.5 rounded-full"
+                      style={{
+                        width: "60%",
+                        backgroundColor: t.brand_color,
+                        opacity: 0.6,
+                        borderRadius: t.preview.linkStyle === "pill" ? "999px" : "3px",
+                      }}
+                    />
+                    <div
+                      className="h-1 rounded-full"
+                      style={{
+                        width: "40%",
+                        backgroundColor: t.brand_color,
+                        opacity: 0.4,
+                        borderRadius: t.preview.linkStyle === "pill" ? "999px" : "3px",
+                      }}
+                    />
+                  </div>
+                  <div className="px-2 py-1.5 bg-white dark:bg-neutral-900">
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 truncate">{t.name}</p>
+                    <p className="text-[10px] text-neutral-400 truncate">{t.description}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               label="Title"
@@ -90,28 +164,12 @@ export default function NewBioPage() {
               value={slug}
               onChange={(e) => handleSlugChange(e.target.value)}
               error={errors.slug}
-              hint="This will be your page URL: linknest.app/b/my-handle"
+              hint={
+                slug.trim()
+                  ? `Your page URL: ${SHORT_DOMAIN}/b/${slug.trim()}`
+                  : "Lowercase letters, numbers, and hyphens only"
+              }
             />
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-300">Theme</label>
-              <div className="flex gap-2">
-                {THEME_OPTIONS.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setTheme(t.id)}
-                    className={`flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                      theme === t.id
-                        ? "border-terracotta-500 bg-terracotta-500/10 text-terracotta-400"
-                        : "border-neutral-700 bg-neutral-900 text-neutral-400 hover:border-neutral-600"
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             <div className="flex items-center gap-3 pt-2">
               <Button type="submit" disabled={createBioPage.isPending}>

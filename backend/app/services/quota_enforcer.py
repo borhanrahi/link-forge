@@ -11,8 +11,8 @@ from app.models.workspace import Workspace
 
 FEATURE_LIMITS = {
     "free": {
-        "links": 10,
-        "bio_pages": 1,
+        "links": 50,
+        "bio_pages": 10,
         "custom_domains": 0,
         "team_members": 1,
     },
