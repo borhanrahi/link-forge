@@ -113,3 +113,32 @@ export interface CustomDomain {
   ssl_active: boolean;
   created_at: string;
 }
+
+export interface QRCodeRecord {
+  id: string;
+  link_id: string;
+  color_fg: string;
+  color_bg: string;
+  logo_url?: string;
+  format: string;
+  scan_count: number;
+  created_at: string;
+}
+
+export interface QRCodeLinkInfo {
+  title?: string;
+  short_code: string;
+  original_url: string;
+}
+
+export interface QRCodeWithLink {
+  id: string;
+  link_id: string;
+  color_fg: string;
+  color_bg: string;
+  logo_url?: string;
+  format: string;
+  scan_count: number;
+  created_at: string;
+  link: QRCodeLinkInfo;
+}

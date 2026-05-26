@@ -11,10 +11,56 @@ from app.models.link import Link
 from app.models.qr_code import QRCode
 from app.models.user import User
 from app.models.workspace import Workspace
-from app.schemas.qr_code import QRCodeGenerate, QRCodeResponse
+from app.schemas.qr_code import QRCodeGenerate, QRCodeCreate, QRCodeResponse, QRCodeWithLinkResponse
 from app.services.qr_generator import generate_qr
 
 router = APIRouter(prefix="/qr", tags=["qr-codes"])
+
+
+@router.get("")
+async def list_qr_codes(
+    user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(get_active_workspace),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(QRCode, Link)
+        .join(Link, QRCode.link_id == Link.id)
+        .where(Link.workspace_id == workspace.id)
+        .order_by(QRCode.created_at.desc())
+    )
+    rows = result.all()
+    return [QRCodeWithLinkResponse.from_qr_and_link(qr, link) for qr, link in rows]
+
+
+@router.post("", status_code=201)
+async def create_qr_code(
+    body: QRCodeCreate,
+    user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(get_active_workspace),
+    db: AsyncSession = Depends(get_db),
+):
+    link_result = await db.execute(
+        select(Link).where(Link.id == body.link_id, Link.workspace_id == workspace.id)
+    )
+    link = link_result.scalar_one_or_none()
+    if not link:
+        raise HTTPException(status_code=404, detail="Link not found")
+
+    existing = await db.execute(select(QRCode).where(QRCode.link_id == body.link_id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="QR code already exists for this link")
+
+    qr = QRCode(
+        link_id=body.link_id,
+        color_fg=body.color_fg,
+        color_bg=body.color_bg,
+        logo_url=body.logo_url,
+        format=body.format,
+    )
+    db.add(qr)
+    await db.commit()
+    return QRCodeWithLinkResponse.from_qr_and_link(qr, link)
 
 
 @router.get("/{link_id}")
@@ -66,3 +112,24 @@ async def regenerate_qr(
         db.add(qr)
     await db.commit()
     return QRCodeResponse.model_validate(qr)
+
+
+@router.delete("/{qr_id}")
+async def delete_qr_code(
+    qr_id: UUID,
+    user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(get_active_workspace),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(QRCode, Link)
+        .join(Link, QRCode.link_id == Link.id)
+        .where(QRCode.id == qr_id, Link.workspace_id == workspace.id)
+    )
+    row = result.one_or_none()
+    if not row:
+        raise HTTPException(status_code=404, detail="QR code not found")
+    qr, _ = row
+    await db.delete(qr)
+    await db.commit()
+    return {"message": "QR code deleted"}

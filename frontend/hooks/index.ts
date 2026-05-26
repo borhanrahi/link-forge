@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/auth-store";
 
-import type { User, Workspace, Link, BioPage, CustomDomain, BioBlock, Invoice, Subscription } from "@/types/generated";
+import type { User, Workspace, Link, BioPage, CustomDomain, BioBlock, Invoice, Subscription, QRCodeWithLink } from "@/types/generated";
 
 // ─── Auth ───
 
@@ -159,10 +159,44 @@ export function useLinkAnalytics(linkId: string, range: string = "30d") {
 
 // ─── QR Codes ───
 
+export function useQRCodes() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["qr-codes"],
+    queryFn: () => api.get<QRCodeWithLink[]>("/qr"),
+    enabled: isAuthenticated,
+  });
+}
+
+export function useCreateQRCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { link_id: string; color_fg?: string; color_bg?: string }) =>
+      api.post("/qr", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["qr-codes"] });
+    },
+  });
+}
+
+export function useDeleteQRCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/qr/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["qr-codes"] });
+    },
+  });
+}
+
 export function useRegenerateQR() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ linkId, color_fg, color_bg }: { linkId: string; color_fg?: string; color_bg?: string }) =>
       api.post(`/qr/${linkId}/regenerate`, { color_fg: color_fg || "#000000", color_bg: color_bg || "#ffffff" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["qr-codes"] });
+    },
   });
 }
 
