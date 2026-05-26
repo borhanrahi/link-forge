@@ -1,5 +1,5 @@
 import string
-
+import secrets
 
 BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
 
@@ -14,8 +14,5 @@ def base62_encode(num: int) -> str:
     return "".join(reversed(encoded))
 
 
-def generate_short_code(sequence_id: int, length: int = 7) -> str:
-    code = base62_encode(sequence_id)
-    if len(code) < length:
-        code = BASE62[0] * (length - len(code)) + code
-    return code[:length]
+def generate_short_code(length: int = 7) -> str:
+    return "".join(secrets.choice(BASE62) for _ in range(length))

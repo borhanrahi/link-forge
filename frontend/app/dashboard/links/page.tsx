@@ -1,14 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, Input, Card, CardContent, Badge, SectionHeading, EmptyState } from "@/components/ui";
 import { useLinks } from "@/hooks";
-import { Link2, Plus, ExternalLink, Search, ArrowUpRight } from "lucide-react";
+import { Link2, Plus, ExternalLink, Search, Copy, Check } from "lucide-react";
+
+const SHORT_DOMAIN = "http://localhost:8000";
 
 export default function LinksPage() {
+  const router = useRouter();
   const { data: links } = useLinks();
   const [search, setSearch] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const filtered = links?.filter(
     (l: any) =>
@@ -45,31 +50,57 @@ export default function LinksPage() {
         <CardContent className="p-0">
           {filtered && filtered.length > 0 ? (
             <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-              {filtered.map((link: any) => (
-                <Link
-                  key={link.id}
-                  href={`/dashboard/links/${link.id}`}
-                  className="flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-terracotta-50 text-terracotta-500 dark:bg-terracotta-950 dark:text-terracotta-400 shrink-0">
-                      <ExternalLink className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">
-                        {link.title || "Untitled"}
-                      </p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-terracotta-500 font-mono">{link.short_code}</span>
-                        <span className="text-xs text-neutral-400">{link.clicks_count ?? 0} clicks</span>
+              {filtered.map((link: any) => {
+                const shortUrl = `${SHORT_DOMAIN}/${link.short_code}`;
+                return (
+                  <div
+                    key={link.id}
+                    onClick={() => router.push(`/dashboard/links/${link.id}`)}
+                    className="flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-terracotta-50 text-terracotta-500 dark:bg-terracotta-950 dark:text-terracotta-400 shrink-0">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">
+                          {link.title || "Untitled"}
+                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <a
+                            href={shortUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-xs text-terracotta-500 font-mono hover:text-terracotta-600 underline underline-offset-2 truncate max-w-[260px]"
+                          >
+                            {shortUrl}
+                          </a>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(shortUrl);
+                              setCopiedId(link.id);
+                              setTimeout(() => setCopiedId(null), 1500);
+                            }}
+                            className="shrink-0 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                          >
+                            {copiedId === link.id ? (
+                              <Check className="h-3.5 w-3.5 text-green-500" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                          <span className="text-xs text-neutral-400">{link.clicks_count ?? 0} clicks</span>
+                        </div>
                       </div>
                     </div>
+                    <Badge variant={link.is_active ? "success" : "default"} className="shrink-0">
+                      {link.is_active ? "Active" : "Inactive"}
+                    </Badge>
                   </div>
-                  <Badge variant={link.is_active ? "success" : "default"} className="shrink-0">
-                    {link.is_active ? "Active" : "Inactive"}
-                  </Badge>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="px-5">

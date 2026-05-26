@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies.auth import get_current_user, get_db
@@ -54,9 +54,7 @@ async def create_link(
     if not await check_feature_limit(db, workspace.id, "links"):
         raise HTTPException(status_code=403, detail="Link limit reached for your plan")
 
-    count_result = await db.execute(select(func.count()).select_from(Link))
-    next_id = (count_result.scalar() or 0) + 1
-    short_code = generate_short_code(next_id)
+    short_code = generate_short_code()
 
     if body.custom_alias:
         alias_check = await db.execute(select(Link).where(Link.custom_alias == body.custom_alias))

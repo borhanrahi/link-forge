@@ -8,6 +8,8 @@ import { useCreateLink } from "@/hooks";
 import { ArrowLeft, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
+const SHORT_DOMAIN = "http://localhost:8000";
+
 export default function NewLinkPage() {
   const router = useRouter();
   const createLink = useCreateLink();
@@ -38,13 +40,20 @@ export default function NewLinkPage() {
     if (!validate()) return;
 
     try {
-      await createLink.mutateAsync({
+      const result = await createLink.mutateAsync({
         original_url: originalUrl.trim(),
         title: title.trim() || undefined,
         custom_alias: customAlias.trim() || undefined,
         password: password || undefined,
       });
-      toast.success("Link created!");
+      const shortUrl = `${SHORT_DOMAIN}/${result.short_code}`;
+      toast.success("Link created!", {
+        description: shortUrl,
+        action: {
+          label: "Copy",
+          onClick: () => navigator.clipboard.writeText(shortUrl),
+        },
+      });
       router.push("/dashboard/links");
     } catch (err: any) {
       toast.error(err?.message || "Failed to create link");
