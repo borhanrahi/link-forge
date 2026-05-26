@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, Card, CardContent, Badge, SectionHeading, EmptyState } from "@/components/ui";
 import { useBioPages } from "@/hooks";
-import { Layout, Plus, ExternalLink, Copy, Check } from "lucide-react";
+import { Layout, Plus, Copy, Check, AlertCircle, Loader2 } from "lucide-react";
 
 const BIO_DOMAIN = "http://localhost:8000";
 
 export default function BioPagesPage() {
   const router = useRouter();
-  const { data: bioPages } = useBioPages();
+  const { data: bioPages, isLoading, error, refetch } = useBioPages();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   return (
@@ -29,7 +29,31 @@ export default function BioPagesPage() {
         }
       />
 
-      {bioPages && bioPages.length > 0 ? (
+      {isLoading ? (
+        <Card>
+          <CardContent className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+            <span className="ml-3 text-sm text-neutral-500">Loading bio pages...</span>
+          </CardContent>
+        </Card>
+      ) : error ? (
+        <Card>
+          <CardContent className="py-8">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <AlertCircle className="h-8 w-8 text-rust-400" />
+              <div>
+                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">Failed to load bio pages</h3>
+                <p className="mt-1 text-sm text-neutral-500">
+                  {error instanceof Error ? error.message : "An unexpected error occurred. Please try again."}
+                </p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => refetch()}>
+                Retry
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : bioPages && bioPages.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {bioPages.map((page: any) => {
             const pageUrl = `${BIO_DOMAIN}/b/${page.slug}`;

@@ -41,11 +41,11 @@ class BioBlockResponse(BaseModel):
     video_url: Optional[str] = None
     embed_html: Optional[str] = None
     position: int
-    is_active: bool
-    click_tracking_enabled: bool
-    clicks_count: int
-    created_at: datetime
-    updated_at: datetime
+    is_active: Optional[bool] = True
+    click_tracking_enabled: Optional[bool] = True
+    clicks_count: Optional[int] = 0
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 

@@ -28,7 +28,6 @@ async def list_bio_pages(
 ):
     result = await db.execute(
         select(BioPage)
-        .options(selectinload(BioPage.blocks))
         .where(BioPage.workspace_id == workspace.id)
         .order_by(BioPage.created_at.desc())
     )
