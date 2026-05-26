@@ -28,6 +28,7 @@ async def list_bio_pages(
 ):
     result = await db.execute(
         select(BioPage)
+        .options(selectinload(BioPage.blocks))
         .where(BioPage.workspace_id == workspace.id)
         .order_by(BioPage.created_at.desc())
     )
@@ -68,6 +69,8 @@ async def create_bio_page(
     db.add(page)
     await db.commit()
     await db.refresh(page)
+    # New pages have no blocks — populate to avoid MissingGreenlet on async session
+    page.blocks = []
     return BioPageResponse.model_validate(page)
 
 
@@ -111,6 +114,13 @@ async def update_bio_page(
         elif field != "password":
             setattr(page, field, value)
     await db.commit()
+    # Reload with blocks for serialization
+    result = await db.execute(
+        select(BioPage)
+        .options(selectinload(BioPage.blocks))
+        .where(BioPage.id == page.id)
+    )
+    page = result.scalar_one()
     return BioPageResponse.model_validate(page)
 
 
