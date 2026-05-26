@@ -70,6 +70,5 @@ class BioPagePublic(BaseModel):
     bg_color: Optional[str] = "#ffffff"
     bg_image_url: Optional[str] = None
     font_family: Optional[str] = "inter"
-    blocks: List[BioBlockResponse] = []
 
     model_config = {"from_attributes": True}
