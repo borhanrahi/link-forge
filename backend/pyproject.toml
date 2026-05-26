@@ -1,0 +1,31 @@
+[project]
+name = "linknest-backend"
+version = "2.0.0"
+description = "LinkNest API - Link-in-Bio & URL Shortener"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg",
+    "alembic",
+    "pydantic>=2.0",
+    "pydantic-settings",
+    "python-jose[cryptography]",
+    "passlib[bcrypt]",
+    "python-multipart",
+    "httpx",
+    "stripe",
+    "resend",
+    "qrcode[pil]",
+    "Pillow",
+    "redis[hiredis]",
+    "dnspython",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"

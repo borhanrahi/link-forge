@@ -1,0 +1,20 @@
+[
+  {
+    "id": "dom_001",
+    "workspace_id": "ws_001",
+    "domain": "alex.lnk",
+    "status": "verified",
+    "ssl_active": true,
+    "default_bio_page_id": "bp_001",
+    "created_at": "2025-02-01T10:00:00Z"
+  },
+  {
+    "id": "dom_002",
+    "workspace_id": "ws_001",
+    "domain": "links.alex.dev",
+    "status": "pending",
+    "ssl_active": false,
+    "default_bio_page_id": null,
+    "created_at": "2025-05-10T14:00:00Z"
+  }
+]

@@ -1,0 +1,17 @@
+fastapi>=0.110.0
+uvicorn[standard]
+sqlalchemy[asyncio]>=2.0
+asyncpg
+alembic
+pydantic>=2.0
+pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+httpx
+qrcode[pil]
+Pillow
+redis[hiredis]
+dnspython
+python-dotenv
+email-validator
