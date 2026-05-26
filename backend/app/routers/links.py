@@ -54,8 +54,8 @@ async def create_link(
     if not await check_feature_limit(db, workspace.id, "links"):
         raise HTTPException(status_code=403, detail="Link limit reached for your plan")
 
-    max_id_result = await db.execute(select(func.max(Link.id)))
-    next_id = 1
+    count_result = await db.execute(select(func.count()).select_from(Link))
+    next_id = (count_result.scalar() or 0) + 1
     short_code = generate_short_code(next_id)
 
     if body.custom_alias:

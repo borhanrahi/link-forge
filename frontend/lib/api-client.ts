@@ -41,6 +41,20 @@ class ApiClient {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
+    // Send user email for dev mode (backend bypasses JWT validation when available)
+    if (typeof window !== "undefined") {
+      try {
+        const sessionRaw = localStorage.getItem("neon_session_data");
+        if (sessionRaw) {
+          const sessionData = JSON.parse(sessionRaw);
+          const email = sessionData?.user?.email;
+          if (email) {
+            headers["X-User-Email"] = email;
+          }
+        }
+      } catch {}
+    }
+
     // Add active workspace header if available
     const workspaceId = typeof window !== "undefined" ? localStorage.getItem("active_workspace_id") : null;
     if (workspaceId) {
