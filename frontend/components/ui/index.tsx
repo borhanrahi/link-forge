@@ -360,12 +360,13 @@ export function Tabs({ tabs, defaultTab, onChange }: TabsProps) {
 }
 
 // ─── Select ───
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
   label?: string;
   options: { value: string; label: string }[];
+  onChange?: (value: string) => void;
 }
 
-export function Select({ className, label, options, id, ...props }: SelectProps) {
+export function Select({ className, label, options, id, onChange, ...props }: SelectProps) {
   const selectId = id || label?.toLowerCase().replace(/\s+/g, "-");
   return (
     <div className="space-y-1.5">
@@ -382,7 +383,7 @@ export function Select({ className, label, options, id, ...props }: SelectProps)
             "focus:outline-none focus:ring-2 focus:ring-terracotta-500/15 focus:border-terracotta-400",
             className,
           )}
-          {...props}
+          onChange={(e) => onChange?.(e.target.value)}
         >
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>

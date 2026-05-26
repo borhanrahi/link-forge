@@ -98,7 +98,7 @@ export function useBioPage(id: string) {
 export function useCreateBioPage() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { title?: string; slug: string; theme?: string }) =>
+    mutationFn: (data: { title?: string; slug: string; theme?: string; brand_color?: string; bg_color?: string; font_family?: string }) =>
       api.post<BioPage>("/bio-pages", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bio-pages"] });

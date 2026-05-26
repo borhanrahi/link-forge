@@ -18,9 +18,13 @@ dependencies = [
     "stripe",
     "resend",
     "qrcode[pil]",
-    "Pillow",
+    "pillow",
     "redis[hiredis]",
     "dnspython",
+    "psycopg[binary]>=3.3.4",
+    "python-dotenv>=1.2.2",
+    "email-validator>=2.3.0",
+    "pyjwt>=2.13.0",
 ]
 
 [tool.setuptools.packages.find]

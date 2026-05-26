@@ -41,20 +41,20 @@ class BioPageResponse(BaseModel):
     title: Optional[str] = None
     subtitle: Optional[str] = None
     profile_image_url: Optional[str] = None
-    theme: str
-    brand_color: str
-    bg_color: str
+    theme: Optional[str] = "minimal"
+    brand_color: Optional[str] = "#000000"
+    bg_color: Optional[str] = "#ffffff"
     bg_image_url: Optional[str] = None
-    font_family: str
+    font_family: Optional[str] = "inter"
     meta_title: Optional[str] = None
     meta_description: Optional[str] = None
     og_image_url: Optional[str] = None
-    is_published: bool
-    seo_indexable: bool
-    clicks_count: int
+    is_published: Optional[bool] = False
+    seo_indexable: Optional[bool] = True
+    clicks_count: Optional[int] = 0
     blocks: List[BioBlockResponse] = []
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 
@@ -65,11 +65,11 @@ class BioPagePublic(BaseModel):
     title: Optional[str] = None
     subtitle: Optional[str] = None
     profile_image_url: Optional[str] = None
-    theme: str
-    brand_color: str
-    bg_color: str
+    theme: Optional[str] = "minimal"
+    brand_color: Optional[str] = "#000000"
+    bg_color: Optional[str] = "#ffffff"
     bg_image_url: Optional[str] = None
-    font_family: str
+    font_family: Optional[str] = "inter"
     blocks: List[BioBlockResponse] = []
 
     model_config = {"from_attributes": True}

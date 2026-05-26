@@ -8,6 +8,7 @@ from app.dependencies.db import get_db
 from app.models.bio_page import BioPage
 from app.models.bio_block import BioBlock
 from app.schemas.bio_page import BioPagePublic
+from app.schemas.bio_block import BioBlockResponse
 
 router = APIRouter(tags=["bio-public"])
 
@@ -34,5 +35,5 @@ async def render_bio_page(
 
     return {
         "page": BioPagePublic.model_validate(page).model_dump(),
-        "blocks": [b for b in blocks],
+        "blocks": [BioBlockResponse.model_validate(b) for b in blocks],
     }
