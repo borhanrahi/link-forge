@@ -3,7 +3,7 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+asyncpg://neondb_owner:npg_gd9LKWj2oQOq@ep-bold-brook-ap2c55hh-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    database_url: str = "postgresql+psycopg://neondb_owner:npg_gd9LKWj2oQOq@ep-bold-brook-ap2c55hh-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
     redis_url: str = "redis://localhost:6379"
     frontend_url: str = "http://localhost:3000"
     geolite_db_path: str = "./GeoLite2-City.mmdb"
