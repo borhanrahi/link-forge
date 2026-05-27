@@ -6,9 +6,10 @@ import { useState } from "react";
 import {
   LayoutDashboard, Link2, BarChart3, Layout, QrCode, Globe, Users,
   CreditCard, Settings, ChevronLeft, PanelLeft, LogOut, User, Bell,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, DropdownMenu, Button } from "@/components/ui";
+import { Avatar, DropdownMenu } from "@/components/ui";
 import { useCurrentUser } from "@/hooks";
 
 const NAV_ITEMS = [
@@ -30,20 +31,20 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-neutral-800 bg-neutral-950 text-neutral-400 transition-all duration-200",
+        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-neutral-800/70 bg-neutral-950/90 backdrop-blur-sm transition-all duration-200",
         collapsed ? "w-[68px]" : "w-60",
       )}
     >
       {/* Logo */}
       <div
         className={cn(
-          "flex h-14 items-center border-b border-neutral-800",
+          "flex h-14 items-center border-b border-neutral-800/50",
           collapsed ? "justify-center px-0" : "px-4",
         )}
       >
         <Link href="/dashboard" className={cn("flex items-center gap-2.5", collapsed && "justify-center")}>
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-xs font-bold text-neutral-900">
-            F
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-terracotta-400 to-terracotta-600 text-xs font-bold text-white shadow-sm">
+            L
           </div>
           {!collapsed && (
             <span className="text-sm font-semibold tracking-tight text-white">
@@ -54,7 +55,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 p-2.5">
+      <nav className="flex-1 space-y-0.5 p-3">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active =
@@ -64,23 +65,23 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all",
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 active
-                  ? "bg-terracotta-500/10 text-terracotta-300"
-                  : "text-neutral-400 hover:bg-neutral-800/60 hover:text-white",
+                  ? "bg-terracotta-500/10 text-terracotta-300 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-5 before:w-[3px] before:rounded-r-full before:bg-terracotta-500"
+                  : "text-neutral-400 hover:bg-neutral-800/40 hover:text-white",
                 collapsed && "justify-center px-2",
               )}
               title={collapsed ? item.label : undefined}
             >
               <Icon
                 className={cn(
-                  "h-[18px] w-[18px] shrink-0",
+                  "h-[18px] w-[18px] shrink-0 transition-colors",
                   active ? "text-terracotta-400" : "text-neutral-500",
                 )}
               />
               {!collapsed && <span>{item.label}</span>}
               {collapsed && (
-                <span className="invisible absolute left-full ml-2 rounded-md bg-neutral-800 px-2 py-1 text-xs text-neutral-200 opacity-0 shadow-sm transition-all group-hover:visible group-hover:opacity-100 whitespace-nowrap">
+                <span className="invisible absolute left-full ml-3 rounded-md bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-200 opacity-0 shadow-sm transition-all group-hover:visible group-hover:opacity-100 whitespace-nowrap z-50">
                   {item.label}
                 </span>
               )}
@@ -93,7 +94,7 @@ export function Sidebar() {
       <button
         type="button"
         onClick={() => setCollapsed(!collapsed)}
-        className="hidden md:flex items-center justify-center border-t border-neutral-800 p-3.5 text-neutral-600 transition-colors hover:text-neutral-400"
+        className="hidden md:flex items-center justify-center border-t border-neutral-800/50 p-3.5 text-neutral-600 transition-colors hover:text-neutral-400"
       >
         <ChevronLeft
           className={cn("h-4 w-4 transition-transform duration-200", collapsed && "rotate-180")}
@@ -112,7 +113,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-md px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-neutral-800/50 bg-neutral-950/60 backdrop-blur-xl px-6">
       {/* Mobile menu trigger */}
       <div className="md:hidden">
         <MobileMenu />
@@ -122,14 +123,14 @@ export function Header() {
       <div className="flex-1" />
 
       {/* Right side actions */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
         {/* Notifications */}
         <button
           type="button"
-          className="relative flex h-8 w-8 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-300"
+          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-all hover:bg-neutral-800/60 hover:text-neutral-300"
         >
           <Bell className="h-[17px] w-[17px]" />
-          <span className="absolute right-2 top-1.5 h-1.5 w-1.5 rounded-full bg-terracotta-500 ring-2 ring-neutral-950" />
+          <span className="absolute right-2.5 top-2 h-1.5 w-1.5 rounded-full bg-terracotta-500 ring-2 ring-neutral-950" />
         </button>
 
         {/* User menu */}
@@ -137,7 +138,7 @@ export function Header() {
           trigger={
             <button
               type="button"
-              className="flex items-center gap-2.5 rounded-md p-1.5 transition-colors hover:bg-neutral-800"
+              className="flex items-center gap-2.5 rounded-lg p-1.5 transition-all hover:bg-neutral-800/60"
             >
               <Avatar src={null} name={user?.full_name || "User"} size="sm" />
               {user?.full_name && (
@@ -149,7 +150,11 @@ export function Header() {
           }
           items={[
             { label: "Profile", icon: <User className="h-[14px] w-[14px]" /> },
-            { label: "Settings", icon: <Settings className="h-[14px] w-[14px]" /> },
+            {
+              label: "Settings",
+              icon: <Settings className="h-[14px] w-[14px]" />,
+              onClick: () => window.location.href = "/dashboard/settings",
+            },
             { separator: true, label: "", onClick: () => {} },
             {
               label: "Sign out",
@@ -174,23 +179,23 @@ function MobileMenu() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-8 w-8 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-800"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-all hover:bg-neutral-800/60 hover:text-neutral-300"
       >
         <PanelLeft className="h-[17px] w-[17px]" />
       </button>
       {open && (
         <div className="fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-black/30" onClick={close} />
-          <aside className="relative z-10 flex h-full w-60 flex-col border-r border-neutral-800 bg-neutral-950">
-            <div className="flex h-14 items-center border-b border-neutral-800 px-4">
+          <div className="fixed inset-0 bg-neutral-950/60 backdrop-blur-sm" onClick={close} />
+          <aside className="relative z-10 flex h-full w-64 flex-col border-r border-neutral-800/50 bg-neutral-950/95 backdrop-blur-sm">
+            <div className="flex h-14 items-center border-b border-neutral-800/50 px-4">
               <Link href="/" className="flex items-center gap-2.5" onClick={close}>
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-xs font-bold text-neutral-900">
-                  F
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-terracotta-400 to-terracotta-600 text-xs font-bold text-white shadow-sm">
+                  L
                 </div>
                 <span className="text-sm font-semibold text-white">LinkNest</span>
               </Link>
             </div>
-            <nav className="flex-1 space-y-0.5 p-2.5">
+            <nav className="flex-1 space-y-0.5 p-3">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const active =
@@ -202,10 +207,10 @@ function MobileMenu() {
                     href={item.href}
                     onClick={close}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all",
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                     active
                       ? "bg-terracotta-500/10 text-terracotta-300"
-                      : "text-neutral-400 hover:bg-neutral-800/60 hover:text-white",
+                      : "text-neutral-400 hover:bg-neutral-800/40 hover:text-white",
                     )}
                   >
                     <Icon

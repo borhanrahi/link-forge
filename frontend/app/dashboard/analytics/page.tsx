@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Stat, Card, CardContent, SectionHeading, Select } from "@/components/ui";
 import { useAnalytics } from "@/hooks";
-import { BarChart3, MousePointerClick, Globe, Smartphone } from "lucide-react";
+import { BarChart3, MousePointerClick, Globe, Smartphone, TrendingUp, Activity } from "lucide-react";
 
 function calculatePeriods(analytics: any) {
   const summary = analytics?.summary;
@@ -52,7 +52,7 @@ export default function AnalyticsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Total Clicks" value={totalClicks.toLocaleString()} icon={<MousePointerClick className="h-4 w-4" />} />
+        <Stat label="Total Clicks" value={totalClicks.toLocaleString()} icon={<MousePointerClick className="h-4 w-4" />} accent />
         <Stat label="Unique Visitors" value={summary?.unique_clicks != null ? summary.unique_clicks.toLocaleString() : "0"} icon={<Globe className="h-4 w-4" />} />
         <Stat label="Total Links" value={summary?.total_links ?? 0} icon={<BarChart3 className="h-4 w-4" />} />
         <Stat label="Top Country" value={summary?.top_country ?? "—"} icon={<Smartphone className="h-4 w-4" />} />
@@ -61,35 +61,34 @@ export default function AnalyticsPage() {
       {/* Click Activity */}
       <Card>
         <CardContent className="p-5">
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-5">Click Activity</h3>
-          <div className="space-y-3">
+          <div className="flex items-center gap-2.5 mb-6">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-800">
+              <Activity className="h-3.5 w-3.5 text-neutral-400" />
+            </div>
+            <h3 className="text-sm font-semibold text-neutral-100">Click Activity</h3>
+          </div>
+          <div className="space-y-5">
             {periods.map((item) => (
-              <div key={item.label} className="space-y-1.5">
+              <div key={item.label} className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-neutral-600 dark:text-neutral-400">{item.label}</span>
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">{item.clicks.toLocaleString()} clicks</span>
+                  <span className="text-neutral-400">{item.label}</span>
+                  <span className="font-semibold text-neutral-100">{item.clicks.toLocaleString()} clicks</span>
                 </div>
-                <div className="flex h-2 gap-1">
+                <div className="relative h-2.5 rounded-full bg-neutral-800 overflow-hidden">
                   <div
-                    className="rounded-sm bg-terracotta-500 dark:bg-terracotta-600 transition-all"
+                    className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-terracotta-500 to-terracotta-400 transition-all duration-500"
                     style={{ width: `${Math.min(100, (item.clicks / maxClicks) * 100)}%` }}
                   />
-                  {item.prev > 0 && (
-                    <div
-                      className="rounded-sm bg-neutral-200 dark:bg-neutral-700 transition-all"
-                      style={{ width: `${Math.min(100, (item.prev / maxClicks) * 100)}%` }}
-                    />
-                  )}
                 </div>
-                <div className="flex items-center gap-3 text-xs text-neutral-400 dark:text-neutral-500">
+                <div className="flex items-center gap-3 text-xs text-neutral-500">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-sm bg-terracotta-500" />
+                    <span className="h-2 w-2 rounded-full bg-terracotta-500" />
                     Current
                   </span>
                   {item.prev > 0 && (
                     <span className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-sm bg-neutral-200 dark:bg-neutral-700" />
-                      Previous
+                      <span className="h-2 w-2 rounded-full bg-neutral-600" />
+                      Previous ({item.prev.toLocaleString()})
                     </span>
                   )}
                 </div>

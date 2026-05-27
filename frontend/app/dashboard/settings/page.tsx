@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, Input, Button, Toggle, Divider, SectionHeading } from "@/components/ui";
+import { Input, Toggle } from "@/components/ui";
 import { useCurrentUser } from "@/hooks";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, User, Shield, SlidersHorizontal } from "lucide-react";
 
 export default function SettingsPage() {
   const { user } = useCurrentUser();
@@ -64,84 +64,102 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-2xl space-y-8 animate-fade-in">
-      <SectionHeading
-        title="Settings"
-        description="Manage your account settings"
-      />
+    <div className="max-w-2xl space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-white">Settings</h1>
+        <p className="mt-1 text-sm text-neutral-400">Manage your account settings</p>
+      </div>
 
       {/* Profile */}
-      <Card>
-        <CardContent className="p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Profile</h3>
-          <Input
-            label="Full name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Your name"
-          />
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled
-            hint="Email cannot be changed yet"
-          />
-          <div className="pt-2">
-            <Button size="sm" onClick={handleSaveProfile} disabled={savingProfile}>
-              {savingProfile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Save Changes
-            </Button>
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-5">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-terracotta-500/10 text-terracotta-400">
+            <User className="h-4 w-4" />
           </div>
-        </CardContent>
-      </Card>
+          <h3 className="font-semibold text-white">Profile</h3>
+        </div>
+        <Input
+          label="Full name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Your name"
+        />
+        <Input
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled
+          hint="Email cannot be changed yet"
+        />
+        <div className="pt-1">
+          <button
+            onClick={handleSaveProfile}
+            disabled={savingProfile}
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-terracotta-500 to-terracotta-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-terracotta-500/20 transition-all hover:from-terracotta-400 hover:to-terracotta-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {savingProfile && <Loader2 className="h-4 w-4 animate-spin" />}
+            Save Changes
+          </button>
+        </div>
+      </div>
 
       {/* Security */}
-      <Card>
-        <CardContent className="p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Security</h3>
-          <Input
-            label="Current password"
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="Enter current password"
-          />
-          <Input
-            label="New password"
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Enter new password"
-          />
-          <Input
-            label="Confirm new password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm new password"
-          />
-          <div className="pt-2">
-            <Button size="sm" onClick={handleUpdatePassword} disabled={savingPassword || !currentPassword || !newPassword || !confirmPassword}>
-              {savingPassword && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Update Password
-            </Button>
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-5">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+            <Shield className="h-4 w-4" />
           </div>
-        </CardContent>
-      </Card>
+          <h3 className="font-semibold text-white">Security</h3>
+        </div>
+        <Input
+          label="Current password"
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          placeholder="Enter current password"
+        />
+        <Input
+          label="New password"
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          placeholder="Enter new password"
+        />
+        <Input
+          label="Confirm new password"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm new password"
+        />
+        <div className="pt-1">
+          <button
+            onClick={handleUpdatePassword}
+            disabled={savingPassword || !currentPassword || !newPassword || !confirmPassword}
+            className="inline-flex items-center gap-2 rounded-lg border border-neutral-800 px-4 py-2.5 text-sm font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {savingPassword && <Loader2 className="h-4 w-4 animate-spin" />}
+            Update Password
+          </button>
+        </div>
+      </div>
 
       {/* Preferences */}
-      <Card>
-        <CardContent className="p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Preferences</h3>
-          <Toggle label="Email notifications for new clicks" checked onChange={() => {}} />
-          <Divider />
-          <Toggle label="Weekly analytics digest" checked onChange={() => {}} />
-          <Divider />
-          <Toggle label="Public profile page" checked={false} onChange={() => {}} />
-        </CardContent>
-      </Card>
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-4">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+            <SlidersHorizontal className="h-4 w-4" />
+          </div>
+          <h3 className="font-semibold text-white">Preferences</h3>
+        </div>
+        <Toggle label="Email notifications for new clicks" checked onChange={() => {}} />
+        <div className="border-t border-neutral-800" />
+        <Toggle label="Weekly analytics digest" checked onChange={() => {}} />
+        <div className="border-t border-neutral-800" />
+        <Toggle label="Public profile page" checked={false} onChange={() => {}} />
+      </div>
     </div>
   );
 }
