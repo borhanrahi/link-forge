@@ -533,13 +533,13 @@ export default function LandingPage() {
             <StaggerContainer className="mt-14 mx-auto max-w-4xl grid gap-4 sm:grid-cols-3" staggerDelay={0.1}>
               {/* Free */}
               <StaggerItem>
-                <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-6 transition-all duration-200 hover:border-neutral-700 hover:shadow-md">
+                <div className="flex flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-6 transition-all duration-200 hover:border-neutral-700 hover:shadow-md h-full">
                   <h3 className="font-semibold text-white">Free</h3>
                   <div className="mt-3 flex items-baseline gap-1">
                     <span className="text-3xl font-bold text-white">$0</span>
                   </div>
                   <p className="mt-0.5 text-sm text-neutral-400">Forever</p>
-                  <ul className="mt-5 space-y-2">
+                  <ul className="mt-5 space-y-2 flex-1">
                     {["100 links", "Basic analytics", "1 bio page"].map((f) => (
                       <li key={f} className="flex items-center gap-2 text-sm text-neutral-300">
                         <Check className="h-3.5 w-3.5 shrink-0 text-forest-500" /> {f}
@@ -555,14 +555,14 @@ export default function LandingPage() {
               {/* Pro */}
               <StaggerItem>
                 <GradientBorder containerClassName="h-full">
-                  <div className="relative rounded-[11px] bg-neutral-900 p-6 h-full">
+                  <div className="relative flex flex-col rounded-[11px] bg-neutral-900 p-6 h-full">
                     <Badge variant="accent" className="absolute -top-2.5 left-1/2 -translate-x-1/2">Most Popular</Badge>
                     <h3 className="font-semibold text-white">Pro</h3>
                     <div className="mt-3 flex items-baseline gap-1">
                       <span className="text-3xl font-bold text-white">$19</span>
                       <span className="text-sm text-neutral-300">/month</span>
                     </div>
-                    <ul className="mt-5 space-y-2">
+                    <ul className="mt-5 space-y-2 flex-1">
                       {["Unlimited links", "Advanced analytics", "Custom domains", "Bio pages", "QR codes"].map((f) => (
                         <li key={f} className="flex items-center gap-2 text-sm text-neutral-400">
                           <Check className="h-3.5 w-3.5 shrink-0 text-forest-500" /> {f}
@@ -578,13 +578,13 @@ export default function LandingPage() {
 
               {/* Business */}
               <StaggerItem>
-                <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-6 transition-all duration-200 hover:border-neutral-700 hover:shadow-md">
+                <div className="flex flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-6 transition-all duration-200 hover:border-neutral-700 hover:shadow-md h-full">
                   <h3 className="font-semibold text-white">Business</h3>
                   <div className="mt-3 flex items-baseline gap-1">
                     <span className="text-3xl font-bold text-white">$49</span>
                     <span className="text-sm text-neutral-300">/month</span>
                   </div>
-                  <ul className="mt-5 space-y-2">
+                  <ul className="mt-5 space-y-2 flex-1">
                     {["Everything in Pro", "API access", "Priority support", "SSO", "Audit logs"].map((f) => (
                       <li key={f} className="flex items-center gap-2 text-sm text-neutral-300">
                         <Check className="h-3.5 w-3.5 shrink-0 text-forest-500" /> {f}

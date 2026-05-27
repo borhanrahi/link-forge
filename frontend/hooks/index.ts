@@ -336,3 +336,15 @@ export function useMembers(workspaceId?: string) {
     enabled: isAuthenticated && !!workspaceId,
   });
 }
+
+export function useInviteMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ workspaceId, email, role }: { workspaceId: string; email: string; role?: string }) =>
+      api.post(`/workspaces/${workspaceId}/invite`, { email, role: role || "member" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    },
+  });
+}
