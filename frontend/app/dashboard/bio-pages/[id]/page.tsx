@@ -52,6 +52,204 @@ function createEmptyBlock(blockType: string, position: number): Block {
   };
 }
 
+// ─── Preview Render Helpers (mirrors public page rendering) ───
+
+const SOCIAL_ICONS: Record<string, string> = {
+  twitter: "𝕏",
+  x: "𝕏",
+  instagram: "📷",
+  youtube: "▶️",
+  tiktok: "🎵",
+  github: "🐙",
+  linkedin: "💼",
+  facebook: "👍",
+  discord: "💬",
+  telegram: "✈️",
+  whatsapp: "💚",
+  email: "✉️",
+  website: "🌐",
+  spotify: "🎧",
+  twitch: "🎮",
+  snapchat: "👻",
+  pinterest: "📌",
+  link: "🔗",
+};
+
+function resolveIcon(icon?: string): string {
+  if (!icon) return "🔗";
+  const key = icon.toLowerCase().replace(/[^a-z]/g, "");
+  return SOCIAL_ICONS[key] || icon;
+}
+
+function getContrastColor(hex: string): string {
+  if (!hex || hex === "transparent") return "#ffffff";
+  const c = hex.replace("#", "");
+  const r = parseInt(c.substring(0, 2), 16) || 0;
+  const g = parseInt(c.substring(2, 4), 16) || 0;
+  const b = parseInt(c.substring(4, 6), 16) || 0;
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? "#1a1a1a" : "#ffffff";
+}
+
+function isDarkColor(hex: string): boolean {
+  return getContrastColor(hex) === "#ffffff";
+}
+
+const THEME_STYLES: Record<string, {
+  avatarShape: "circle" | "rounded" | "square";
+  linkStyle: "pill" | "rounded" | "sharp" | "underline";
+  alignment: "center" | "left";
+  showDivider: boolean;
+  gradientBg: boolean;
+  glassLinks: boolean;
+  shadowColor: string;
+}> = {
+  minimal: {
+    avatarShape: "circle", linkStyle: "pill", alignment: "center",
+    showDivider: false, gradientBg: false, glassLinks: false,
+    shadowColor: "rgba(0,0,0,0.08)",
+  },
+  "dark-matte": {
+    avatarShape: "circle", linkStyle: "rounded", alignment: "center",
+    showDivider: false, gradientBg: false, glassLinks: false,
+    shadowColor: "rgba(255,255,255,0.05)",
+  },
+  sunset: {
+    avatarShape: "circle", linkStyle: "pill", alignment: "center",
+    showDivider: true, gradientBg: true, glassLinks: true,
+    shadowColor: "rgba(255,107,53,0.25)",
+  },
+  ocean: {
+    avatarShape: "circle", linkStyle: "pill", alignment: "center",
+    showDivider: false, gradientBg: false, glassLinks: false,
+    shadowColor: "rgba(15,118,110,0.25)",
+  },
+  midnight: {
+    avatarShape: "circle", linkStyle: "rounded", alignment: "center",
+    showDivider: false, gradientBg: false, glassLinks: false,
+    shadowColor: "rgba(251,191,36,0.15)",
+  },
+  forest: {
+    avatarShape: "circle", linkStyle: "sharp", alignment: "center",
+    showDivider: false, gradientBg: false, glassLinks: false,
+    shadowColor: "rgba(22,101,52,0.3)",
+  },
+  rose: {
+    avatarShape: "rounded", linkStyle: "pill", alignment: "center",
+    showDivider: true, gradientBg: false, glassLinks: true,
+    shadowColor: "rgba(159,18,57,0.2)",
+  },
+  slate: {
+    avatarShape: "circle", linkStyle: "rounded", alignment: "left",
+    showDivider: false, gradientBg: false, glassLinks: false,
+    shadowColor: "rgba(15,23,42,0.08)",
+  },
+  neon: {
+    avatarShape: "circle", linkStyle: "rounded", alignment: "center",
+    showDivider: false, gradientBg: false, glassLinks: true,
+    shadowColor: "rgba(6,182,212,0.2)",
+  },
+  lavender: {
+    avatarShape: "rounded", linkStyle: "pill", alignment: "center",
+    showDivider: true, gradientBg: false, glassLinks: true,
+    shadowColor: "rgba(76,29,149,0.25)",
+  },
+  "warm-paper": {
+    avatarShape: "circle", linkStyle: "underline", alignment: "center",
+    showDivider: false, gradientBg: false, glassLinks: false,
+    shadowColor: "rgba(146,64,14,0.08)",
+  },
+  coral: {
+    avatarShape: "circle", linkStyle: "pill", alignment: "center",
+    showDivider: false, gradientBg: false, glassLinks: false,
+    shadowColor: "rgba(225,29,72,0.25)",
+  },
+};
+
+const FONT_MAP: Record<string, string> = {
+  inter: "'Inter', system-ui, -apple-system, sans-serif",
+  poppins: "'Poppins', sans-serif",
+  "playfair-display": "'Playfair Display', Georgia, serif",
+  "roboto-mono": "'Roboto Mono', monospace",
+  serif: "Georgia, 'Times New Roman', serif",
+};
+
+const GRADIENT_PRESETS: Record<string, string> = {
+  sunset: "linear-gradient(135deg, #ff6b35 0%, #f7c948 50%, #ff6b35 100%)",
+  ocean: "linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%)",
+  midnight: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)",
+  forest: "linear-gradient(135deg, #166534 0%, #15803d 100%)",
+  rose: "linear-gradient(135deg, #9f1239 0%, #e11d48 50%, #9f1239 100%)",
+  neon: "linear-gradient(135deg, #020617 0%, #0c4a6e 100%)",
+  lavender: "linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%)",
+  coral: "linear-gradient(135deg, #e11d48 0%, #fb923c 100%)",
+};
+
+function getLinkStylesPreview(
+  linkStyle: string,
+  brandColor: string,
+  glassLinks: boolean,
+  shadowColor: string,
+): React.CSSProperties {
+  const base: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    width: "100%",
+    padding: "14px 20px",
+    fontSize: 13,
+    fontWeight: 600,
+    textDecoration: "none",
+    transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+    cursor: "pointer",
+    boxSizing: "border-box",
+    position: "relative",
+    overflow: "hidden",
+  };
+
+  switch (linkStyle) {
+    case "pill":
+      return {
+        ...base,
+        borderRadius: 9999,
+        background: glassLinks ? "rgba(255,255,255,0.15)" : brandColor,
+        color: glassLinks ? "#fff" : getContrastColor(brandColor),
+        backdropFilter: glassLinks ? "blur(16px)" : undefined,
+        WebkitBackdropFilter: glassLinks ? "blur(16px)" : undefined,
+        border: glassLinks ? "1px solid rgba(255,255,255,0.2)" : "none",
+        boxShadow: glassLinks ? "0 4px 24px rgba(0,0,0,0.1)" : `0 2px 8px ${shadowColor}`,
+      };
+    case "rounded":
+      return {
+        ...base,
+        borderRadius: 12,
+        background: glassLinks ? "rgba(255,255,255,0.1)" : brandColor,
+        color: glassLinks ? "#fff" : getContrastColor(brandColor),
+        backdropFilter: glassLinks ? "blur(12px)" : undefined,
+        WebkitBackdropFilter: glassLinks ? "blur(12px)" : undefined,
+        border: glassLinks ? "1px solid rgba(255,255,255,0.15)" : "none",
+      };
+    case "sharp":
+      return {
+        ...base,
+        borderRadius: 4,
+        background: brandColor,
+        color: getContrastColor(brandColor),
+      };
+    case "underline":
+      return {
+        ...base,
+        borderRadius: 0,
+        background: "transparent",
+        color: brandColor,
+        padding: "10px 8px",
+        borderBottom: "2px solid transparent",
+      };
+  }
+  return base;
+}
+
 const SOCIAL_PLATFORMS = [
   { id: "globe", label: "Website" },
   { id: "twitter", label: "X / Twitter" },
@@ -196,8 +394,7 @@ export default function BioPageEditorPage() {
 
   const pageUrl = `${BIO_DOMAIN}/b/${page.slug}`;
 
-  return (
-    <div className="max-w-5xl space-y-6 animate-fade-in">
+  return (            <div className="max-w-5xl xl:max-w-7xl 2xl:max-w-full xl:px-8 space-y-6 animate-fade-in">
       {/* ─── Header ─── */}
       <div>
         <Link
@@ -250,8 +447,8 @@ export default function BioPageEditorPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* ─── Editor ─── */}
-        <div className="lg:col-span-2 space-y-4">
+        {/* ─── Column 1: Editor ─── */}
+        <div className="space-y-4 min-w-0">
           <Card>
             <CardContent className="p-5 space-y-5">
               <Input
@@ -299,8 +496,8 @@ export default function BioPageEditorPage() {
           </Card>
         </div>
 
-        {/* ─── Sidebar ─── */}
-        <div className="space-y-4">
+        {/* ─── Column 2: Add Block + Actions ─── */}
+        <div className="space-y-4 min-w-0">
           <Card>
             <CardContent className="p-5">
               <h3 className="text-sm font-semibold text-neutral-100 mb-3">Add Block</h3>
@@ -330,7 +527,6 @@ export default function BioPageEditorPage() {
             </CardContent>
           </Card>
 
-          {/* ─── Quick Save Card ─── */}
           <Card>
             <CardContent className="p-5">
               <h3 className="text-sm font-semibold text-neutral-100 mb-3">Actions</h3>
@@ -357,6 +553,26 @@ export default function BioPageEditorPage() {
                   {page.is_published ? "Unpublish" : "Publish"}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ─── Column 3: Preview ─── */}
+        <div className="min-w-0">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-neutral-100">Preview</h3>
+                <span className="text-[10px] text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">
+                  Live
+                </span>
+              </div>
+              <BioPagePreview
+                title={title}
+                subtitle={subtitle}
+                blocks={blocks}
+                page={page}
+              />
             </CardContent>
           </Card>
         </div>
@@ -538,6 +754,494 @@ function BlockEditor({
       {block.block_type === "divider" && (
         <Divider className="border-neutral-600" />
       )}
+    </div>
+  );
+}
+
+// ─── Live Preview Component ───
+
+function BioPagePreview({
+  title,
+  subtitle,
+  blocks,
+  page,
+}: {
+  title: string;
+  subtitle: string;
+  blocks: Block[];
+  page: any;
+}) {
+  const themeStyle = THEME_STYLES[page.theme] || THEME_STYLES.minimal;
+  const fontFamily = FONT_MAP[page.font_family] || FONT_MAP.inter;
+  const dark = isDarkColor(page.bg_color);
+  const textColor = dark ? "#f0eee9" : "#2c2723";
+  const mutedColor = dark ? "#a8a099" : "#857e77";
+  const gradient = GRADIENT_PRESETS[page.theme];
+  const isGradientBg = themeStyle.gradientBg && gradient;
+  const alignment = themeStyle.alignment;
+
+  const bg = page.bg_image_url
+    ? `url(${page.bg_image_url}) center/cover no-repeat fixed`
+    : isGradientBg
+      ? gradient
+      : page.bg_color || "#ffffff";
+
+  return (              <div className="relative overflow-hidden rounded-xl" style={{ aspectRatio: "9 / 16" }}>
+      {/* Background */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: bg,
+          backgroundBlendMode: "overlay",
+          transition: "background 0.3s ease",
+        }}
+      />
+      {(isGradientBg || page.bg_image_url) && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: isGradientBg ? "rgba(0,0,0,0.15)" : "rgba(0,0,0,0.3)",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+      )}
+
+      {/* Scrollable content */}
+      <div
+        className="overflow-y-auto"
+        style={{
+          position: "relative",
+          zIndex: 1,
+          height: "100%",
+          padding: "32px 16px 24px",
+          fontFamily,
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(255,255,255,0.1) transparent",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 400,
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: alignment === "left" ? "flex-start" : "center",
+            gap: 0,
+          }}
+        >
+          {/* Profile Section */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: alignment === "left" ? "flex-start" : "center",
+              width: "100%",
+              marginBottom: 24,
+            }}
+          >
+            {page.profile_image_url && (
+              <div
+                style={{
+                  marginBottom: 16,
+                  borderRadius:
+                    themeStyle.avatarShape === "circle"
+                      ? "50%"
+                      : themeStyle.avatarShape === "rounded"
+                        ? 20
+                        : 10,
+                  overflow: "hidden",
+                  width: 72,
+                  height: 72,
+                  border: `2px solid ${dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)"}`,
+                  boxShadow: dark
+                    ? "0 0 0 1px rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.3)"
+                    : "0 0 0 1px rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.08)",
+                }}
+              >
+                <img
+                  src={page.profile_image_url}
+                  alt={title || ""}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+              </div>
+            )}
+
+            {title && (
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: 20,
+                  fontWeight: 800,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.2,
+                  color: page.theme === "warm-paper" ? "#92400e" : textColor,
+                  textAlign: alignment === "left" ? "left" : "center",
+                  wordBreak: "break-word",
+                }}
+              >
+                {title}
+              </h1>
+            )}
+
+            {subtitle && (
+              <p
+                style={{
+                  margin: "6px 0 0",
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  color: page.theme === "warm-paper" ? "#a16207" : mutedColor,
+                  textAlign: alignment === "left" ? "left" : "center",
+                  maxWidth: 360,
+                  wordBreak: "break-word",
+                }}
+              >
+                {subtitle}
+              </p>
+            )}
+          </div>
+
+          {/* Blocks */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: alignment === "left" ? "stretch" : "center",
+              width: "100%",
+              gap: 10,
+            }}
+          >
+            {blocks.length === 0 && (
+              <p
+                style={{
+                  fontSize: 12,
+                  color: mutedColor,
+                  opacity: 0.5,
+                  textAlign: "center",
+                  padding: "24px 0",
+                }}
+              >
+                Add blocks to see a live preview
+              </p>
+            )}
+            {blocks.map((block) => {
+              switch (block.block_type) {
+                case "link": {
+                  const isUnderline = themeStyle.linkStyle === "underline";
+                  const linkHref = block.url || "#";
+                  if (isUnderline) {
+                    return (
+                      <a
+                        key={block.id}
+                        href={linkHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: alignment === "left" ? "flex-start" : "center",
+                          gap: 8,
+                          width: "100%",
+                          padding: "10px 8px",
+                          fontSize: 13,
+                          fontWeight: 500,
+                          color: page.brand_color,
+                          borderBottom: `2px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+                          textDecoration: "none",
+                          transition: "opacity 0.2s",
+                          cursor: "pointer",
+                          boxSizing: "border-box",
+                        }}
+                      >
+                        <span style={{ fontSize: 15 }}>{resolveIcon(block.icon)}</span>
+                        <span>{block.label || "Link"}</span>
+                      </a>
+                    );
+                  }
+                  const linkBtnStyles = getLinkStylesPreview(
+                    themeStyle.linkStyle,
+                    page.brand_color,
+                    themeStyle.glassLinks,
+                    themeStyle.shadowColor,
+                  );
+                  return (
+                    <a
+                      key={block.id}
+                      href={linkHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={linkBtnStyles}
+                    >
+                      <span style={{ fontSize: 15, position: "relative", zIndex: 1 }}>
+                        {resolveIcon(block.icon)}
+                      </span>
+                      <span style={{ position: "relative", zIndex: 1 }}>
+                        {block.label || "Link"}
+                      </span>
+                    </a>
+                  );
+                }
+
+                case "heading":
+                  return block.label ? (
+                    <h2
+                      key={block.id}
+                      style={{
+                        width: "100%",
+                        fontSize: 17,
+                        fontWeight: 700,
+                        color: textColor,
+                        textAlign: alignment === "left" ? "left" : "center",
+                        margin: "4px 0 0",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {block.label}
+                    </h2>
+                  ) : (
+                    <div key={block.id} style={{ width: "100%" }}>
+                      <div
+                        style={{
+                          height: 22,
+                          width: "60%",
+                          margin: alignment === "left" ? "4px 0 0" : "4px auto 0",
+                          borderRadius: 4,
+                          background: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                        }}
+                      />
+                    </div>
+                  );
+
+                case "text":
+                  return (
+                    <div
+                      key={block.id}
+                      style={{
+                        width: "100%",
+                        padding: "6px 4px",
+                        fontSize: 13,
+                        lineHeight: 1.6,
+                        color: mutedColor,
+                        textAlign: alignment === "left" ? "left" : "center",
+                        wordBreak: "break-word",
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {block.label || (
+                        <span style={{ opacity: 0.3, fontStyle: "italic" }}>Empty text block</span>
+                      )}
+                    </div>
+                  );
+
+                case "image":
+                  if (!block.image_url) {
+                    return (
+                      <div
+                        key={block.id}
+                        style={{
+                          width: "100%",
+                          height: 80,
+                          borderRadius: 10,
+                          background: dark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+                          border: `1px dashed ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 11,
+                          color: mutedColor,
+                          opacity: 0.4,
+                        }}
+                      >
+                        No image URL set
+                      </div>
+                    );
+                  }
+                  return (
+                    <div
+                      key={block.id}
+                      style={{
+                        width: "100%",
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        boxShadow: dark
+                          ? "0 4px 16px rgba(0,0,0,0.3)"
+                          : "0 4px 16px rgba(0,0,0,0.06)",
+                      }}
+                    >
+                      <img
+                        src={block.image_url}
+                        alt={block.label || ""}
+                        style={{ width: "100%", height: "auto", display: "block" }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    </div>
+                  );
+
+                case "social": {
+                  const socialLabel = block.label || SOCIAL_PLATFORMS.find((p) => p.id === block.icon)?.label || "Social";
+                  return (
+                    <a
+                      key={block.id}
+                      href={block.url || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: alignment === "left" ? "flex-start" : "center",
+                        gap: 10,
+                        width: "100%",
+                        padding: "10px 16px",
+                        borderRadius: 10,
+                        background: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)",
+                        border: `1px solid ${dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: textColor,
+                        textDecoration: "none",
+                        transition: "opacity 0.2s",
+                        cursor: "pointer",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      <span style={{ fontSize: 16 }}>{resolveIcon(block.icon)}</span>
+                      <span>{socialLabel}</span>
+                    </a>
+                  );
+                }
+
+                case "embed":
+                  return (
+                    <div
+                      key={block.id}
+                      style={{
+                        width: "100%",
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        border: block.embed_html
+                          ? "none"
+                          : `1px dashed ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+                        minHeight: 40,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 11,
+                        color: mutedColor,
+                        opacity: block.embed_html ? 1 : 0.4,
+                      }}
+                    >
+                      {block.embed_html ? (
+                        <div style={{ width: "100%" }} dangerouslySetInnerHTML={{ __html: block.embed_html }} />
+                      ) : (
+                        "Paste embed HTML code"
+                      )}
+                    </div>
+                  );
+
+                case "video":
+                  return (
+                    <div
+                      key={block.id}
+                      style={{
+                        width: "100%",
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        background: dark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+                        border: !block.video_url
+                          ? `1px dashed ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`
+                          : "none",
+                      }}
+                    >
+                      {block.video_url ? (
+                        <>
+                          <div
+                            style={{
+                              aspectRatio: "16 / 9",
+                              background: dark ? "#1a1a1a" : "#e5e5e5",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: 24,
+                            }}
+                          >
+                            ▶️
+                          </div>
+                          {block.label && (
+                            <p
+                              style={{
+                                margin: 0,
+                                padding: "6px 10px",
+                                fontSize: 11,
+                                color: mutedColor,
+                                textAlign: "center",
+                              }}
+                            >
+                              {block.label}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <div
+                          style={{
+                            height: 60,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 11,
+                            color: mutedColor,
+                            opacity: 0.4,
+                          }}
+                        >
+                          Enter a video URL
+                        </div>
+                      )}
+                    </div>
+                  );
+
+                case "spacer":
+                  return <div key={block.id} style={{ height: 20, width: "100%" }} />;
+
+                case "divider":
+                  return (
+                    <div
+                      key={block.id}
+                      style={{
+                        width: "100%",
+                        height: 1,
+                        background: dark
+                          ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)"
+                          : "linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent)",
+                        margin: "4px 0",
+                      }}
+                    />
+                  );
+
+                default:
+                  return null;
+              }
+            })}
+          </div>
+
+          {/* Footer */}
+          <div
+            style={{
+              marginTop: 32,
+              fontSize: 10,
+              color: mutedColor,
+              opacity: 0.35,
+              textAlign: "center",
+              letterSpacing: "0.02em",
+            }}
+          >
+            Powered by LinkNest
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
