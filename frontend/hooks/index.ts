@@ -116,6 +116,50 @@ export function useTogglePublish() {
   });
 }
 
+export function useUpdateBioPage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      api.patch<BioPage>(`/bio-pages/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bio-pages"] });
+    },
+  });
+}
+
+export function useAddBlock() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ pageId, data }: { pageId: string; data: any }) =>
+      api.post<BioBlock>(`/bio-pages/${pageId}/blocks`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bio-pages"] });
+    },
+  });
+}
+
+export function useUpdateBlock() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ pageId, blockId, data }: { pageId: string; blockId: string; data: any }) =>
+      api.patch<BioBlock>(`/bio-pages/${pageId}/blocks/${blockId}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bio-pages"] });
+    },
+  });
+}
+
+export function useDeleteBlock() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ pageId, blockId }: { pageId: string; blockId: string }) =>
+      api.delete(`/bio-pages/${pageId}/blocks/${blockId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bio-pages"] });
+    },
+  });
+}
+
 // ─── Domains ───
 
 export function useDomains() {
