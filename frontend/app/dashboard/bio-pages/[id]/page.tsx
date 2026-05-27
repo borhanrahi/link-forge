@@ -8,7 +8,7 @@ import { useBioPages, useTogglePublish } from "@/hooks";
 import { ArrowLeft, Plus, Trash2, GripVertical, Globe, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
-const BLOG_DOMAIN = "http://localhost:8000";
+const BLOG_DOMAIN = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 const BLOCK_TYPES = [
   { id: "link", label: "Link", description: "A single link button" },

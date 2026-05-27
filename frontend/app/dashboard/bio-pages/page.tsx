@@ -7,7 +7,7 @@ import { Button, Card, CardContent, Badge, SectionHeading, EmptyState } from "@/
 import { useBioPages } from "@/hooks";
 import { Layout, Plus, Copy, Check, AlertCircle, Loader2 } from "lucide-react";
 
-const BIO_DOMAIN = "http://localhost:8000";
+const BIO_DOMAIN = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export default function BioPagesPage() {
   const router = useRouter();

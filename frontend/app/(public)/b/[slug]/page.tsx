@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
@@ -170,24 +172,18 @@ function getLinkStyles(
       return {
         ...base,
         borderRadius: 9999,
-        background: glassLinks
-          ? `rgba(255,255,255,0.15)`
-          : brandColor,
+        background: glassLinks ? "rgba(255,255,255,0.15)" : brandColor,
         color: glassLinks ? "#fff" : getContrastColor(brandColor),
         backdropFilter: glassLinks ? "blur(16px)" : undefined,
         WebkitBackdropFilter: glassLinks ? "blur(16px)" : undefined,
         border: glassLinks ? "1px solid rgba(255,255,255,0.2)" : "none",
-        boxShadow: glassLinks
-          ? "0 4px 24px rgba(0,0,0,0.1)"
-          : `0 2px 8px ${shadowColor}`,
+        boxShadow: glassLinks ? "0 4px 24px rgba(0,0,0,0.1)" : `0 2px 8px ${shadowColor}`,
       };
     case "rounded":
       return {
         ...base,
         borderRadius: 14,
-        background: glassLinks
-          ? `rgba(255,255,255,0.1)`
-          : brandColor,
+        background: glassLinks ? "rgba(255,255,255,0.1)" : brandColor,
         color: glassLinks ? "#fff" : getContrastColor(brandColor),
         backdropFilter: glassLinks ? "blur(12px)" : undefined,
         WebkitBackdropFilter: glassLinks ? "blur(12px)" : undefined,
@@ -207,7 +203,7 @@ function getLinkStyles(
         background: "transparent",
         color: brandColor,
         padding: "12px 8px",
-        borderBottom: `2px solid transparent`,
+        borderBottom: "2px solid transparent",
       };
   }
 }
@@ -239,6 +235,35 @@ const GRADIENT_PRESETS: Record<string, string> = {
   coral: "linear-gradient(135deg, #e11d48 0%, #fb923c 100%)",
 };
 
+// ─── Metadata ───
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const { slug } = await props.params;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+  try {
+    const res = await fetch(`${apiUrl}/b/${slug}`, { next: { revalidate: 60 } });
+    if (res.ok) {
+      const data = await res.json();
+      const page: BioPageData = data.page;
+      return {
+        title: page.title || page.slug,
+        description: page.subtitle || `Check out ${page.title || page.slug} on LinkNest`,
+        openGraph: page.profile_image_url
+          ? { images: [{ url: page.profile_image_url }] }
+          : undefined,
+        themeColor: page.brand_color,
+        other: {
+          "theme-color": page.brand_color,
+        },
+      };
+    }
+  } catch {}
+  return { title: "Bio Page" };
+}
+
+// ─── Page Component ───
+
 export default async function BioPagePublic(props: Props) {
   const { slug } = await props.params;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -257,27 +282,42 @@ export default async function BioPagePublic(props: Props) {
 
   if (!page) {
     return (
-      <html>
-        <body style={{ margin: 0, background: "#0d0b0a", color: "#a8a099", fontFamily: "system-ui, sans-serif" }}>
-          <div style={{
-            display: "flex", flexDirection: "column", height: "100vh",
-            alignItems: "center", justifyContent: "center", gap: 16, padding: 24,
-          }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: "50%",
-              background: "linear-gradient(135deg, #d47844, #a14a28)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 28, marginBottom: 4,
-            }}>🔗</div>
-            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#f0eee9" }}>
-              Page not found
-            </h1>
-            <p style={{ margin: 0, fontSize: 14, color: "#857e77", textAlign: "center" }}>
-              This bio page doesn&apos;t exist or has been unpublished.
-            </p>
-          </div>
-        </body>
-      </html>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          gap: 16,
+          padding: 24,
+          background: "#0d0b0a",
+          color: "#a8a099",
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #d47844, #a14a28)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 28,
+            marginBottom: 4,
+          }}
+        >
+          🔗
+        </div>
+        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#f0eee9" }}>
+          Page not found
+        </h1>
+        <p style={{ margin: 0, fontSize: 14, color: "#857e77", textAlign: "center", maxWidth: 360 }}>
+          This bio page doesn&apos;t exist or has been unpublished.
+        </p>
+      </div>
     );
   }
 
@@ -290,176 +330,168 @@ export default async function BioPagePublic(props: Props) {
   const isGradientBg = themeStyle.gradientBg && gradient;
   const alignment = themeStyle.alignment;
 
-  const containerStyle: React.CSSProperties = {
-    margin: 0,
-    fontFamily,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    minHeight: "100vh",
-    padding: "60px 20px 40px",
-    boxSizing: "border-box",
-    background: page.bg_image_url
-      ? `url(${page.bg_image_url}) center/cover no-repeat fixed`
-      : isGradientBg
-        ? gradient
-        : page.bg_color || "#ffffff",
-    backgroundBlendMode: "overlay",
-    position: "relative" as const,
-    overflowX: "hidden",
-  };
+  const bg = page.bg_image_url
+    ? `url(${page.bg_image_url}) center/cover no-repeat fixed`
+    : isGradientBg
+      ? gradient
+      : page.bg_color || "#ffffff";
 
-  const cardStyle: React.CSSProperties = {
-    width: "100%",
-    maxWidth: 520,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: alignment === "left" ? "flex-start" : "center",
-    gap: 0,
-    position: "relative" as const,
-    zIndex: 1,
-  };
-
-  // Add an overlay gradient for better readability on gradient/bg-image backgrounds
-  const overlayStyle: React.CSSProperties = isGradientBg || page.bg_image_url ? {
+  const overlayStyle: React.CSSProperties = {
     position: "fixed",
-    top: 0, left: 0, right: 0, bottom: 0,
-    background: isGradientBg
-      ? "rgba(0,0,0,0.15)"
-      : "rgba(0,0,0,0.3)",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: isGradientBg ? "rgba(0,0,0,0.15)" : "rgba(0,0,0,0.3)",
     pointerEvents: "none",
     zIndex: 0,
-  } : {};
+  };
 
   return (
-    <html>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="robots" content="index,follow" />
-        <title>{page.title || page.slug} &middot; LinkNest</title>
-        <meta name="description" content={page.subtitle || `Check out ${page.title || page.slug} on LinkNest`} />
-        {page.profile_image_url && (
-          <meta property="og:image" content={page.profile_image_url} />
-        )}
-        <meta property="og:title" content={page.title || page.slug} />
-        <meta property="og:description" content={page.subtitle || "Link-in-bio page"} />
-        <meta name="theme-color" content={page.brand_color} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto+Mono:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
-        <style>{`
-          @keyframes bioFadeIn {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes bioScaleIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-          }
-          @keyframes bioGlow {
-            0%, 100% { box-shadow: 0 0 20px ${page.brand_color}33; }
-            50% { box-shadow: 0 0 40px ${page.brand_color}55; }
-          }
-          @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-          @keyframes shimmerLink {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-          }
-          .bio-link {
-            animation: bioFadeIn 0.5s ease-out both;
-          }
-          .bio-link:hover {
-            transform: translateY(-2px) scale(1.02) !important;
-            box-shadow: 0 8px 30px ${themeStyle.shadowColor || "rgba(0,0,0,0.15)"} !important;
-          }
-          .bio-link:active {
-            transform: translateY(0) scale(0.98) !important;
-          }
-          .bio-link-underline {
-            animation: bioFadeIn 0.5s ease-out both;
-          }
-          .bio-link-underline:hover {
-            border-bottom-color: ${page.brand_color} !important;
-            opacity: 0.8;
-          }
-          .bio-avatar {
-            animation: bioScaleIn 0.6s ease-out both;
-          }
-          .bio-text-block {
-            animation: bioFadeIn 0.5s ease-out both;
-          }
-          .bio-image-block {
-            animation: bioFadeIn 0.5s ease-out both;
-          }
-          .bio-image-block img {
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-          }
-          .bio-image-block:hover img {
-            transform: scale(1.02);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-          }
-          .bio-divider {
-            animation: bioFadeIn 0.4s ease-out both;
-          }
-          .bio-header {
-            animation: bioFadeIn 0.6s ease-out both;
-          }
-          .bio-footer {
-            animation: bioFadeIn 0.8s ease-out 0.6s both;
-          }
-          ${isGradientBg ? `
-          .gradient-bg {
-            background-size: 200% 200% !important;
-            animation: gradientShift 8s ease infinite;
-          }
-          ` : ""}
-          * {
-            -webkit-tap-highlight-color: transparent;
-          }
-        `}</style>
-      </head>
-      <body style={containerStyle}>
-        {isGradientBg && (
-          <div className="gradient-bg" style={overlayStyle} />
-        )}
-        {!isGradientBg && page.bg_image_url && (
-          <div style={overlayStyle} />
-        )}
+    <>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto+Mono:wght@400;500;600&display=swap"
+      />
+      <style>{`
+        @keyframes bioFadeIn {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bioScaleIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes bioGlow {
+          0%, 100% { box-shadow: 0 0 20px ${page.brand_color}33; }
+          50% { box-shadow: 0 0 40px ${page.brand_color}55; }
+        }
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes shimmerLink {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .bio-link {
+          animation: bioFadeIn 0.5s ease-out both;
+        }
+        .bio-link:hover {
+          transform: translateY(-2px) scale(1.02) !important;
+          box-shadow: 0 8px 30px ${themeStyle.shadowColor || "rgba(0,0,0,0.15)"} !important;
+        }
+        .bio-link:active {
+          transform: translateY(0) scale(0.98) !important;
+        }
+        .bio-link-underline {
+          animation: bioFadeIn 0.5s ease-out both;
+        }
+        .bio-link-underline:hover {
+          border-bottom-color: ${page.brand_color} !important;
+          opacity: 0.8;
+        }
+        .bio-avatar {
+          animation: bioScaleIn 0.6s ease-out both;
+        }
+        .bio-text-block {
+          animation: bioFadeIn 0.5s ease-out both;
+        }
+        .bio-image-block {
+          animation: bioFadeIn 0.5s ease-out both;
+        }
+        .bio-image-block img {
+          transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .bio-image-block:hover img {
+          transform: scale(1.02);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .bio-divider {
+          animation: bioFadeIn 0.4s ease-out both;
+        }
+        .bio-header {
+          animation: bioFadeIn 0.6s ease-out both;
+        }
+        .bio-footer {
+          animation: bioFadeIn 0.8s ease-out 0.6s both;
+        }
+        ${isGradientBg ? `
+        .gradient-bg {
+          background-size: 200% 200% !important;
+          animation: gradientShift 8s ease infinite;
+        }
+        ` : ""}
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+      `}</style>
 
-        <div style={cardStyle}>
-          {/* ─── Profile Section ─── */}
-          <div className="bio-header" style={{
+      {(isGradientBg || page.bg_image_url) && (
+        <div className={isGradientBg ? "gradient-bg" : ""} style={overlayStyle} />
+      )}
+
+      <div
+        className="bio-page-wrapper"
+        style={{
+          fontFamily,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          minHeight: "100vh",
+          padding: "60px 20px 40px",
+          boxSizing: "border-box",
+          background: bg,
+          backgroundBlendMode: "overlay",
+          position: "relative",
+          overflowX: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 520,
             display: "flex",
             flexDirection: "column",
             alignItems: alignment === "left" ? "flex-start" : "center",
-            width: "100%",
-            marginBottom: 32,
-          }}>
+            gap: 0,
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {/* ─── Profile Section ─── */}
+          <div
+            className="bio-header"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: alignment === "left" ? "flex-start" : "center",
+              width: "100%",
+              marginBottom: 32,
+            }}
+          >
             {page.profile_image_url && (
-              <div className="bio-avatar" style={{
-                marginBottom: 20,
-                borderRadius: themeStyle.avatarShape === "circle"
-                  ? "50%"
-                  : themeStyle.avatarShape === "rounded"
-                    ? 20
-                    : 10,
-                overflow: "hidden",
-                width: 104,
-                height: 104,
-                border: `3px solid ${dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)"}`,
-                boxShadow: dark
-                  ? `0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.3)`
-                  : `0 0 0 1px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.08)`,
-                animation: "bioScaleIn 0.6s ease-out, bioGlow 3s ease-in-out 1s infinite",
-              }}>
+              <div
+                className="bio-avatar"
+                style={{
+                  marginBottom: 20,
+                  borderRadius:
+                    themeStyle.avatarShape === "circle"
+                      ? "50%"
+                      : themeStyle.avatarShape === "rounded"
+                        ? 20
+                        : 10,
+                  overflow: "hidden",
+                  width: 104,
+                  height: 104,
+                  border: `3px solid ${dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)"}`,
+                  boxShadow: dark
+                    ? "0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.3)"
+                    : "0 0 0 1px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.08)",
+                  animation: "bioScaleIn 0.6s ease-out, bioGlow 3s ease-in-out 1s infinite",
+                }}
+              >
                 <img
                   src={page.profile_image_url}
                   alt={page.title || ""}
@@ -469,51 +501,54 @@ export default async function BioPagePublic(props: Props) {
             )}
 
             {page.title && (
-              <h1 style={{
-                margin: 0,
-                fontSize: 26,
-                fontWeight: 800,
-                letterSpacing: "-0.03em",
-                lineHeight: 1.2,
-                color: page.theme === "warm-paper" ? "#92400e" : textColor,
-                textAlign: alignment === "left" ? "left" : "center",
-              }}>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: 26,
+                  fontWeight: 800,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.2,
+                  color: page.theme === "warm-paper" ? "#92400e" : textColor,
+                  textAlign: alignment === "left" ? "left" : "center",
+                }}
+              >
                 {page.title}
               </h1>
             )}
 
             {page.subtitle && (
-              <p style={{
-                margin: "8px 0 0",
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: page.theme === "warm-paper" ? "#a16207" : mutedColor,
-                textAlign: alignment === "left" ? "left" : "center",
-                maxWidth: 400,
-              }}>
+              <p
+                style={{
+                  margin: "8px 0 0",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  color: page.theme === "warm-paper" ? "#a16207" : mutedColor,
+                  textAlign: alignment === "left" ? "left" : "center",
+                  maxWidth: 400,
+                }}
+              >
                 {page.subtitle}
               </p>
             )}
           </div>
 
           {/* ─── Blocks ─── */}
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: alignment === "left" ? "stretch" : "center",
-            width: "100%",
-            gap: 12,
-          }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: alignment === "left" ? "stretch" : "center",
+              width: "100%",
+              gap: 12,
+            }}
+          >
             {blocks.map((block, index) => {
               const delay = index * 0.07;
               const animationDelay = `${delay}s`;
 
               switch (block.block_type) {
-                case "link":
+                case "link": {
                   const isUnderline = themeStyle.linkStyle === "underline";
-                  const linkBtnStyles = isUnderline
-                    ? {}
-                    : getLinkStyles(themeStyle.linkStyle, page.brand_color, themeStyle.glassLinks, themeStyle.shadowColor);
 
                   if (isUnderline) {
                     return (
@@ -537,7 +572,7 @@ export default async function BioPagePublic(props: Props) {
                           textDecoration: "none",
                           borderBottom: `2px solid ${dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
                           transition: "all 0.2s ease",
-                          boxSizing: "border-box" as const,
+                          boxSizing: "border-box",
                         }}
                       >
                         <span style={{ fontSize: 18 }}>{resolveIcon(block.icon)}</span>
@@ -546,6 +581,13 @@ export default async function BioPagePublic(props: Props) {
                     );
                   }
 
+                  const linkBtnStyles = getLinkStyles(
+                    themeStyle.linkStyle,
+                    page.brand_color,
+                    themeStyle.glassLinks,
+                    themeStyle.shadowColor,
+                  );
+
                   return (
                     <a
                       key={block.id}
@@ -553,31 +595,32 @@ export default async function BioPagePublic(props: Props) {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bio-link"
-                      style={{
-                        ...linkBtnStyles,
-                        animationDelay,
-                      }}
+                      style={{ ...linkBtnStyles, animationDelay }}
                     >
-                      {/* Shimmer overlay for glass links */}
                       {themeStyle.glassLinks && (
-                        <span style={{
-                          position: "absolute",
-                          top: 0, left: 0, right: 0, bottom: 0,
-                          background: "linear-gradient(110deg, transparent 0%, transparent 35%, rgba(255,255,255,0.1) 50%, transparent 65%, transparent 100%)",
-                          backgroundSize: "200% 100%",
-                          animation: "shimmerLink 3s ease-in-out infinite",
-                          pointerEvents: "none",
-                          borderRadius: "inherit",
-                        }} />
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background:
+                              "linear-gradient(110deg, transparent 0%, transparent 35%, rgba(255,255,255,0.1) 50%, transparent 65%, transparent 100%)",
+                            backgroundSize: "200% 100%",
+                            animation: "shimmerLink 3s ease-in-out infinite",
+                            pointerEvents: "none",
+                            borderRadius: "inherit",
+                          }}
+                        />
                       )}
                       <span style={{ fontSize: 18, position: "relative", zIndex: 1 }}>
                         {resolveIcon(block.icon)}
                       </span>
-                      <span style={{ position: "relative", zIndex: 1 }}>
-                        {block.label || "Link"}
-                      </span>
+                      <span style={{ position: "relative", zIndex: 1 }}>{block.label || "Link"}</span>
                     </a>
                   );
+                }
 
                 case "text":
                   return (
@@ -617,12 +660,7 @@ export default async function BioPagePublic(props: Props) {
                       <img
                         src={block.image_url}
                         alt={block.label || ""}
-                        style={{
-                          width: "100%",
-                          height: "auto",
-                          display: "block",
-                          borderRadius: 14,
-                        }}
+                        style={{ width: "100%", height: "auto", display: "block", borderRadius: 14 }}
                       />
                     </div>
                   );
@@ -670,18 +708,21 @@ export default async function BioPagePublic(props: Props) {
           </div>
 
           {/* ─── Footer ─── */}
-          <div className="bio-footer" style={{
-            marginTop: 48,
-            fontSize: 12,
-            color: mutedColor,
-            opacity: 0.5,
-            textAlign: "center",
-            letterSpacing: "0.02em",
-          }}>
+          <div
+            className="bio-footer"
+            style={{
+              marginTop: 48,
+              fontSize: 12,
+              color: mutedColor,
+              opacity: 0.5,
+              textAlign: "center",
+              letterSpacing: "0.02em",
+            }}
+          >
             <span>Powered by LinkNest</span>
           </div>
         </div>
-      </body>
-    </html>
+      </div>
+    </>
   );
 }
