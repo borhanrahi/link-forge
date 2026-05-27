@@ -1,10 +1,13 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button, Card, CardContent, Input, Divider, Badge } from "@/components/ui";
-import { useBioPage, useTogglePublish, useUpdateBioPage, useAddBlock, useUpdateBlock, useDeleteBlock } from "@/hooks";
+import {
+  useBioPage, useTogglePublish, useUpdateBioPage, useAddBlock,
+  useUpdateBlock, useDeleteBlock, useDeleteBioPage
+} from "@/hooks";
 import {
   ArrowLeft, Trash2, Globe, Copy, Check,
   Save, Loader2, Type, Link2, Image, Minus, Heading,
@@ -185,6 +188,22 @@ const GRADIENT_PRESETS: Record<string, string> = {
   coral: "linear-gradient(135deg, #e11d48 0%, #fb923c 100%)",
 };
 
+// Recommended colors for each theme (brand_color, bg_color)
+const THEME_COLORS: Record<string, { brand: string; bg: string }> = {
+  minimal: { brand: "#000000", bg: "#ffffff" },
+  "dark-matte": { brand: "#ffffff", bg: "#1a1a1a" },
+  sunset: { brand: "#ff6b35", bg: "#fffbeb" },
+  ocean: { brand: "#0f766e", bg: "#f0fdfa" },
+  midnight: { brand: "#fbbf24", bg: "#0f172a" },
+  forest: { brand: "#166534", bg: "#f0fdf4" },
+  rose: { brand: "#9f1239", bg: "#fff1f2" },
+  slate: { brand: "#1e293b", bg: "#f8fafc" },
+  neon: { brand: "#06b6d4", bg: "#020617" },
+  lavender: { brand: "#7c3aed", bg: "#faf5ff" },
+  "warm-paper": { brand: "#92400e", bg: "#fffbeb" },
+  coral: { brand: "#e11d48", bg: "#fff7ed" },
+};
+
 function getLinkStylesPreview(
   linkStyle: string,
   brandColor: string,
@@ -267,15 +286,23 @@ const SOCIAL_PLATFORMS = [
 
 export default function BioPageEditorPage() {
   const { id } = useParams();
+  const router = useRouter();
   const { data: page, isLoading: pageLoading } = useBioPage(id as string);
   const togglePublish = useTogglePublish();
   const updateBioPage = useUpdateBioPage();
   const addBlock = useAddBlock();
   const updateBlockMutation = useUpdateBlock();
   const deleteBlockMutation = useDeleteBlock();
+  const deleteBioPage = useDeleteBioPage();
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [theme, setTheme] = useState("minimal");
+  const [brandColor, setBrandColor] = useState("#000000");
+  const [bgColor, setBgColor] = useState("#ffffff");
+  const [bgImageUrl, setBgImageUrl] = useState("");
+  const [fontFamily, setFontFamily] = useState("inter");
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -285,6 +312,12 @@ export default function BioPageEditorPage() {
     if (page) {
       setTitle(page.title || "");
       setSubtitle(page.subtitle || "");
+      setProfileImageUrl(page.profile_image_url || "");
+      setTheme(page.theme || "minimal");
+      setBrandColor(page.brand_color || "#000000");
+      setBgColor(page.bg_color || "#ffffff");
+      setBgImageUrl(page.bg_image_url || "");
+      setFontFamily(page.font_family || "inter");
       const loadedBlocks = (page.blocks || []).map((b: any, i: number) => ({
         id: b.id,
         block_type: b.block_type,
@@ -319,7 +352,16 @@ export default function BioPageEditorPage() {
     try {
       await updateBioPage.mutateAsync({
         id: id as string,
-        data: { title, subtitle },
+        data: {
+          title,
+          subtitle,
+          profile_image_url: profileImageUrl || null,
+          theme,
+          brand_color: brandColor,
+          bg_color: bgColor,
+          bg_image_url: bgImageUrl || null,
+          font_family: fontFamily,
+        },
       });
 
       const currentIds = new Set(blocks.map((b) => b.id));
@@ -373,6 +415,17 @@ export default function BioPageEditorPage() {
       toast.success(page?.is_published ? "Page unpublished" : "Page published!");
     } catch {
       toast.error("Failed to toggle publish");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this page? This cannot be undone.")) return;
+    try {
+      await deleteBioPage.mutateAsync(id as string);
+      toast.success("Page deleted!");
+      router.push("/dashboard/bio-pages");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to delete page");
     }
   };
 
@@ -439,6 +492,15 @@ export default function BioPageEditorPage() {
               <Globe className="h-3.5 w-3.5" />
               {page.is_published ? "Unpublish" : "Publish"}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDelete}
+              className="border-red-900/40 text-red-400 hover:bg-red-950/30 hover:border-red-700/50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete
+            </Button>
             <Badge variant={page.is_published ? "success" : "default"}>
               {page.is_published ? "Live" : "Draft"}
             </Badge>
@@ -464,9 +526,13 @@ export default function BioPageEditorPage() {
                 placeholder="A short description or tagline"
                 hint="Appears below the title on your public page"
               />
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardContent className="p-5 space-y-5">
               {/* ─── Blocks List ─── */}
-              <div className="space-y-3 pt-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                     Blocks ({blocks.length})
@@ -496,7 +562,7 @@ export default function BioPageEditorPage() {
           </Card>
         </div>
 
-        {/* ─── Column 2: Add Block + Actions ─── */}
+        {/* ─── Column 2: Add Block + Design + Blocks ─── */}
         <div className="space-y-4 min-w-0">
           <Card>
             <CardContent className="p-5">
@@ -527,34 +593,110 @@ export default function BioPageEditorPage() {
             </CardContent>
           </Card>
 
+          {/* ─── Design / Theme Card ─── */}
           <Card>
-            <CardContent className="p-5">
-              <h3 className="text-sm font-semibold text-neutral-100 mb-3">Actions</h3>
-              <div className="space-y-2">
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={handleSave}
-                  disabled={saving}
+            <CardContent className="p-5 space-y-4">
+              <h3 className="text-sm font-semibold text-neutral-100">Design</h3>
+
+              <Input
+                label="Profile Image URL"
+                value={profileImageUrl}
+                onChange={(e) => setProfileImageUrl(e.target.value)}
+                placeholder="https://example.com/avatar.jpg"
+              />
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-2">Theme Template</label>
+                <select
+                  className="h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-100 focus:outline-none focus:border-terracotta-500/50 appearance-none"
+                  value={theme}
+                  onChange={(e) => {
+                    const newTheme = e.target.value;
+                    setTheme(newTheme);
+                    const colors = THEME_COLORS[newTheme];
+                    if (colors) {
+                      setBrandColor(colors.brand);
+                      setBgColor(colors.bg);
+                    }
+                  }}
                 >
-                  {saving ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
-                  )}
-                  {saving ? "Saving..." : "Save Changes"}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handlePublish}
+                  <option value="minimal">Minimal — Clean, light</option>
+                  <option value="dark-matte">Dark Matte — Sleek, dark</option>
+                  <option value="sunset">Sunset — Warm gradient</option>
+                  <option value="ocean">Ocean — Cool blues</option>
+                  <option value="midnight">Midnight — Deep navy</option>
+                  <option value="forest">Forest — Earthy greens</option>
+                  <option value="rose">Rose — Elegant pink</option>
+                  <option value="slate">Slate — Left-aligned, subtle</option>
+                  <option value="neon">Neon — Cyberpunk glow</option>
+                  <option value="lavender">Lavender — Soft purple</option>
+                  <option value="warm-paper">Warm Paper — Textured beige</option>
+                  <option value="coral">Coral — Vibrant orange</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-neutral-400 mb-2">Brand Color</label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={brandColor}
+                      onChange={(e) => setBrandColor(e.target.value)}
+                      className="h-9 w-9 rounded-md border border-neutral-700 bg-transparent cursor-pointer shrink-0"
+                    />
+                    <input
+                      className="h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-100 focus:outline-none focus:border-terracotta-500/50 font-mono"
+                      value={brandColor}
+                      onChange={(e) => setBrandColor(e.target.value)}
+                      placeholder="#000000"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-neutral-400 mb-2">Background Color</label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={bgColor}
+                      onChange={(e) => setBgColor(e.target.value)}
+                      className="h-9 w-9 rounded-md border border-neutral-700 bg-transparent cursor-pointer shrink-0"
+                    />
+                    <input
+                      className="h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-100 focus:outline-none focus:border-terracotta-500/50 font-mono"
+                      value={bgColor}
+                      onChange={(e) => setBgColor(e.target.value)}
+                      placeholder="#ffffff"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Input
+                label="Background Image URL"
+                value={bgImageUrl}
+                onChange={(e) => setBgImageUrl(e.target.value)}
+                placeholder="https://example.com/bg.jpg"
+                hint="Optional — overrides background color"
+              />
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-2">Font Family</label>
+                <select
+                  className="h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-100 focus:outline-none focus:border-terracotta-500/50 appearance-none"
+                  value={fontFamily}
+                  onChange={(e) => setFontFamily(e.target.value)}
                 >
-                  <Globe className="h-4 w-4" />
-                  {page.is_published ? "Unpublish" : "Publish"}
-                </Button>
+                  <option value="inter">Inter — Modern, clean</option>
+                  <option value="poppins">Poppins — Friendly, round</option>
+                  <option value="playfair-display">Playfair Display — Elegant, serif</option>
+                  <option value="roboto-mono">Roboto Mono — Monospace, tech</option>
+                  <option value="serif">Serif — Classic</option>
+                </select>
               </div>
             </CardContent>
           </Card>
+
         </div>
 
         {/* ─── Column 3: Preview ─── */}
@@ -571,7 +713,15 @@ export default function BioPageEditorPage() {
                 title={title}
                 subtitle={subtitle}
                 blocks={blocks}
-                page={page}
+                page={{
+                  ...page,
+                  profile_image_url: profileImageUrl,
+                  theme,
+                  brand_color: brandColor,
+                  bg_color: bgColor,
+                  bg_image_url: bgImageUrl,
+                  font_family: fontFamily,
+                }}
               />
             </CardContent>
           </Card>

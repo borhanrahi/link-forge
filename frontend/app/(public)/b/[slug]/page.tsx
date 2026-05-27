@@ -142,6 +142,23 @@ function resolveIcon(icon?: string): string {
   return SOCIAL_ICONS[key] || icon;
 }
 
+// ─── SOCIAL PLATFORMS (shared between preview and blocks) ───
+
+const SOCIAL_PLATFORMS = [
+  { id: "globe", label: "Website" },
+  { id: "twitter", label: "X / Twitter" },
+  { id: "instagram", label: "Instagram" },
+  { id: "youtube", label: "YouTube" },
+  { id: "tiktok", label: "TikTok" },
+  { id: "github", label: "GitHub" },
+  { id: "linkedin", label: "LinkedIn" },
+  { id: "facebook", label: "Facebook" },
+  { id: "discord", label: "Discord" },
+  { id: "telegram", label: "Telegram" },
+  { id: "whatsapp", label: "WhatsApp" },
+  { id: "email", label: "Email" },
+];
+
 // ─── Helper: compute link button styles based on theme ───
 
 function getLinkStyles(
@@ -156,8 +173,8 @@ function getLinkStyles(
     justifyContent: "center",
     gap: 10,
     width: "100%",
-    padding: "16px 24px",
-    fontSize: 15,
+    padding: "clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 28px)",
+    fontSize: "clamp(14px, 1.6vw, 16px)",
     fontWeight: 600,
     textDecoration: "none",
     transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -202,7 +219,7 @@ function getLinkStyles(
         borderRadius: 0,
         background: "transparent",
         color: brandColor,
-        padding: "12px 8px",
+        padding: "clamp(10px, 1.5vw, 14px) 8px",
         borderBottom: "2px solid transparent",
       };
   }
@@ -234,6 +251,25 @@ const GRADIENT_PRESETS: Record<string, string> = {
   lavender: "linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%)",
   coral: "linear-gradient(135deg, #e11d48 0%, #fb923c 100%)",
 };
+
+// ─── Video URL helpers ───
+
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+function extractVimeoId(url: string): string | null {
+  const match = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+  return match ? match[1] : null;
+}
 
 // ─── Metadata ───
 
@@ -440,7 +476,7 @@ export default async function BioPagePublic(props: Props) {
           flexDirection: "column",
           alignItems: "center",
           minHeight: "100vh",
-          padding: "60px 20px 40px",
+          padding: "clamp(40px, 8vh, 80px) clamp(16px, 4vw, 32px) clamp(32px, 6vh, 60px)",
           boxSizing: "border-box",
           background: bg,
           backgroundBlendMode: "overlay",
@@ -451,7 +487,7 @@ export default async function BioPagePublic(props: Props) {
         <div
           style={{
             width: "100%",
-            maxWidth: 520,
+            maxWidth: "min(520px, 100%)",
             display: "flex",
             flexDirection: "column",
             alignItems: alignment === "left" ? "flex-start" : "center",
@@ -468,14 +504,14 @@ export default async function BioPagePublic(props: Props) {
               flexDirection: "column",
               alignItems: alignment === "left" ? "flex-start" : "center",
               width: "100%",
-              marginBottom: 32,
+              marginBottom: "clamp(24px, 4vw, 40px)",
             }}
           >
             {page.profile_image_url && (
               <div
                 className="bio-avatar"
                 style={{
-                  marginBottom: 20,
+                  marginBottom: "clamp(14px, 2.5vw, 24px)",
                   borderRadius:
                     themeStyle.avatarShape === "circle"
                       ? "50%"
@@ -483,8 +519,8 @@ export default async function BioPagePublic(props: Props) {
                         ? 20
                         : 10,
                   overflow: "hidden",
-                  width: 104,
-                  height: 104,
+                  width: "clamp(80px, 12vw, 120px)",
+                  height: "clamp(80px, 12vw, 120px)",
                   border: `3px solid ${dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)"}`,
                   boxShadow: dark
                     ? "0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.3)"
@@ -504,12 +540,14 @@ export default async function BioPagePublic(props: Props) {
               <h1
                 style={{
                   margin: 0,
-                  fontSize: 26,
+                  fontSize: "clamp(22px, 3.5vw, 30px)",
                   fontWeight: 800,
                   letterSpacing: "-0.03em",
-                  lineHeight: 1.2,
+                  lineHeight: 1.25,
                   color: page.theme === "warm-paper" ? "#92400e" : textColor,
                   textAlign: alignment === "left" ? "left" : "center",
+                  maxWidth: "100%",
+                  wordBreak: "break-word",
                 }}
               >
                 {page.title}
@@ -519,12 +557,13 @@ export default async function BioPagePublic(props: Props) {
             {page.subtitle && (
               <p
                 style={{
-                  margin: "8px 0 0",
-                  fontSize: 14,
-                  lineHeight: 1.6,
+                  margin: "clamp(6px, 1vw, 10px) 0 0",
+                  fontSize: "clamp(13px, 1.5vw, 15px)",
+                  lineHeight: 1.65,
                   color: page.theme === "warm-paper" ? "#a16207" : mutedColor,
                   textAlign: alignment === "left" ? "left" : "center",
-                  maxWidth: 400,
+                  maxWidth: "min(400px, 100%)",
+                  wordBreak: "break-word",
                 }}
               >
                 {page.subtitle}
@@ -539,7 +578,7 @@ export default async function BioPagePublic(props: Props) {
               flexDirection: "column",
               alignItems: alignment === "left" ? "stretch" : "center",
               width: "100%",
-              gap: 12,
+              gap: "clamp(10px, 1.5vw, 16px)",
             }}
           >
             {blocks.map((block, index) => {
@@ -547,6 +586,7 @@ export default async function BioPagePublic(props: Props) {
               const animationDelay = `${delay}s`;
 
               switch (block.block_type) {
+                // ── Link Block ──
                 case "link": {
                   const isUnderline = themeStyle.linkStyle === "underline";
 
@@ -563,10 +603,10 @@ export default async function BioPagePublic(props: Props) {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: alignment === "left" ? "flex-start" : "center",
-                          gap: 10,
+                          gap: "clamp(8px, 1.2vw, 12px)",
                           width: "100%",
-                          padding: "14px 8px",
-                          fontSize: 15,
+                          padding: "clamp(12px, 1.8vw, 16px) 8px",
+                          fontSize: "clamp(14px, 1.6vw, 16px)",
                           fontWeight: 500,
                           color: page.brand_color,
                           textDecoration: "none",
@@ -575,7 +615,7 @@ export default async function BioPagePublic(props: Props) {
                           boxSizing: "border-box",
                         }}
                       >
-                        <span style={{ fontSize: 18 }}>{resolveIcon(block.icon)}</span>
+                        <span style={{ fontSize: "clamp(16px, 2vw, 20px)" }}>{resolveIcon(block.icon)}</span>
                         <span>{block.label || "Link"}</span>
                       </a>
                     );
@@ -614,7 +654,7 @@ export default async function BioPagePublic(props: Props) {
                           }}
                         />
                       )}
-                      <span style={{ fontSize: 18, position: "relative", zIndex: 1 }}>
+                      <span style={{ fontSize: "clamp(16px, 2vw, 20px)", position: "relative", zIndex: 1 }}>
                         {resolveIcon(block.icon)}
                       </span>
                       <span style={{ position: "relative", zIndex: 1 }}>{block.label || "Link"}</span>
@@ -622,6 +662,29 @@ export default async function BioPagePublic(props: Props) {
                   );
                 }
 
+                // ── Heading Block ──
+                case "heading":
+                  return block.label ? (
+                    <h2
+                      key={block.id}
+                      className="bio-text-block"
+                      style={{
+                        animationDelay,
+                        width: "100%",
+                        margin: "8px 0 0",
+                        fontSize: "clamp(17px, 2.2vw, 21px)",
+                        fontWeight: 700,
+                        letterSpacing: "-0.02em",
+                        color: textColor,
+                        textAlign: alignment === "left" ? "left" : "center",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {block.label}
+                    </h2>
+                  ) : null;
+
+                // ── Text Block ──
                 case "text":
                   return (
                     <div
@@ -630,17 +693,20 @@ export default async function BioPagePublic(props: Props) {
                       style={{
                         animationDelay,
                         width: "100%",
-                        padding: "8px 4px",
-                        fontSize: 14,
-                        lineHeight: 1.7,
+                        padding: "clamp(6px, 1vw, 10px) 4px",
+                        fontSize: "clamp(13px, 1.5vw, 15px)",
+                        lineHeight: 1.75,
                         color: mutedColor,
                         textAlign: alignment === "left" ? "left" : "center",
+                        wordBreak: "break-word",
+                        whiteSpace: "pre-wrap",
                       }}
                     >
                       {block.label}
                     </div>
                   );
 
+                // ── Image Block ──
                 case "image":
                   if (!block.image_url) return null;
                   return (
@@ -650,7 +716,7 @@ export default async function BioPagePublic(props: Props) {
                       style={{
                         animationDelay,
                         width: "100%",
-                        borderRadius: 14,
+                        borderRadius: "clamp(10px, 1.5vw, 16px)",
                         overflow: "hidden",
                         boxShadow: dark
                           ? "0 4px 20px rgba(0,0,0,0.3)"
@@ -660,11 +726,152 @@ export default async function BioPagePublic(props: Props) {
                       <img
                         src={block.image_url}
                         alt={block.label || ""}
-                        style={{ width: "100%", height: "auto", display: "block", borderRadius: 14 }}
+                        style={{ width: "100%", height: "auto", display: "block" }}
                       />
                     </div>
                   );
 
+                // ── Social Block ──
+                case "social": {
+                  const socialLabel = block.label || SOCIAL_PLATFORMS.find((p) => p.id === block.icon)?.label || "Social";
+                  return (
+                    <a
+                      key={block.id}
+                      href={block.url || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bio-link"
+                      style={{
+                        animationDelay,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: alignment === "left" ? "flex-start" : "center",
+                        gap: "clamp(10px, 1.5vw, 14px)",
+                        width: "100%",
+                        padding: "clamp(12px, 1.8vw, 16px) clamp(16px, 2.5vw, 24px)",
+                        borderRadius: "clamp(10px, 1.2vw, 14px)",
+                        background: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)",
+                        border: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+                        fontSize: "clamp(13px, 1.5vw, 15px)",
+                        fontWeight: 500,
+                        color: textColor,
+                        textDecoration: "none",
+                        transition: "all 0.2s ease",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      <span style={{ fontSize: "clamp(18px, 2.2vw, 22px)" }}>{resolveIcon(block.icon)}</span>
+                      <span>{socialLabel}</span>
+                    </a>
+                  );
+                }
+
+                // ── Embed Block ──
+                case "embed":
+                  if (!block.embed_html) return null;
+                  return (
+                    <div
+                      key={block.id}
+                      className="bio-text-block"
+                      style={{
+                        animationDelay,
+                        width: "100%",
+                        borderRadius: "clamp(10px, 1.5vw, 16px)",
+                        overflow: "hidden",
+                        boxShadow: dark
+                          ? "0 4px 20px rgba(0,0,0,0.3)"
+                          : "0 4px 20px rgba(0,0,0,0.06)",
+                      }}
+                      dangerouslySetInnerHTML={{ __html: block.embed_html }}
+                    />
+                  );
+
+                // ── Video Block ──
+                case "video": {
+                  const youtubeId = block.video_url ? extractYouTubeId(block.video_url) : null;
+                  const vimeoId = block.video_url ? extractVimeoId(block.video_url) : null;
+                  const embedSrc = youtubeId
+                    ? `https://www.youtube.com/embed/${youtubeId}`
+                    : vimeoId
+                      ? `https://player.vimeo.com/video/${vimeoId}`
+                      : null;
+                  return (
+                    <div
+                      key={block.id}
+                      className="bio-image-block"
+                      style={{
+                        animationDelay,
+                        width: "100%",
+                        borderRadius: "clamp(10px, 1.5vw, 16px)",
+                        overflow: "hidden",
+                        boxShadow: dark
+                          ? "0 4px 20px rgba(0,0,0,0.3)"
+                          : "0 4px 20px rgba(0,0,0,0.06)",
+                      }}
+                    >
+                      {embedSrc ? (
+                        <iframe
+                          src={embedSrc}
+                          title={block.label || "Video"}
+                          style={{
+                            width: "100%",
+                            aspectRatio: "16 / 9",
+                            border: "none",
+                            display: "block",
+                          }}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : block.video_url ? (
+                        <div
+                          style={{
+                            aspectRatio: "16 / 9",
+                            background: dark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 8,
+                            fontSize: 13,
+                            color: mutedColor,
+                          }}
+                        >
+                          <span style={{ fontSize: 32 }}>▶️</span>
+                          <span>Video — check URL format</span>
+                        </div>
+                      ) : null}
+                      {block.label && (
+                        <p
+                          style={{
+                            margin: 0,
+                            padding: "clamp(8px, 1vw, 12px) clamp(12px, 1.5vw, 16px)",
+                            fontSize: "clamp(12px, 1.3vw, 14px)",
+                            color: mutedColor,
+                            textAlign: "center",
+                          }}
+                        >
+                          {block.label}
+                        </p>
+                      )}
+                    </div>
+                  );
+                }
+
+                // ── Spacer Block ──
+                case "spacer":
+                  return (
+                    <div
+                      key={block.id}
+                      className="bio-divider"
+                      style={{
+                        animationDelay,
+                        width: "100%",
+                        height: "clamp(16px, 3vw, 32px)",
+                      }}
+                    />
+                  );
+
+                // ── Divider Block ──
                 case "divider":
                   return (
                     <div
@@ -675,29 +882,10 @@ export default async function BioPagePublic(props: Props) {
                         width: "100%",
                         height: 1,
                         background: dark
-                          ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)"
-                          : "linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent)",
-                        margin: "8px 0",
+                          ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)"
+                          : "linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent)",
+                        margin: "clamp(6px, 1vw, 10px) 0",
                       }}
-                    />
-                  );
-
-                case "embed":
-                  if (!block.embed_html) return null;
-                  return (
-                    <div
-                      key={block.id}
-                      className="bio-text-block"
-                      style={{
-                        animationDelay,
-                        width: "100%",
-                        borderRadius: 14,
-                        overflow: "hidden",
-                        boxShadow: dark
-                          ? "0 4px 20px rgba(0,0,0,0.3)"
-                          : "0 4px 20px rgba(0,0,0,0.06)",
-                      }}
-                      dangerouslySetInnerHTML={{ __html: block.embed_html }}
                     />
                   );
 
@@ -711,12 +899,12 @@ export default async function BioPagePublic(props: Props) {
           <div
             className="bio-footer"
             style={{
-              marginTop: 48,
-              fontSize: 12,
+              marginTop: "clamp(36px, 6vh, 56px)",
+              fontSize: "clamp(11px, 1.2vw, 13px)",
               color: mutedColor,
-              opacity: 0.5,
+              opacity: 0.4,
               textAlign: "center",
-              letterSpacing: "0.02em",
+              letterSpacing: "0.03em",
             }}
           >
             <span>Powered by LinkNest</span>

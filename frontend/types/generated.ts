@@ -61,7 +61,11 @@ export interface BioPage {
   theme: string;
   brand_color: string;
   bg_color: string;
+  bg_image_url?: string;
   font_family: string;
+  meta_title?: string;
+  meta_description?: string;
+  og_image_url?: string;
   is_published: boolean;
   seo_indexable: boolean;
   clicks_count: number;
@@ -78,6 +82,7 @@ export interface BioBlock {
   url?: string;
   icon?: string;
   image_url?: string;
+  video_url?: string;
   embed_html?: string;
   position: number;
   is_active: boolean;

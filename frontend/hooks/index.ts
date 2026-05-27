@@ -116,6 +116,16 @@ export function useTogglePublish() {
   });
 }
 
+export function useDeleteBioPage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/bio-pages/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bio-pages"] });
+    },
+  });
+}
+
 export function useUpdateBioPage() {
   const queryClient = useQueryClient();
   return useMutation({
