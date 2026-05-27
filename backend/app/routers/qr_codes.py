@@ -78,7 +78,7 @@ async def download_qr(
     if not link:
         raise HTTPException(status_code=404, detail="Link not found")
 
-    short_url = f"/{link.short_code}"
+    short_url = f"/{link.short_code}?qr={qr.id}"
     qr_bytes = generate_qr(short_url, qr.color_fg, qr.color_bg)
 
     return Response(content=qr_bytes, media_type="image/png",

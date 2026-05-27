@@ -219,6 +219,7 @@ export function useQRCodes() {
     queryKey: ["qr-codes"],
     queryFn: () => api.get<QRCodeWithLink[]>("/qr"),
     enabled: isAuthenticated,
+    staleTime: 30000,
   });
 }
 

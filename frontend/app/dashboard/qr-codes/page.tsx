@@ -183,7 +183,7 @@ export default function QrCodesPage() {
 
       {/* Create Dialog */}
       <Dialog open={showCreate} onOpenChange={(open) => { if (!open) resetCreateModal(); }}>
-        <DialogTrigger render={<span style={{ display: 'none' }} />} />
+        <DialogTrigger nativeButton={false} render={<span style={{ display: 'none' }} />} />
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>New QR Code</DialogTitle>
@@ -303,15 +303,16 @@ export default function QrCodesPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {qrCodes.map((qr: QRCodeWithLink) => {
             const shortUrl = `${SHORT_DOMAIN}/${qr.link.short_code}`;
+            const qrDataUrl = `${SHORT_DOMAIN}/${qr.link.short_code}?qr=${qr.id}`;
             const isEditing = editingColors === qr.id;
 
             return (
               <div key={qr.id} className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all duration-300 hover:border-terracotta-500/30 hover:bg-white/[0.06] hover:shadow-[0_0_40px_-8px] hover:shadow-terracotta-500/20">
                 <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.06] p-2">
                   {isEditing ? (
-                    <QRCodeSVG value={shortUrl} size={120} bgColor={editBg} fgColor={editFg} level="M" includeMargin={false} />
+                    <QRCodeSVG value={qrDataUrl} size={120} bgColor={editBg} fgColor={editFg} level="M" includeMargin={false} />
                   ) : (
-                    <QRCodeSVG id={`qr-${qr.link.short_code}`} value={shortUrl} size={120} bgColor={qr.color_bg} fgColor={qr.color_fg} level="M" includeMargin={false} />
+                    <QRCodeSVG id={`qr-${qr.link.short_code}`} value={qrDataUrl} size={120} bgColor={qr.color_bg} fgColor={qr.color_fg} level="M" includeMargin={false} />
                   )}
                 </div>
 

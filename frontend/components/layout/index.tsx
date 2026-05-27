@@ -17,6 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
@@ -134,7 +135,7 @@ function NotificationBell() {
               type="button"
               onClick={() => markAllRead.mutate()}
               disabled={unreadCount === 0}
-              className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/60 disabled:opacity-30 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer transition-all"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               Mark all read
@@ -177,7 +178,7 @@ function NotificationBell() {
                           <button
                             type="button"
                             onClick={() => markRead.mutate(n.id)}
-                            className="shrink-0 mt-0.5 text-white/20 hover:text-white/60 transition-colors"
+                            className="shrink-0 flex items-center justify-center h-7 w-7 rounded-lg text-white/20 hover:text-terracotta-400 hover:bg-white/[0.06] transition-all"
                             title="Mark read"
                           >
                             <CheckCheck className="h-3.5 w-3.5" />
@@ -273,12 +274,14 @@ export function AppHeader() {
             )}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 border-white/[0.08] bg-[#0d0b0a] backdrop-blur-2xl">
-            <DropdownMenuLabel>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-white/80">{user?.full_name || "User"}</span>
-                <span className="text-xs font-normal text-white/40 truncate">{user?.email}</span>
-              </div>
-            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-white/80">{user?.full_name || "User"}</span>
+                  <span className="text-xs font-normal text-white/40 truncate">{user?.email}</span>
+                </div>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => window.location.href = "/dashboard/settings"}>
               <Settings className="h-4 w-4" />
