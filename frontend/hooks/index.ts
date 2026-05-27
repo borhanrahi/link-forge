@@ -294,6 +294,38 @@ export function useUTMPresets() {
   });
 }
 
+// ─── Notifications ───
+
+export function useNotifications() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["notifications"],
+    queryFn: () => api.get<{ notifications: any[]; unread_count: number }>("/notifications"),
+    enabled: isAuthenticated,
+    refetchInterval: 30000,
+  });
+}
+
+export function useMarkAllRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.post("/notifications/read-all"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
+export function useMarkRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.post(`/notifications/${id}/read`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
 // ─── Members ───
 
 export function useMembers(workspaceId?: string) {

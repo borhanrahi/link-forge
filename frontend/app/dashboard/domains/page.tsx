@@ -44,11 +44,10 @@ export default function DomainsPage() {
 
       {/* Add domain form */}
       <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6">
-        <div className="flex max-w-lg gap-3 items-end">
+        <div className="flex max-w-lg gap-3 items-center">
           <div className="flex-1">
             <Input
               placeholder="e.g., links.yourdomain.com"
-              hint="Enter your domain to get started. We'll guide you through DNS setup."
               value={newDomain}
               onChange={(e) => setNewDomain(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
@@ -57,7 +56,7 @@ export default function DomainsPage() {
           <Button
             onClick={handleAdd}
             disabled={addDomain.isPending || !newDomain.trim()}
-            className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/20 hover:from-terracotta-400 hover:to-terracotta-500"
+            className="h-10 bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/20 hover:from-terracotta-400 hover:to-terracotta-500"
           >
             {addDomain.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
@@ -67,6 +66,7 @@ export default function DomainsPage() {
             Add
           </Button>
         </div>
+        <p className="mt-2 text-xs text-white/30">Enter your domain to get started. We'll guide you through DNS setup.</p>
       </div>
 
       {/* Domains list */}

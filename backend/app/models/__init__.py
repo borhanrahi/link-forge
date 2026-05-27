@@ -12,3 +12,4 @@ from app.models.subscription import Subscription
 from app.models.invoice import Invoice
 from app.models.feature_usage import FeatureUsage
 from app.models.webhook_event import WebhookEvent
+from app.models.notification import Notification

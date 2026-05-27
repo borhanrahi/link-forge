@@ -2,13 +2,14 @@ import hashlib
 import logging
 from typing import Optional
 from uuid import UUID
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select
 
 from app.models.click import Click
 from app.models.link import Link
+from app.models.notification import Notification
 from app.services.geo_ip import geo_ip_service
 
 logger = logging.getLogger(__name__)
@@ -66,5 +67,17 @@ async def log_click(
     link = result.scalar_one_or_none()
     if link:
         link.clicks_count = (link.clicks_count or 0) + 1
+
+    if link and link.user_id:
+        notif = Notification(
+            workspace_id=link.workspace_id,
+            user_id=link.user_id,
+            type="link_click",
+            title=f"New click on {link.title or link.short_code}",
+            message=f"Clicked from {country_code or 'Unknown'} via {device_type}",
+            link_id=link.id,
+            link_title=link.title,
+        )
+        db.add(notif)
 
     return click

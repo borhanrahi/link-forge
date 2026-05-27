@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Stat } from "@/components/ui";
 import { useAnalytics } from "@/hooks";
 import { BarChart3, MousePointerClick, Globe, Smartphone, TrendingUp, Activity, TrendingDown, Sparkles } from "lucide-react";
@@ -12,16 +12,54 @@ function periodTrend(current: number, previous: number): { value: string; positi
 }
 
 function TimeRangeSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const options = [
+    { value: "7d", label: "Last 7 days" },
+    { value: "30d", label: "Last 30 days" },
+    { value: "90d", label: "Last 90 days" },
+  ];
+
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl px-3 text-sm text-white/70 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
-    >
-      <option value="7d">Last 7 days</option>
-      <option value="30d">Last 30 days</option>
-      <option value="90d">Last 90 days</option>
-    </select>
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex h-9 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl px-3 text-sm text-white/70 hover:bg-white/[0.06] transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
+      >
+        {options.find((o) => o.value === value)?.label}
+        <svg className="h-3.5 w-3.5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 w-44 rounded-xl border border-white/[0.08] bg-[#0d0b0a] backdrop-blur-2xl shadow-2xl shadow-black/50 overflow-hidden z-50">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+              className={`w-full px-3.5 py-2.5 text-sm text-left transition-colors ${
+                value === opt.value
+                  ? "text-white bg-white/[0.06] font-medium"
+                  : "text-white/50 hover:text-white hover:bg-white/[0.03]"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
