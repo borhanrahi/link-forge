@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Input, Toggle } from "@/components/ui";
+import { Button, Input, Toggle } from "@/components/ui";
 import { useCurrentUser } from "@/hooks";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
-import { Loader2, User, Shield, SlidersHorizontal } from "lucide-react";
+import { Loader2, User, Shield, SlidersHorizontal, Sparkles } from "lucide-react";
 
 export default function SettingsPage() {
   const { user } = useCurrentUser();
@@ -65,19 +65,31 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Settings</h1>
-        <p className="mt-1 text-sm text-neutral-400">Manage your account settings</p>
+      {/* Hero header */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+        <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
+        <div className="absolute inset-0 bg-grid opacity-[0.03]" />
+        <div className="relative">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
+            <Sparkles className="h-3 w-3" />
+            Account
+          </span>
+          <h1 className="text-4xl font-black tracking-tight">
+            <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
+              Settings
+            </span>
+          </h1>
+          <p className="mt-2 text-sm text-white/40 font-light">Manage your account settings</p>
+        </div>
       </div>
 
       {/* Profile */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-5">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-terracotta-500/10 text-terracotta-400">
-            <User className="h-4 w-4" />
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6 space-y-5">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06]">
+            <User className="h-5 w-5" />
           </div>
-          <h3 className="font-semibold text-white">Profile</h3>
+          <h3 className="font-semibold text-white/70">Profile</h3>
         </div>
         <Input
           label="Full name"
@@ -93,25 +105,25 @@ export default function SettingsPage() {
           disabled
           hint="Email cannot be changed yet"
         />
-        <div className="pt-1">
-          <button
+        <div className="pt-2">
+          <Button
             onClick={handleSaveProfile}
             disabled={savingProfile}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-terracotta-500 to-terracotta-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-terracotta-500/20 transition-all hover:from-terracotta-400 hover:to-terracotta-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/25 hover:shadow-xl hover:shadow-terracotta-500/30 hover:from-terracotta-400 hover:to-terracotta-500"
           >
-            {savingProfile && <Loader2 className="h-4 w-4 animate-spin" />}
+            {savingProfile && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
             Save Changes
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Security */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-5">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
-            <Shield className="h-4 w-4" />
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6 space-y-5">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 text-blue-400 ring-1 ring-white/[0.06]">
+            <Shield className="h-5 w-5" />
           </div>
-          <h3 className="font-semibold text-white">Security</h3>
+          <h3 className="font-semibold text-white/70">Security</h3>
         </div>
         <Input
           label="Current password"
@@ -134,30 +146,30 @@ export default function SettingsPage() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirm new password"
         />
-        <div className="pt-1">
-          <button
+        <div className="pt-2">
+          <Button
+            variant="outline"
             onClick={handleUpdatePassword}
             disabled={savingPassword || !currentPassword || !newPassword || !confirmPassword}
-            className="inline-flex items-center gap-2 rounded-lg border border-neutral-800 px-4 py-2.5 text-sm font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {savingPassword && <Loader2 className="h-4 w-4 animate-spin" />}
+            {savingPassword && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
             Update Password
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Preferences */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-4">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
-            <SlidersHorizontal className="h-4 w-4" />
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6 space-y-4">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 text-purple-400 ring-1 ring-white/[0.06]">
+            <SlidersHorizontal className="h-5 w-5" />
           </div>
-          <h3 className="font-semibold text-white">Preferences</h3>
+          <h3 className="font-semibold text-white/70">Preferences</h3>
         </div>
         <Toggle label="Email notifications for new clicks" checked onChange={() => {}} />
-        <div className="border-t border-neutral-800" />
+        <div className="border-t border-white/[0.06]" />
         <Toggle label="Weekly analytics digest" checked onChange={() => {}} />
-        <div className="border-t border-neutral-800" />
+        <div className="border-t border-white/[0.06]" />
         <Toggle label="Public profile page" checked={false} onChange={() => {}} />
       </div>
     </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Badge } from "@/components/ui";
-import { FileText, ExternalLink, ArrowLeft, Download } from "lucide-react";
+import { Card, Badge, Button } from "@/components/ui";
+import { FileText, ArrowLeft, Download } from "lucide-react";
 
 const MOCK_INVOICES = [
   { id: "INV-001", date: "Mar 15, 2025", amount: 19.0, status: "paid" },
@@ -28,7 +28,7 @@ export default function InvoicesPage() {
       </div>
 
       {/* Invoices list */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 overflow-hidden">
+      <Card>
         <div className="divide-y divide-neutral-800">
           {MOCK_INVOICES.map((inv) => (
             <div key={inv.id} className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-neutral-800/30">
@@ -49,19 +49,16 @@ export default function InvoicesPage() {
                   {inv.status}
                 </Badge>
                 {inv.amount > 0 && (
-                  <button
-                    type="button"
-                    className="flex items-center gap-1.5 rounded-lg border border-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200 transition-all"
-                  >
-                    <Download className="h-3 w-3" />
+                  <Button variant="outline" size="sm">
+                    <Download className="h-3 w-3 mr-1.5" />
                     PDF
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

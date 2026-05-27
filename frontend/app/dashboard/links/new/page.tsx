@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Input } from "@/components/ui";
+import { Card, CardContent, Button, Input } from "@/components/ui";
 import { useCreateLink } from "@/hooks";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -78,65 +78,67 @@ export default function NewLinkPage() {
       </div>
 
       {/* Form */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            label="Destination URL *"
-            type="url"
-            placeholder="https://example.com/my-long-url"
-            value={originalUrl}
-            onChange={(e) => setOriginalUrl(e.target.value)}
-            error={errors.originalUrl}
-          />
+      <Card>
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              label="Destination URL *"
+              type="url"
+              placeholder="https://example.com/my-long-url"
+              value={originalUrl}
+              onChange={(e) => setOriginalUrl(e.target.value)}
+              error={errors.originalUrl}
+            />
 
-          <Input
-            label="Title"
-            placeholder="My Link (optional)"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+            <Input
+              label="Title"
+              placeholder="My Link (optional)"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
-          <Input
-            label="Custom Alias"
-            placeholder="my-custom-alias (optional)"
-            value={customAlias}
-            onChange={(e) => setCustomAlias(e.target.value)}
-            hint="Leave blank for an auto-generated short code"
-          />
+            <Input
+              label="Custom Alias"
+              placeholder="my-custom-alias (optional)"
+              value={customAlias}
+              onChange={(e) => setCustomAlias(e.target.value)}
+              hint="Leave blank for an auto-generated short code"
+            />
 
-          <Input
-            label="Password Protection"
-            type="password"
-            placeholder="Set a password (optional)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            hint="Require visitors to enter a password before accessing the link"
-          />
+            <Input
+              label="Password Protection"
+              type="password"
+              placeholder="Set a password (optional)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              hint="Require visitors to enter a password before accessing the link"
+            />
 
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={createLink.isPending}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-terracotta-500 to-terracotta-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-terracotta-500/20 transition-all hover:from-terracotta-400 hover:to-terracotta-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {createLink.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                "Create Link"
-              )}
-            </button>
-            <Link
-              href="/dashboard/links"
-              className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
-            >
-              Cancel
-            </Link>
-          </div>
-        </form>
-      </div>
+            <div className="flex items-center gap-3 pt-2">
+              <Button
+                type="submit"
+                disabled={createLink.isPending}
+                className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/20 hover:from-terracotta-400 hover:to-terracotta-500"
+              >
+                {createLink.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Link"
+                )}
+              </Button>
+              <Link
+                href="/dashboard/links"
+                className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
+              >
+                Cancel
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

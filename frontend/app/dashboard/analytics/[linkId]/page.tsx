@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, Stat } from "@/components/ui";
+import { Card, CardContent, Button, Badge } from "@/components/ui";
 import { useLinks, useLinkAnalytics } from "@/hooks";
 import { ArrowLeft, ExternalLink, TrendingUp, Users, Activity, BarChart3 } from "lucide-react";
 
@@ -45,39 +45,47 @@ export default function LinkAnalyticsPage() {
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 backdrop-blur-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-terracotta-500/10 text-terracotta-400">
-              <TrendingUp className="h-5 w-5" />
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-terracotta-500/10 text-terracotta-400">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm text-neutral-400">Total Clicks</p>
+                <p className="text-2xl font-bold text-white">{totalClicks.toLocaleString()}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-neutral-400">Total Clicks</p>
-              <p className="text-2xl font-bold text-white">{totalClicks.toLocaleString()}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                <Users className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm text-neutral-400">Unique Clicks</p>
+                <p className="text-2xl font-bold text-white">{(link?.unique_clicks_count ?? 0).toLocaleString()}</p>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 backdrop-blur-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
-              <Users className="h-5 w-5" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+                <Activity className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm text-neutral-400">Status</p>
+                <Badge variant={link?.is_active ? "success" : "default"} className="mt-1">
+                  {link?.is_active ? "Active" : "Inactive"}
+                </Badge>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-neutral-400">Unique Clicks</p>
-              <p className="text-2xl font-bold text-white">{(link?.unique_clicks_count ?? 0).toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 backdrop-blur-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
-              <Activity className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm text-neutral-400">Status</p>
-              <p className="text-2xl font-bold text-white">{link?.is_active ? "Active" : "Inactive"}</p>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Chart placeholder */}

@@ -2,15 +2,32 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import {
   LayoutDashboard, Link2, BarChart3, Layout, QrCode, Globe, Users,
-  CreditCard, Settings, ChevronLeft, PanelLeft, LogOut, User, Bell,
-  Sparkles,
+  CreditCard, Settings, LogOut, User, Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, DropdownMenu } from "@/components/ui";
 import { useCurrentUser } from "@/hooks";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -24,209 +41,137 @@ const NAV_ITEMS = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
-export function Sidebar() {
+export function AppSidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-neutral-800/70 bg-neutral-950/90 backdrop-blur-sm transition-all duration-200",
-        collapsed ? "w-[68px]" : "w-60",
-      )}
-    >
-      {/* Logo */}
-      <div
-        className={cn(
-          "flex h-14 items-center border-b border-neutral-800/50",
-          collapsed ? "justify-center px-0" : "px-4",
-        )}
-      >
-        <Link href="/dashboard" className={cn("flex items-center gap-2.5", collapsed && "justify-center")}>
+    <Sidebar variant="sidebar" collapsible="icon">
+      <SidebarHeader>
+        <Link href="/dashboard" className="flex items-center gap-2.5 px-2 py-1">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-terracotta-400 to-terracotta-600 text-xs font-bold text-white shadow-sm">
             L
           </div>
-          {!collapsed && (
-            <span className="text-sm font-semibold tracking-tight text-white">
-              LinkNest
-            </span>
-          )}
+          <span className="text-sm font-semibold tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
+            LinkNest
+          </span>
         </Link>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 p-3">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const active =
-            pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
-                active
-                  ? "bg-terracotta-500/10 text-terracotta-300 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-5 before:w-[3px] before:rounded-r-full before:bg-terracotta-500"
-                  : "text-neutral-400 hover:bg-neutral-800/40 hover:text-white",
-                collapsed && "justify-center px-2",
-              )}
-              title={collapsed ? item.label : undefined}
-            >
-              <Icon
-                className={cn(
-                  "h-[18px] w-[18px] shrink-0 transition-colors",
-                  active ? "text-terracotta-400" : "text-neutral-500",
-                )}
-              />
-              {!collapsed && <span>{item.label}</span>}
-              {collapsed && (
-                <span className="invisible absolute left-full ml-3 rounded-md bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-200 opacity-0 shadow-sm transition-all group-hover:visible group-hover:opacity-100 whitespace-nowrap z-50">
-                  {item.label}
-                </span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Collapse toggle */}
-      <button
-        type="button"
-        onClick={() => setCollapsed(!collapsed)}
-        className="hidden md:flex items-center justify-center border-t border-neutral-800/50 p-3.5 text-neutral-600 transition-colors hover:text-neutral-400"
-      >
-        <ChevronLeft
-          className={cn("h-4 w-4 transition-transform duration-200", collapsed && "rotate-180")}
-        />
-      </button>
-    </aside>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarMenu>
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const active =
+              pathname === item.href ||
+              (item.href !== "/" && pathname.startsWith(item.href + "/"));
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  isActive={active}
+                  tooltip={item.label}
+                  render={<Link href={item.href} />}
+                >
+                  <Icon className={cn(active ? "text-terracotta-400" : "")} />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border/50 p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="sm" render={<Link href="/dashboard/settings" />}>
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 }
 
-export function Header() {
+function UserAvatar({ name, email }: { name?: string | null; email?: string | null }) {
+  const initials = name
+    ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : email?.slice(0, 2).toUpperCase() || "?";
+  return (
+    <Avatar size="sm">
+      <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
+    </Avatar>
+  );
+}
+
+export function AppHeader() {
   const { user, logout } = useCurrentUser();
+  const pathname = usePathname();
 
   const handleSignOut = () => {
     logout();
     window.location.href = "/login";
   };
 
+  const currentPage = NAV_ITEMS.find(
+    (item) => pathname === item.href || pathname.startsWith(item.href + "/")
+  );
+
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-neutral-800/50 bg-neutral-950/60 backdrop-blur-xl px-6">
-      {/* Mobile menu trigger */}
-      <div className="md:hidden">
-        <MobileMenu />
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/50 bg-background/60 backdrop-blur-xl px-4 lg:px-6">
+      <SidebarTrigger className="-ml-1.5 size-8 text-muted-foreground data-[state=open]:bg-accent" />
+
+      {/* Page title */}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        {currentPage && (
+          <>
+            <currentPage.icon className="h-4 w-4 text-terracotta-500 shrink-0 hidden sm:block" />
+            <h1 className="text-sm font-medium text-foreground truncate">
+              {currentPage.label}
+            </h1>
+          </>
+        )}
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Right side actions */}
-      <div className="flex items-center gap-0.5">
+      {/* Right side */}
+      <div className="flex items-center gap-1">
         {/* Notifications */}
-        <button
-          type="button"
-          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-all hover:bg-neutral-800/60 hover:text-neutral-300"
-        >
+        <Button variant="ghost" size="icon-sm" className="relative text-muted-foreground">
           <Bell className="h-[17px] w-[17px]" />
-          <span className="absolute right-2.5 top-2 h-1.5 w-1.5 rounded-full bg-terracotta-500 ring-2 ring-neutral-950" />
-        </button>
+          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-terracotta-500 ring-2 ring-background" />
+        </Button>
 
         {/* User menu */}
-        <DropdownMenu
-          trigger={
-            <button
-              type="button"
-              className="flex items-center gap-2.5 rounded-lg p-1.5 transition-all hover:bg-neutral-800/60"
-            >
-              <Avatar src={null} name={user?.full_name || "User"} size="sm" />
-              {user?.full_name && (
-                <span className="hidden sm:block text-sm font-medium text-neutral-400 max-w-[120px] truncate">
-                  {user.full_name}
-                </span>
-              )}
-            </button>
-          }
-          items={[
-            { label: "Profile", icon: <User className="h-[14px] w-[14px]" /> },
-            {
-              label: "Settings",
-              icon: <Settings className="h-[14px] w-[14px]" />,
-              onClick: () => window.location.href = "/dashboard/settings",
-            },
-            { separator: true, label: "", onClick: () => {} },
-            {
-              label: "Sign out",
-              icon: <LogOut className="h-[14px] w-[14px]" />,
-              danger: true,
-              onClick: handleSignOut,
-            },
-          ]}
-        />
+        <DropdownMenu>
+          <DropdownMenuTrigger render={
+            <Button variant="ghost" size="sm" className="gap-2 px-1.5 text-muted-foreground hover:text-foreground" />
+          }>
+            <UserAvatar name={user?.full_name} email={user?.email} />
+            {user?.full_name && (
+              <span className="hidden sm:inline max-w-[100px] truncate text-sm font-medium">
+                {user.full_name}
+              </span>
+            )}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-foreground">{user?.full_name || "User"}</span>
+                <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => window.location.href = "/dashboard/settings"}>
+              <Settings className="h-4 w-4" />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
-  );
-}
-
-function MobileMenu() {
-  const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-  const close = () => setOpen(false);
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-all hover:bg-neutral-800/60 hover:text-neutral-300"
-      >
-        <PanelLeft className="h-[17px] w-[17px]" />
-      </button>
-      {open && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-neutral-950/60 backdrop-blur-sm" onClick={close} />
-          <aside className="relative z-10 flex h-full w-64 flex-col border-r border-neutral-800/50 bg-neutral-950/95 backdrop-blur-sm">
-            <div className="flex h-14 items-center border-b border-neutral-800/50 px-4">
-              <Link href="/" className="flex items-center gap-2.5" onClick={close}>
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-terracotta-400 to-terracotta-600 text-xs font-bold text-white shadow-sm">
-                  L
-                </div>
-                <span className="text-sm font-semibold text-white">LinkNest</span>
-              </Link>
-            </div>
-            <nav className="flex-1 space-y-0.5 p-3">
-              {NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const active =
-                  pathname === item.href ||
-                  (item.href !== "/" && pathname.startsWith(item.href + "/"));
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={close}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
-                    active
-                      ? "bg-terracotta-500/10 text-terracotta-300"
-                      : "text-neutral-400 hover:bg-neutral-800/40 hover:text-white",
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        "h-[18px] w-[18px]",
-                        active ? "text-terracotta-400" : "text-neutral-500",
-                      )}
-                    />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </aside>
-        </div>
-      )}
-    </>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { Button, Badge } from "@/components/ui";
+import { Card, CardContent, Button, Badge } from "@/components/ui";
 import { useSubscription, usePlans } from "@/hooks";
-import { CreditCard, Check, Loader2, Sparkles, Shield } from "lucide-react";
+import { CreditCard, Check, Loader2, Sparkles } from "lucide-react";
 
 const DEFAULT_PLANS = [
   {
@@ -31,27 +31,37 @@ export default function BillingPage() {
 
   return (
     <div className="max-w-5xl space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Billing</h1>
-        <p className="mt-1 text-sm text-neutral-400">Manage your subscription and plan</p>
+      {/* Hero header */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+        <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
+        <div className="absolute inset-0 bg-grid opacity-[0.03]" />
+        <div className="relative">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
+            <Sparkles className="h-3 w-3" />
+            Billing
+          </span>
+          <h1 className="text-4xl font-black tracking-tight">
+            <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
+              Billing
+            </span>
+          </h1>
+          <p className="mt-2 text-sm text-white/40 font-light">Manage your subscription and plan</p>
+        </div>
       </div>
 
       {/* Current plan card */}
-      <div className="rounded-xl border border-neutral-800 bg-gradient-to-r from-neutral-900 to-neutral-950 p-6">
+      <div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6">
         {subLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
+          <Loader2 className="h-5 w-5 animate-spin text-white/40" />
         ) : (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-600/10 text-terracotta-400">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06]">
                 <CreditCard className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-lg font-semibold text-white capitalize">
-                  {currentPlan} Plan
-                </p>
-                <p className="text-sm text-neutral-400">
+                <p className="text-lg font-semibold text-white/80 capitalize">{currentPlan} Plan</p>
+                <p className="text-sm text-white/40">
                   {subscription?.status === "active"
                     ? `Next billing: ${subscription.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : "N/A"}`
                     : "No active subscription"}
@@ -68,63 +78,55 @@ export default function BillingPage() {
       {/* Plan comparison */}
       {plansLoading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-neutral-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-white/20" />
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-3">
           {(plans as any[]).map((plan: any) => {
             const isCurrent = plan.name?.toLowerCase() === currentPlan;
             return (
-              <div
+              <Card
                 key={plan.name}
-                className={`relative rounded-xl border bg-neutral-900/50 p-6 backdrop-blur-sm transition-all hover:border-neutral-700 ${
-                  plan.popular
-                    ? "border-terracotta-600/50 shadow-lg shadow-terracotta-500/5"
-                    : "border-neutral-800"
-                }`}
+                className={`relative ${plan.popular ? "border-terracotta-500/40" : ""}`}
               >
-                {plan.popular && !isCurrent && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-terracotta-500 to-terracotta-600 px-3 py-1 text-xs font-semibold text-white shadow-lg">
-                      <Sparkles className="h-3 w-3" />
-                      Popular
-                    </span>
-                  </div>
-                )}
-                <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-white">{plan.price}</span>
-                  <span className="text-sm text-neutral-500">/month</span>
-                </div>
-                <ul className="mt-6 space-y-3">
-                  {(plan.features || []).map((f: string) => (
-                    <li key={f} className="flex items-start gap-3 text-sm text-neutral-300">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8">
-                  {isCurrent ? (
-                    <button
-                      disabled
-                      className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2.5 text-sm font-medium text-neutral-400 cursor-not-allowed"
-                    >
-                      Current Plan
-                    </button>
-                  ) : (
-                    <button
-                      className={`w-full rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                        plan.popular
-                          ? "bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white hover:from-terracotta-400 hover:to-terracotta-500 shadow-lg shadow-terracotta-500/20"
-                          : "border border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white"
-                      }`}
-                    >
-                      Upgrade to {plan.name}
-                    </button>
+                <CardContent className="p-6">
+                  {plan.popular && !isCurrent && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-terracotta-500 to-terracotta-600 px-3 py-1 text-xs font-semibold text-white shadow-lg">
+                        <Sparkles className="h-3 w-3" />
+                        Popular
+                      </span>
+                    </div>
                   )}
-                </div>
-              </div>
+                  <h3 className="text-lg font-semibold text-white/80">{plan.name}</h3>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-white">{plan.price}</span>
+                    <span className="text-sm text-white/30">/month</span>
+                  </div>
+                  <ul className="mt-6 space-y-3">
+                    {(plan.features || []).map((f: string) => (
+                      <li key={f} className="flex items-start gap-3 text-sm text-white/60">
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8">
+                    {isCurrent ? (
+                      <Button variant="outline" disabled className="w-full">
+                        Current Plan
+                      </Button>
+                    ) : (
+                      <Button
+                        variant={plan.popular ? "default" : "outline"}
+                        className={plan.popular ? "w-full bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/20 hover:from-terracotta-400 hover:to-terracotta-500" : "w-full"}
+                      >
+                        Upgrade to {plan.name}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
