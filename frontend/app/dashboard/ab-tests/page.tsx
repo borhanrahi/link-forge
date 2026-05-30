@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { EmptyState } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { FlaskConical, Plus, Trash2, ToggleLeft, ToggleRight, Sparkles, External
 import { toast } from "sonner";
 
 export default function ABTestsPage() {
+  const router = useRouter();
   const { data: tests } = useABTests();
   const createTest = useCreateABTest();
   const toggleTest = useToggleABTest();
@@ -22,11 +24,23 @@ export default function ABTestsPage() {
   ]);
 
   const handleCreate = async () => {
-    if (!name.trim() || variants.some(v => !v.url)) return;
+    if (!name.trim()) {
+      toast.error("Please enter a test name");
+      return;
+    }
+    const emptyUrls = variants.filter(v => !v.url.trim());
+    if (emptyUrls.length > 0) {
+      toast.error(`Please enter a destination URL for "${emptyUrls[0].name}"`);
+      return;
+    }
     try {
       await createTest.mutateAsync({ name: name.trim(), variants });
       setOpen(false);
       setName("");
+      setVariants([
+        { name: "Control", url: "", weight: 50 },
+        { name: "Variant B", url: "", weight: 50 },
+      ]);
       toast.success("A/B test created");
     } catch {
       toast.error("Failed to create A/B test");
@@ -59,17 +73,28 @@ export default function ABTestsPage() {
       {tests && tests.length > 0 ? (
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl divide-y divide-white/[0.06]">
           {tests.map((test: any) => (
-            <div key={test.id} className="flex items-center justify-between px-6 py-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06]">
+            <div
+              key={test.id}
+              className="flex items-center justify-between px-6 py-4 cursor-pointer transition-all duration-200 hover:bg-white/[0.03]"
+              onClick={() => router.push(`/dashboard/ab-tests/${test.id}`)}
+            >
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06] shrink-0">
                   <FlaskConical className="h-4 w-4" />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-white/80">{test.name}</p>
-                  <p className="text-xs text-white/40">{test.variants?.length || 0} variants · /{test.short_code}</p>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white/80 truncate">{test.name}</p>
+                  <p className="text-xs text-white/40">
+                    {test.variants?.length || 0} variants · /{test.short_code}
+                    {test.variants && (
+                      <span className="ml-2">
+                        · {test.variants.reduce((a: number, v: any) => a + (v.clicks_count || 0), 0)} total clicks
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => toggleTest.mutate(test.id)} className="text-white/40 hover:text-white transition-colors">
                   {test.is_active ? <ToggleRight className="h-5 w-5 text-forest-400" /> : <ToggleLeft className="h-5 w-5" />}
                 </button>
@@ -123,7 +148,9 @@ export default function ABTestsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white" onClick={handleCreate}>Create</Button>
+            <Button className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white" onClick={handleCreate} disabled={createTest.isPending}>
+              {createTest.isPending ? "Creating..." : "Create"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

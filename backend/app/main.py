@@ -49,11 +49,11 @@ def create_app() -> FastAPI:
     app.include_router(subscriptions.router)
     app.include_router(webhooks.router)
     app.include_router(notifications.router)
-    app.include_router(redirect.router)
     app.include_router(tags.router)
     app.include_router(api_keys.router)
     app.include_router(click_goal_alerts.router)
     app.include_router(ab_tests.router)
+    app.include_router(redirect.router)
     app.include_router(export_import.router)
 
     @app.get("/")

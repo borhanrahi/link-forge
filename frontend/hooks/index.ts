@@ -468,6 +468,25 @@ export function useABTests() {
   });
 }
 
+export function useABTest(id: string) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["ab-tests", id],
+    queryFn: () => api.get<any>(`/ab-tests/${id}`),
+    enabled: isAuthenticated && !!id,
+  });
+}
+
+export function useABTestAnalytics(id: string, range: string = "30d") {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["ab-tests", id, "analytics", range],
+    queryFn: () => api.get<any>(`/ab-tests/${id}/analytics?range=${range}`),
+    enabled: isAuthenticated && !!id,
+    refetchInterval: 15000,
+  });
+}
+
 export function useCreateABTest() {
   const queryClient = useQueryClient();
   return useMutation({

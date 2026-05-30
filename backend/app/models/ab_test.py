@@ -36,3 +36,4 @@ class ABTestVariant(Base):
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
     ab_test = relationship("ABTest", back_populates="variants")
+    clicks = relationship("Click", back_populates="ab_test_variant")

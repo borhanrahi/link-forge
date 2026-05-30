@@ -25,6 +25,7 @@ async def log_click(
     ip_address: Optional[str],
     user_agent: Optional[str],
     referrer: Optional[str],
+    ab_test_variant_id: Optional[UUID] = None,
 ) -> Click:
     ip_hash = hash_ip(ip_address) if ip_address else None
     country_code = None
@@ -49,6 +50,7 @@ async def log_click(
 
     click = Click(
         link_id=link_id,
+        ab_test_variant_id=ab_test_variant_id,
         ip_address=ip_address,
         ip_hash=ip_hash,
         country_code=country_code,

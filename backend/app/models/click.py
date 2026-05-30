@@ -5,6 +5,8 @@ from sqlalchemy import Column, String, DateTime, ForeignKey, Text, BigInteger
 from sqlalchemy.dialects.postgresql import UUID, INET
 from sqlalchemy.orm import relationship
 
+from sqlalchemy.orm import relationship
+
 from app.database import Base
 
 
@@ -12,7 +14,8 @@ class Click(Base):
     __tablename__ = "clicks"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    link_id = Column(UUID(as_uuid=True), ForeignKey("links.id", ondelete="cascade"), nullable=False)
+    link_id = Column(UUID(as_uuid=True), ForeignKey("links.id", ondelete="cascade"), nullable=True)
+    ab_test_variant_id = Column(UUID(as_uuid=True), ForeignKey("ab_test_variants.id", ondelete="set_null"), nullable=True)
     ip_address = Column(INET)
     ip_hash = Column(String(64))
     country_code = Column(String(2))
@@ -30,3 +33,4 @@ class Click(Base):
     clicked_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
     link = relationship("Link", back_populates="clicks")
+    ab_test_variant = relationship("ABTestVariant", back_populates="clicks")
