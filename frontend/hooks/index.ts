@@ -22,6 +22,7 @@ export function useLinks() {
     queryKey: ["links"],
     queryFn: () => api.get<Link[]>("/links"),
     enabled: isAuthenticated,
+    staleTime: 15_000,
   });
 }
 
@@ -85,6 +86,7 @@ export function useBioPages() {
     queryKey: ["bio-pages"],
     queryFn: () => api.get<BioPage[]>("/bio-pages"),
     enabled: isAuthenticated,
+    staleTime: 15_000,
   });
 }
 
@@ -409,6 +411,7 @@ export function useAPIKeys() {
     queryKey: ["api-keys"],
     queryFn: () => api.get<any[]>("/api-keys"),
     enabled: isAuthenticated,
+    staleTime: 30_000,
   });
 }
 
