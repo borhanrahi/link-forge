@@ -24,8 +24,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={cn(instrumentSerif.variable, "font-sans", geist.variable)}>
-      <body>
+    <html lang="en" className={cn(instrumentSerif.variable, "font-sans", geist.variable)} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>
