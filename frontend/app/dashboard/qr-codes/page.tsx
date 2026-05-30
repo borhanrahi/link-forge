@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useQRCodes, useCreateQRCode, useDeleteQRCode, useRegenerateQR, useLinks, useCreateLink } from "@/hooks";
 import { QrCode, Download, Plus, Trash2, Palette, ExternalLink, X, Check, Copy, Loader2, Sparkles } from "lucide-react";
+import { LinkSelect } from "@/components/link-select";
 import type { QRCodeWithLink } from "@/types/generated";
 import { toast } from "sonner";
 
@@ -207,21 +208,12 @@ export default function QrCodesPage() {
           </div>
 
           {createMode === "existing" ? (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/70">Select Link</label>
-              <select
-                value={selectedLink}
-                onChange={(e) => setSelectedLink(e.target.value)}
-                className="h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl px-3 text-sm text-white/70 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
-              >
-                <option value="">Choose a link...</option>
-                {activeLinks.map((link: any) => (
-                  <option key={link.id} value={link.id}>
-                    {link.title || link.short_code} — {(link.original_url || "").slice(0, 50)}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <LinkSelect
+              value={selectedLink}
+              onChange={setSelectedLink}
+              links={activeLinks}
+              placeholder="Choose a link..."
+            />
           ) : (
             <div className="space-y-3">
               <input
