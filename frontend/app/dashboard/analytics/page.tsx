@@ -1,161 +1,229 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Stat } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { useAnalytics } from "@/hooks";
-import { BarChart3, MousePointerClick, Globe, Smartphone, TrendingUp, Activity, TrendingDown, Sparkles } from "lucide-react";
+import {
+  MousePointerClick, Globe, BarChart3, Download, Users,
+  TrendingUp, TrendingDown, Sparkles, Activity,
+} from "lucide-react";
+import { ClicksAreaChart, DevicePieChart, ReferrerBarChart, GeoBarChart } from "@/components/charts";
 
-function periodTrend(current: number, previous: number): { value: string; positive: boolean } | undefined {
-  if (previous <= 0) return undefined;
-  const pct = Math.round(((current - previous) / previous) * 100);
-  return { value: `${Math.abs(pct)}%`, positive: pct >= 0 };
-}
+const RANGES = [
+  { value: "7d", label: "7D" },
+  { value: "30d", label: "30D" },
+  { value: "90d", label: "90D" },
+] as const;
 
-function TimeRangeSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  const options = [
-    { value: "7d", label: "Last 7 days" },
-    { value: "30d", label: "Last 30 days" },
-    { value: "90d", label: "Last 90 days" },
-  ];
-
+function RangeTabs({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="flex h-9 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl px-3 text-sm text-white/70 hover:bg-white/[0.06] transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
-      >
-        {options.find((o) => o.value === value)?.label}
-        <svg className="h-3.5 w-3.5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-44 rounded-xl border border-white/[0.08] bg-[#0d0b0a] backdrop-blur-2xl shadow-2xl shadow-black/50 overflow-hidden z-50">
-          {options.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => { onChange(opt.value); setOpen(false); }}
-              className={`w-full px-3.5 py-2.5 text-sm text-left transition-colors ${
-                value === opt.value
-                  ? "text-white bg-white/[0.06] font-medium"
-                  : "text-white/50 hover:text-white hover:bg-white/[0.03]"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
+    <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.03] p-1">
+      {RANGES.map((r) => (
+        <button
+          key={r.value}
+          onClick={() => onChange(r.value)}
+          className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+            value === r.value
+              ? "bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-md shadow-terracotta-500/20"
+              : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"
+          }`}
+        >
+          {r.label}
+        </button>
+      ))}
     </div>
   );
 }
 
 export default function AnalyticsPage() {
   const [range, setRange] = useState("7d");
-  const { data: analytics } = useAnalytics(range);
-  const summary = analytics?.summary;
-  const totalClicks = summary?.total_clicks ?? 0;
-  const todayClicks = summary?.today_clicks ?? 0;
-  const weekClicks = summary?.week_clicks ?? 0;
-  const prevWeek = summary?.prev_week_clicks ?? 0;
-  const prevMonth = summary?.prev_month_clicks ?? 0;
+  const { data: analytics, isLoading } = useAnalytics(range);
+  const s = analytics?.summary;
 
-  const periods = [
-    { label: "Today", clicks: todayClicks, prev: 0 },
-    { label: "This Week", clicks: weekClicks, prev: prevWeek },
-    { label: "This Month", clicks: totalClicks, prev: prevMonth },
-  ];
+  const totalClicks = s?.total_clicks ?? 0;
+  const todayClicks = s?.today_clicks ?? 0;
+  const weekClicks = s?.week_clicks ?? 0;
+  const prevWeek = s?.prev_week_clicks ?? 0;
+  const prevMonth = s?.prev_month_clicks ?? 0;
 
-  const maxClicks = Math.max(...periods.map((p) => Math.max(p.clicks, p.prev || 1)), 1);
+  const weekTrend = prevWeek > 0 ? Math.round(((weekClicks - prevWeek) / prevWeek) * 100) : null;
+  const monthTrend = prevMonth > 0 ? Math.round(((totalClicks - prevMonth) / prevMonth) * 100) : null;
+
+  const handleExport = () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("neon_session_token") : null;
+    const workspaceId = typeof window !== "undefined" ? localStorage.getItem("active_workspace_id") : null;
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/analytics/export?range=${range}`, { headers })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `analytics-${range}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+  };
 
   return (
-    <div className="space-y-10">
-      {/* Hero header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-8 lg:p-10">
-        <div className="absolute -inset-x-40 -top-40 h-[600px] w-[800px] rounded-full bg-terracotta-500/10 blur-[150px]" />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+        <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-3">
               <Sparkles className="h-3 w-3" />
-              Insights
+              Analytics
             </span>
-            <h1 className="text-5xl font-black tracking-tight">
+            <h1 className="text-4xl font-black tracking-tight">
               <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-                Analytics
+                Performance Overview
               </span>
             </h1>
-            <p className="mt-2 text-sm text-white/40 font-light">Track your link performance</p>
+            <p className="mt-1.5 text-sm text-white/40 font-light">Track clicks, visitors, and engagement across all your links</p>
           </div>
-          <TimeRangeSelect value={range} onChange={setRange} />
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5">
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+            <RangeTabs value={range} onChange={setRange} />
+          </div>
         </div>
       </div>
 
-      {/* Stats */}
+      {/* KPI Cards */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Total Clicks" value={totalClicks.toLocaleString()} icon={<MousePointerClick className="h-4 w-4" />} accent />
-        <Stat label="Unique Visitors" value={summary?.unique_clicks != null ? summary.unique_clicks.toLocaleString() : "0"} icon={<Globe className="h-4 w-4" />} />
-        <Stat label="Total Links" value={summary?.total_links ?? 0} icon={<BarChart3 className="h-4 w-4" />} />
-        <Stat label="Top Country" value={summary?.top_country ?? "\u2014"} icon={<Smartphone className="h-4 w-4" />} />
+        <div className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all hover:border-terracotta-500/20 hover:bg-white/[0.05]">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06]">
+              <MousePointerClick className="h-5 w-5" />
+            </div>
+            {weekTrend !== null && (
+              <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${weekTrend >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                {weekTrend >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                {Math.abs(weekTrend)}%
+              </span>
+            )}
+          </div>
+          <p className="text-3xl font-black tabular-nums text-white">{totalClicks.toLocaleString()}</p>
+          <p className="text-xs text-white/40 mt-1">Total Clicks</p>
+        </div>
+
+        <div className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all hover:border-blue-500/20 hover:bg-white/[0.05]">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 text-blue-400 ring-1 ring-white/[0.06]">
+              <Users className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="text-3xl font-black tabular-nums text-white">{(s?.unique_clicks ?? 0).toLocaleString()}</p>
+          <p className="text-xs text-white/40 mt-1">Unique Visitors</p>
+        </div>
+
+        <div className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all hover:border-forest-500/20 hover:bg-white/[0.05]">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-forest-500/20 to-forest-500/5 text-forest-400 ring-1 ring-white/[0.06]">
+              <BarChart3 className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="text-3xl font-black tabular-nums text-white">{s?.total_links ?? 0}</p>
+          <p className="text-xs text-white/40 mt-1">Active Links</p>
+        </div>
+
+        <div className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all hover:border-purple-500/20 hover:bg-white/[0.05]">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 text-purple-400 ring-1 ring-white/[0.06]">
+              <Globe className="h-5 w-5" />
+            </div>
+            {monthTrend !== null && (
+              <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${monthTrend >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                {monthTrend >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                {Math.abs(monthTrend)}%
+              </span>
+            )}
+          </div>
+          <p className="text-3xl font-black tabular-nums text-white">{s?.top_country ?? "—"}</p>
+          <p className="text-xs text-white/40 mt-1">Top Country</p>
+        </div>
       </div>
 
-      {/* Click Activity — glass panel */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6 lg:p-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06]">
+      {/* Period comparison bars */}
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta-500/10 text-terracotta-400">
             <Activity className="h-4 w-4" />
           </div>
-          <h3 className="text-base font-semibold text-white/70">Click Activity</h3>
+          <h3 className="text-sm font-semibold text-white/70">Period Breakdown</h3>
         </div>
-        <div className="space-y-7">
-          {periods.map((item) => {
-            const trend = periodTrend(item.clicks, item.prev);
+        <div className="space-y-5">
+          {[
+            { label: "Today", value: todayClicks, color: "from-terracotta-500 to-terracotta-400" },
+            { label: "This Week", value: weekClicks, prev: prevWeek, color: "from-blue-500 to-blue-400" },
+            { label: "This Month", value: totalClicks, prev: prevMonth, color: "from-forest-500 to-forest-400" },
+          ].map((item) => {
+            const maxVal = Math.max(item.value, item.prev || 0, 1);
+            const trend = item.prev != null && item.prev > 0
+              ? Math.round(((item.value - item.prev) / item.prev) * 100)
+              : null;
             return (
-              <div key={item.label} className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-white/40">{item.label}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl font-black tabular-nums text-white">{item.clicks.toLocaleString()}</span>
-                    {trend && (
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium backdrop-blur-xl ${
-                        trend.positive
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : "bg-red-500/10 text-red-400 border border-red-500/20"
-                      }`}>
-                        {trend.positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                        {trend.value}
+              <div key={item.label}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-medium text-white/40">{item.label}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold tabular-nums text-white">{item.value.toLocaleString()}</span>
+                    {trend !== null && (
+                      <span className={`text-[10px] font-semibold ${trend >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                        {trend >= 0 ? "+" : ""}{trend}%
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="relative h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                <div className="relative h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                   <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-terracotta-600 via-terracotta-500 to-terracotta-400 transition-all duration-700 ease-out"
-                    style={{ width: `${Math.min(100, (item.clicks / maxClicks) * 100)}%` }}
+                    className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${item.color} transition-all duration-700`}
+                    style={{ width: `${Math.min(100, (item.value / maxVal) * 100)}%` }}
                   />
                 </div>
-                {item.prev > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-white/20">
-                    <span className="h-2 w-2 rounded-full bg-white/[0.06]" />
-                    Previous period: {item.prev.toLocaleString()} clicks
-                  </div>
-                )}
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Main chart */}
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+        <div className="px-6 pt-5 pb-1">
+          <h3 className="text-sm font-semibold text-white/70">Click Trends</h3>
+          <p className="text-xs text-white/30 mt-0.5">Daily clicks over the selected period</p>
+        </div>
+        <ClicksAreaChart data={analytics?.timeseries || []} height={320} />
+      </div>
+
+      {/* Breakdown charts */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+          <div className="px-5 pt-4 pb-1">
+            <h3 className="text-sm font-semibold text-white/70">Devices</h3>
+          </div>
+          <DevicePieChart data={analytics?.devices || []} height={260} />
+        </div>
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+          <div className="px-5 pt-4 pb-1">
+            <h3 className="text-sm font-semibold text-white/70">Referrers</h3>
+          </div>
+          <ReferrerBarChart data={analytics?.referrers || []} height={260} />
+        </div>
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+          <div className="px-5 pt-4 pb-1">
+            <h3 className="text-sm font-semibold text-white/70">Geography</h3>
+          </div>
+          <GeoBarChart data={analytics?.geo || []} height={260} />
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ from uuid import UUID
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select, func, cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,7 +18,6 @@ from app.schemas.analytics import (
     AnalyticsSummary, TimeSeriesPoint, GeoPoint,
     DeviceBreakdown, ReferrerBreakdown, AnalyticsDashboard,
 )
-from app.schemas.click import ClickResponse, ClickExportRow
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
@@ -43,6 +43,7 @@ async def dashboard(
     db: AsyncSession = Depends(get_db),
 ):
     start_date, end_date = _get_date_range(range)
+    now = datetime.utcnow()
 
     links_result = await db.execute(
         select(Link).where(Link.workspace_id == workspace.id)
@@ -59,12 +60,12 @@ async def dashboard(
             referrers=[],
         )
 
-    now = datetime.utcnow()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = now - timedelta(days=7)
-    month_start = now - timedelta(days=30)
     prev_week_start = now - timedelta(days=14)
     prev_week_end = now - timedelta(days=7)
+    prev_month_start = now - timedelta(days=60)
+    prev_month_end = now - timedelta(days=30)
 
     async def count_clicks(since: datetime, until: datetime | None = None) -> int:
         q = select(func.count(Click.id)).where(
@@ -76,12 +77,12 @@ async def dashboard(
         r = await db.execute(q)
         return r.scalar() or 0
 
-    total_clicks, unique_clicks, today_clicks, week_clicks, prev_week_clicks = await asyncio.gather(
+    total_clicks, today_clicks, week_clicks, prev_week_clicks, prev_month_clicks = await asyncio.gather(
         count_clicks(start_date, end_date),
-        count_clicks(start_date, end_date),  # unique below
         count_clicks(today_start),
         count_clicks(week_start),
         count_clicks(prev_week_start, prev_week_end),
+        count_clicks(prev_month_start, prev_month_end),
     )
 
     uniq = await db.execute(
@@ -94,7 +95,24 @@ async def dashboard(
     )
     unique_clicks = uniq.scalar() or 0
 
-    top_country = await db.execute(
+    # Timeseries
+    ts_result = await db.execute(
+        select(
+            cast(Click.clicked_at, Date).label("date"),
+            func.count().label("clicks"),
+        )
+        .where(
+            Click.link_id.in_(link_ids),
+            Click.clicked_at >= start_date,
+            Click.clicked_at <= end_date,
+        )
+        .group_by(cast(Click.clicked_at, Date))
+        .order_by(cast(Click.clicked_at, Date))
+    )
+    timeseries = [TimeSeriesPoint(date=str(r.date), clicks=r.clicks, unique_clicks=0) for r in ts_result]
+
+    # Geo
+    geo_result = await db.execute(
         select(Click.country_code, func.count().label("cnt"))
         .where(
             Click.link_id.in_(link_ids),
@@ -104,113 +122,15 @@ async def dashboard(
         )
         .group_by(Click.country_code)
         .order_by(func.count().desc())
-        .limit(1)
+        .limit(10)
     )
-    tc = top_country.first()
+    geo = [GeoPoint(country_code=r.country_code, country=r.country_code, clicks=r.cnt) for r in geo_result]
 
-    return AnalyticsDashboard(
-        summary=AnalyticsSummary(
-            total_clicks=total_clicks,
-            unique_clicks=unique_clicks,
-            total_links=len(links),
-            top_country=tc[0] if tc else None,
-            today_clicks=today_clicks,
-            week_clicks=week_clicks,
-            prev_week_clicks=prev_week_clicks,
-            prev_month_clicks=0,
-        ),
-        timeseries=[],
-        geo=[],
-        devices=[],
-        referrers=[],
-    )
-
-
-@router.get("/{link_id}")
-async def link_analytics(
-    link_id: UUID,
-    range: str = Query("30d"),
-    user: User = Depends(get_current_user),
-    workspace: Workspace = Depends(get_active_workspace),
-    db: AsyncSession = Depends(get_db),
-):
-    start_date, end_date = _get_date_range(range)
-
-    total = await db.execute(
-        select(func.count(Click.id)).where(
-            Click.link_id == link_id,
-            Click.clicked_at >= start_date,
-            Click.clicked_at <= end_date,
-        )
-    )
-    total_clicks = total.scalar() or 0
-
-    return {"link_id": str(link_id), "total_clicks": total_clicks, "range": range}
-
-
-@router.get("/{link_id}/timeseries")
-async def link_timeseries(
-    link_id: UUID,
-    range: str = Query("30d"),
-    user: User = Depends(get_current_user),
-    workspace: Workspace = Depends(get_active_workspace),
-    db: AsyncSession = Depends(get_db),
-):
-    start_date, end_date = _get_date_range(range)
-    result = await db.execute(
-        select(
-            cast(Click.clicked_at, Date).label("date"),
-            func.count().label("clicks"),
-        )
-        .where(
-            Click.link_id == link_id,
-            Click.clicked_at >= start_date,
-            Click.clicked_at <= end_date,
-        )
-        .group_by(cast(Click.clicked_at, Date))
-        .order_by(cast(Click.clicked_at, Date))
-    )
-    points = [TimeSeriesPoint(date=str(r.date), clicks=r.clicks, unique_clicks=0) for r in result]
-    return points
-
-
-@router.get("/{link_id}/geo")
-async def link_geo(
-    link_id: UUID,
-    range: str = Query("30d"),
-    user: User = Depends(get_current_user),
-    workspace: Workspace = Depends(get_active_workspace),
-    db: AsyncSession = Depends(get_db),
-):
-    start_date, end_date = _get_date_range(range)
-    result = await db.execute(
-        select(Click.country_code, func.count().label("cnt"))
-        .where(
-            Click.link_id == link_id,
-            Click.clicked_at >= start_date,
-            Click.clicked_at <= end_date,
-            Click.country_code.isnot(None),
-        )
-        .group_by(Click.country_code)
-        .order_by(func.count().desc())
-        .limit(20)
-    )
-    return [GeoPoint(country_code=r.country_code, country=r.country_code, clicks=r.cnt) for r in result]
-
-
-@router.get("/{link_id}/devices")
-async def link_devices(
-    link_id: UUID,
-    range: str = Query("30d"),
-    user: User = Depends(get_current_user),
-    workspace: Workspace = Depends(get_active_workspace),
-    db: AsyncSession = Depends(get_db),
-):
-    start_date, end_date = _get_date_range(range)
-    result = await db.execute(
+    # Devices
+    dev_result = await db.execute(
         select(Click.device_type, func.count().label("cnt"))
         .where(
-            Click.link_id == link_id,
+            Click.link_id.in_(link_ids),
             Click.clicked_at >= start_date,
             Click.clicked_at <= end_date,
             Click.device_type.isnot(None),
@@ -218,27 +138,18 @@ async def link_devices(
         .group_by(Click.device_type)
         .order_by(func.count().desc())
     )
-    rows = result.all()
-    total = sum(r.cnt for r in rows) or 1
-    return [
-        DeviceBreakdown(device_type=r.device_type, clicks=r.cnt, percentage=round(r.cnt / total * 100, 1))
-        for r in rows
+    dev_rows = dev_result.all()
+    dev_total = sum(r.cnt for r in dev_rows) or 1
+    devices = [
+        DeviceBreakdown(device_type=r.device_type, clicks=r.cnt, percentage=round(r.cnt / dev_total * 100, 1))
+        for r in dev_rows
     ]
 
-
-@router.get("/{link_id}/referrers")
-async def link_referrers(
-    link_id: UUID,
-    range: str = Query("30d"),
-    user: User = Depends(get_current_user),
-    workspace: Workspace = Depends(get_active_workspace),
-    db: AsyncSession = Depends(get_db),
-):
-    start_date, end_date = _get_date_range(range)
-    result = await db.execute(
+    # Referrers
+    ref_result = await db.execute(
         select(Click.referrer, func.count().label("cnt"))
         .where(
-            Click.link_id == link_id,
+            Click.link_id.in_(link_ids),
             Click.clicked_at >= start_date,
             Click.clicked_at <= end_date,
             Click.referrer.isnot(None),
@@ -247,12 +158,32 @@ async def link_referrers(
         .order_by(func.count().desc())
         .limit(10)
     )
-    rows = result.all()
-    total = sum(r.cnt for r in rows) or 1
-    return [
-        ReferrerBreakdown(referrer=r.referrer or "direct", clicks=r.cnt, percentage=round(r.cnt / total * 100, 1))
-        for r in rows
+    ref_rows = ref_result.all()
+    ref_total = sum(r.cnt for r in ref_rows) or 1
+    referrers = [
+        ReferrerBreakdown(referrer=r.referrer or "direct", clicks=r.cnt, percentage=round(r.cnt / ref_total * 100, 1))
+        for r in ref_rows
     ]
+
+    # Top country
+    tc = geo[0] if geo else None
+
+    return AnalyticsDashboard(
+        summary=AnalyticsSummary(
+            total_clicks=total_clicks,
+            unique_clicks=unique_clicks,
+            total_links=len(links),
+            top_country=tc.country_code if tc else None,
+            today_clicks=today_clicks,
+            week_clicks=week_clicks,
+            prev_week_clicks=prev_week_clicks,
+            prev_month_clicks=prev_month_clicks,
+        ),
+        timeseries=timeseries,
+        geo=geo,
+        devices=devices,
+        referrers=referrers,
+    )
 
 
 @router.get("/sparklines")
@@ -261,9 +192,7 @@ async def sparklines(
     workspace: Workspace = Depends(get_active_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    """Return last 7 days of click data for all links in the workspace."""
     from collections import defaultdict
-
     now = datetime.utcnow()
     start_date = now - timedelta(days=6)
 
@@ -275,7 +204,6 @@ async def sparklines(
     if not link_ids:
         return {}
 
-    # Get daily counts per link for last 7 days
     rows = await db.execute(
         select(
             Click.link_id,
@@ -314,11 +242,21 @@ async def export_csv(
     workspace: Workspace = Depends(get_active_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    from fastapi.responses import StreamingResponse
     import csv, io
 
     start_date, end_date = _get_date_range(range)
-    query = select(Click).where(Click.clicked_at >= start_date, Click.clicked_at <= end_date)
+
+    # Get workspace link IDs for scoping
+    links_result = await db.execute(
+        select(Link.id).where(Link.workspace_id == workspace.id)
+    )
+    link_ids = [r[0] for r in links_result.all()]
+
+    query = select(Click).where(
+        Click.link_id.in_(link_ids),
+        Click.clicked_at >= start_date,
+        Click.clicked_at <= end_date,
+    )
     if link_id:
         query = query.where(Click.link_id == link_id)
     query = query.order_by(Click.clicked_at.desc())
@@ -338,3 +276,137 @@ async def export_csv(
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=clicks.csv"},
     )
+
+
+@router.get("/{link_id}")
+async def link_analytics(
+    link_id: UUID,
+    range: str = Query("30d"),
+    user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(get_active_workspace),
+    db: AsyncSession = Depends(get_db),
+):
+    start_date, end_date = _get_date_range(range)
+    now = datetime.utcnow()
+
+    # Verify link belongs to workspace
+    link_result = await db.execute(
+        select(Link).where(Link.id == link_id, Link.workspace_id == workspace.id)
+    )
+    link = link_result.scalar_one_or_none()
+    if not link:
+        return {"link_id": str(link_id), "total_clicks": 0, "range": range, "timeseries": [], "geo": [], "devices": [], "referrers": []}
+
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = now - timedelta(days=7)
+    prev_week_start = now - timedelta(days=14)
+    prev_week_end = now - timedelta(days=7)
+
+    total, today_c, week_c, prev_week_c = await asyncio.gather(
+        _count_link_clicks(db, link_id, start_date, end_date),
+        _count_link_clicks(db, link_id, today_start),
+        _count_link_clicks(db, link_id, week_start),
+        _count_link_clicks(db, link_id, prev_week_start, prev_week_end),
+    )
+
+    uniq = await db.execute(
+        select(func.count(func.distinct(Click.ip_hash))).where(
+            Click.link_id == link_id,
+            Click.clicked_at >= start_date,
+            Click.clicked_at <= end_date,
+            Click.ip_hash.isnot(None),
+        )
+    )
+    unique_clicks = uniq.scalar() or 0
+
+    # Timeseries
+    ts_result = await db.execute(
+        select(
+            cast(Click.clicked_at, Date).label("date"),
+            func.count().label("clicks"),
+        )
+        .where(
+            Click.link_id == link_id,
+            Click.clicked_at >= start_date,
+            Click.clicked_at <= end_date,
+        )
+        .group_by(cast(Click.clicked_at, Date))
+        .order_by(cast(Click.clicked_at, Date))
+    )
+    timeseries = [TimeSeriesPoint(date=str(r.date), clicks=r.clicks, unique_clicks=0) for r in ts_result]
+
+    # Geo
+    geo_result = await db.execute(
+        select(Click.country_code, func.count().label("cnt"))
+        .where(
+            Click.link_id == link_id,
+            Click.clicked_at >= start_date,
+            Click.clicked_at <= end_date,
+            Click.country_code.isnot(None),
+        )
+        .group_by(Click.country_code)
+        .order_by(func.count().desc())
+        .limit(10)
+    )
+    geo = [GeoPoint(country_code=r.country_code, country=r.country_code, clicks=r.cnt) for r in geo_result]
+
+    # Devices
+    dev_result = await db.execute(
+        select(Click.device_type, func.count().label("cnt"))
+        .where(
+            Click.link_id == link_id,
+            Click.clicked_at >= start_date,
+            Click.clicked_at <= end_date,
+            Click.device_type.isnot(None),
+        )
+        .group_by(Click.device_type)
+        .order_by(func.count().desc())
+    )
+    dev_rows = dev_result.all()
+    dev_total = sum(r.cnt for r in dev_rows) or 1
+    devices = [
+        DeviceBreakdown(device_type=r.device_type, clicks=r.cnt, percentage=round(r.cnt / dev_total * 100, 1))
+        for r in dev_rows
+    ]
+
+    # Referrers
+    ref_result = await db.execute(
+        select(Click.referrer, func.count().label("cnt"))
+        .where(
+            Click.link_id == link_id,
+            Click.clicked_at >= start_date,
+            Click.clicked_at <= end_date,
+            Click.referrer.isnot(None),
+        )
+        .group_by(Click.referrer)
+        .order_by(func.count().desc())
+        .limit(10)
+    )
+    ref_rows = ref_result.all()
+    ref_total = sum(r.cnt for r in ref_rows) or 1
+    referrers = [
+        ReferrerBreakdown(referrer=r.referrer or "direct", clicks=r.cnt, percentage=round(r.cnt / ref_total * 100, 1))
+        for r in ref_rows
+    ]
+
+    return {
+        "link_id": str(link_id),
+        "total_clicks": total,
+        "unique_clicks": unique_clicks,
+        "today_clicks": today_c,
+        "week_clicks": week_c,
+        "prev_week_clicks": prev_week_c,
+        "range": range,
+        "timeseries": [t.model_dump() for t in timeseries],
+        "geo": [g.model_dump() for g in geo],
+        "devices": [d.model_dump() for d in devices],
+        "referrers": [r.model_dump() for r in referrers],
+    }
+
+
+async def _count_link_clicks(db, link_id, since, until=None):
+    q = select(func.count(Click.id)).where(Click.link_id == link_id, Click.clicked_at >= since)
+    if until:
+        q = q.where(Click.clicked_at <= until)
+    r = await db.execute(q)
+    return r.scalar() or 0
