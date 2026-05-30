@@ -4,13 +4,32 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppSidebar, AppHeader } from "@/components/layout";
+import { CommandPalette } from "@/components/command-palette";
 import { Toaster } from "sonner";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/lib/auth-store";
+import { useKeyboardShortcut } from "@/hooks/use-keyboard-shortcut";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+
+  useKeyboardShortcut({
+    key: "n",
+    modifiers: ["ctrl"],
+    handler: useCallback(() => {
+      router.push("/dashboard/links/new");
+    }, [router]),
+  });
+
+  useKeyboardShortcut({
+    key: "b",
+    modifiers: ["ctrl"],
+    handler: useCallback(() => {
+      router.push("/dashboard/bio-pages/new");
+    }, [router]),
+  });
+
   const { isAuthenticated, isLoadingApp } = useAuthStore();
   const [queryClient] = useState(() => new QueryClient());
 
@@ -56,6 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           }}
         />
       </SidebarProvider>
+      <CommandPalette />
     </QueryClientProvider>
   );
 }

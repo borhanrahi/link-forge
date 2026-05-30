@@ -125,6 +125,10 @@ export {
 } from "@/components/ui/dropdown-menu";
 export { Separator } from "@/components/ui/separator";
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+export { CopyButton } from "@/components/ui/copy-button";
+export { StatusBadge } from "@/components/ui/status-badge";
+export { SearchInput } from "@/components/ui/search-input";
+export { Sparkline } from "@/components/ui/sparkline";
 
 // ─── Legacy Avatar (for simple use cases) ───
 interface AvatarSimpleProps {

@@ -6,6 +6,8 @@ import { useAuthStore } from "@/lib/auth-store";
 
 import type { User, Workspace, Link, BioPage, CustomDomain, BioBlock, Invoice, Subscription, QRCodeWithLink } from "@/types/generated";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 // ─── Auth ───
 
 export function useCurrentUser() {
@@ -295,6 +297,18 @@ export function useUTMPresets() {
   });
 }
 
+// ─── Sparklines ───
+
+export function useSparklines() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["analytics", "sparklines"],
+    queryFn: () => api.get<Record<string, number[]>>("/analytics/sparklines"),
+    enabled: isAuthenticated,
+    staleTime: 60000,
+  });
+}
+
 // ─── Notifications ───
 
 export function useNotifications() {
@@ -346,6 +360,234 @@ export function useInviteMember() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members"] });
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    },
+  });
+}
+
+// ─── Tags ───
+
+export function useTags() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["tags"],
+    queryFn: () => api.get<any[]>("/tags"),
+    enabled: isAuthenticated,
+  });
+}
+
+export function useCreateTag() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string; color?: string }) =>
+      api.post<any>("/tags", data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tags"] }),
+  });
+}
+
+export function useDeleteTag() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/tags/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tags"] }),
+  });
+}
+
+export function useSetLinkTags() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ linkId, tagIds }: { linkId: string; tagIds: string[] }) =>
+      api.post(`/tags/link/${linkId}`, { tag_ids: tagIds }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["links"] }),
+  });
+}
+
+// ─── API Keys ───
+
+export function useAPIKeys() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["api-keys"],
+    queryFn: () => api.get<any[]>("/api-keys"),
+    enabled: isAuthenticated,
+  });
+}
+
+export function useCreateAPIKey() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string; scopes?: string }) =>
+      api.post<any>("/api-keys", data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["api-keys"] }),
+  });
+}
+
+export function useRevokeAPIKey() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/api-keys/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["api-keys"] }),
+  });
+}
+
+// ─── Click Goal Alerts ───
+
+export function useClickGoalAlerts() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["click-goal-alerts"],
+    queryFn: () => api.get<any[]>("/alerts"),
+    enabled: isAuthenticated,
+  });
+}
+
+export function useCreateClickGoalAlert() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { link_id: string; goal_clicks: number }) =>
+      api.post<any>("/alerts", data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["click-goal-alerts"] }),
+  });
+}
+
+export function useDeleteClickGoalAlert() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/alerts/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["click-goal-alerts"] }),
+  });
+}
+
+// ─── A/B Tests ───
+
+export function useABTests() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["ab-tests"],
+    queryFn: () => api.get<any[]>("/ab-tests"),
+    enabled: isAuthenticated,
+  });
+}
+
+export function useCreateABTest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string; variants: { name: string; url: string; weight: number }[] }) =>
+      api.post<any>("/ab-tests", data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ab-tests"] }),
+  });
+}
+
+export function useToggleABTest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.post(`/ab-tests/${id}/toggle`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ab-tests"] }),
+  });
+}
+
+export function useDeleteABTest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/ab-tests/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ab-tests"] }),
+  });
+}
+
+// ─── Link Analytics ───
+
+export function useLinkTimeseries(linkId: string, range: string = "30d") {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["analytics", linkId, "timeseries", range],
+    queryFn: () => api.get<any[]>(`/analytics/${linkId}/timeseries?range=${range}`),
+    enabled: isAuthenticated && !!linkId,
+  });
+}
+
+export function useLinkGeo(linkId: string, range: string = "30d") {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["analytics", linkId, "geo", range],
+    queryFn: () => api.get<any[]>(`/analytics/${linkId}/geo?range=${range}`),
+    enabled: isAuthenticated && !!linkId,
+  });
+}
+
+export function useLinkDevices(linkId: string, range: string = "30d") {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["analytics", linkId, "devices", range],
+    queryFn: () => api.get<any[]>(`/analytics/${linkId}/devices?range=${range}`),
+    enabled: isAuthenticated && !!linkId,
+  });
+}
+
+export function useLinkReferrers(linkId: string, range: string = "30d") {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: ["analytics", linkId, "referrers", range],
+    queryFn: () => api.get<any[]>(`/analytics/${linkId}/referrers?range=${range}`),
+    enabled: isAuthenticated && !!linkId,
+  });
+}
+
+// ─── Bulk Operations ───
+
+export function useBulkLinkAction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { link_ids: string[]; action: string }) =>
+      api.post<any>("/links/bulk/action", data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["links"] }),
+  });
+}
+
+export function useReorderLinks() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (linkIds: string[]) =>
+      api.post<any>("/links/reorder", { link_ids: linkIds }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["links"] }),
+  });
+}
+
+// ─── Export/Import ───
+
+export function useExportWorkspace() {
+  return useMutation({
+    mutationFn: async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('neon_session_token') : null;
+      const workspaceId = typeof window !== 'undefined' ? localStorage.getItem('active_workspace_id') : null;
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      if (workspaceId) headers["X-Workspace-Id"] = workspaceId;
+      
+      const res = await fetch(`${API_BASE}/workspace/export`, { headers });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "linknest-export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+  });
+}
+
+// ─── Billing Checkout ───
+
+export function useCheckout() {
+  return useMutation({
+    mutationFn: async (data: { price_id: string }) => {
+      const res = await api.post<{ url: string }>("/billing/checkout", {
+        price_id: data.price_id,
+        success_url: typeof window !== "undefined" ? `${window.location.origin}/dashboard/billing?success=true` : "",
+        cancel_url: typeof window !== "undefined" ? `${window.location.origin}/dashboard/billing?canceled=true` : "",
+      });
+      if (res.url && typeof window !== "undefined") {
+        window.location.href = res.url;
+      }
+      return res;
     },
   });
 }

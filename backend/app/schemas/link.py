@@ -2,6 +2,7 @@ from pydantic import BaseModel, HttpUrl
 from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
+from app.schemas.tag import TagResponse
 
 
 class LinkCreate(BaseModel):
@@ -11,6 +12,8 @@ class LinkCreate(BaseModel):
     password: Optional[str] = None
     is_cloaked: bool = False
     expires_at: Optional[datetime] = None
+    publish_at: Optional[datetime] = None
+    position: Optional[int] = 0
 
 
 class LinkUpdate(BaseModel):
@@ -20,6 +23,8 @@ class LinkUpdate(BaseModel):
     is_active: Optional[bool] = None
     is_cloaked: Optional[bool] = None
     expires_at: Optional[datetime] = None
+    publish_at: Optional[datetime] = None
+    position: Optional[int] = 0
 
 
 class LinkResponse(BaseModel):
@@ -35,6 +40,9 @@ class LinkResponse(BaseModel):
     is_active: bool
     is_cloaked: bool
     expires_at: Optional[datetime] = None
+    publish_at: Optional[datetime] = None
+    position: Optional[int] = 0
+    tags: List[TagResponse] = []
     created_at: datetime
     updated_at: datetime
 

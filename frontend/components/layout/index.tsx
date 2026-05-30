@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Link2, BarChart3, Layout, QrCode, Globe, Users,
   CreditCard, Settings, LogOut, User, Bell, CheckCheck, MousePointerClick,
+  Key, FlaskConical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser, useNotifications, useMarkAllRead, useMarkRead } from "@/hooks";
@@ -29,6 +30,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useState, useRef, useEffect } from "react";
 
 const NAV_ITEMS = [
@@ -40,6 +42,9 @@ const NAV_ITEMS = [
   { href: "/dashboard/domains", label: "Domains", icon: Globe },
   { href: "/dashboard/team", label: "Team", icon: Users },
   { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
+  { href: "/dashboard/api-keys", label: "API Keys", icon: Key },
+  { href: "/dashboard/alerts", label: "Alerts", icon: Bell },
+  { href: "/dashboard/ab-tests", label: "A/B Tests", icon: FlaskConical },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
@@ -259,6 +264,7 @@ export function AppHeader() {
 
       {/* Right side */}
       <div className="flex items-center gap-1">
+        <ThemeToggle />
         <NotificationBell />
 
         {/* User menu */}

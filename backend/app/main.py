@@ -32,7 +32,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    from app.routers import auth, users, workspaces, links, clicks, analytics, bio_pages, bio_public, qr_codes, custom_domains, utm, billing, subscriptions, webhooks, redirect, notifications
+    from app.routers import auth, users, workspaces, links, clicks, analytics, bio_pages, bio_public, qr_codes, custom_domains, utm, billing, subscriptions, webhooks, redirect, notifications, tags, api_keys, click_goal_alerts, ab_tests, export_import
 
     app.include_router(auth.router)
     app.include_router(users.router)
@@ -50,6 +50,11 @@ def create_app() -> FastAPI:
     app.include_router(webhooks.router)
     app.include_router(notifications.router)
     app.include_router(redirect.router)
+    app.include_router(tags.router)
+    app.include_router(api_keys.router)
+    app.include_router(click_goal_alerts.router)
+    app.include_router(ab_tests.router)
+    app.include_router(export_import.router)
 
     @app.get("/")
     async def root():

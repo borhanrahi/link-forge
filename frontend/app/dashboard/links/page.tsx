@@ -3,31 +3,43 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { EmptyState } from "@/components/ui";
+import { QRCodeSVG } from "qrcode.react";
+import { EmptyState, CopyButton, StatusBadge, SearchInput, Sparkline, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui";
 import { Button } from "@/components/ui/button";
-import { useLinks } from "@/hooks";
-import { Link2, Plus, ExternalLink, Search, Copy, Check, ArrowUpRight, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { useLinks, useSparklines, useBulkLinkAction, useTags } from "@/hooks";
+import { Link2, Plus, ExternalLink, ArrowUpRight, Sparkles, QrCode, Download, X, CheckSquare, Square, Archive, RotateCcw, Trash2, Tag } from "lucide-react";
 
 const SHORT_DOMAIN = "http://localhost:8000";
 
 export default function LinksPage() {
   const router = useRouter();
   const { data: links } = useLinks();
+  const { data: sparklines } = useSparklines();
   const [search, setSearch] = useState("");
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [qrLink, setQrLink] = useState<{ id: string; shortCode: string; title?: string } | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const bulkAction = useBulkLinkAction();
+  const { data: tags } = useTags();
+  const [selectedTag, setSelectedTag] = useState<string>("");
 
   const filtered = links?.filter(
     (l: any) =>
       !search || l.title?.toLowerCase().includes(search.toLowerCase()) || l.short_code?.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const handleCopy = (e: React.MouseEvent, linkId: string, shortUrl: string) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(shortUrl);
-    setCopiedId(linkId);
-    toast.success("Copied to clipboard");
-    setTimeout(() => setCopiedId(null), 1500);
+  const downloadQR = (shortCode: string, title?: string) => {
+    const svg = document.getElementById(`qr-inline-${shortCode}`);
+    if (!svg) return;
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || shortCode}-qr.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -57,16 +69,58 @@ export default function LinksPage() {
       </div>
 
       {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20 pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Search links..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl pl-10 pr-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20 focus:border-terracotta-500/30 transition-all"
-        />
-      </div>
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Search links..."
+      />
+
+      {/* Tag filter */}
+      {tags && tags.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <Tag className="h-3.5 w-3.5 text-white/30" />
+          <button
+            onClick={() => setSelectedTag("")}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+              selectedTag === ""
+                ? "bg-terracotta-500/20 text-terracotta-300 ring-1 ring-terracotta-500/30"
+                : "bg-white/[0.03] text-white/40 hover:text-white/60 ring-1 ring-white/[0.06]"
+            }`}
+          >
+            All
+          </button>
+          {tags.map((tag: string) => (
+            <button
+              key={tag}
+              onClick={() => setSelectedTag(tag)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                selectedTag === tag
+                  ? "bg-terracotta-500/20 text-terracotta-300 ring-1 ring-terracotta-500/30"
+                  : "bg-white/[0.03] text-white/40 hover:text-white/60 ring-1 ring-white/[0.06]"
+              }`}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center gap-3 rounded-2xl border border-terracotta-500/20 bg-terracotta-500/5 backdrop-blur-xl px-4 py-3">
+          <span className="text-sm text-white/60">{selected.size} selected</span>
+          <Button variant="ghost" size="sm" onClick={() => bulkAction.mutate({ link_ids: Array.from(selected), action: "archive" })}>
+            <Archive className="h-3.5 w-3.5 mr-1" /> Archive
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => bulkAction.mutate({ link_ids: Array.from(selected), action: "restore" })}>
+            <RotateCcw className="h-3.5 w-3.5 mr-1" /> Restore
+          </Button>
+          <Button variant="ghost" size="sm" className="text-rust-400 hover:text-rust-300" onClick={() => bulkAction.mutate({ link_ids: Array.from(selected), action: "delete" })}>
+            <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
+        </div>
+      )}
 
       {/* Links list — glass panel */}
       {filtered && filtered.length > 0 ? (
@@ -80,11 +134,29 @@ export default function LinksPage() {
                 className="flex items-center justify-between px-6 py-4 transition-all duration-200 cursor-pointer hover:bg-white/[0.03]"
               >
                 <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelected(prev => {
+                        const next = new Set(prev);
+                        if (next.has(link.id)) next.delete(link.id);
+                        else next.add(link.id);
+                        return next;
+                      });
+                    }}
+                    className="shrink-0"
+                  >
+                    {selected.has(link.id) ? (
+                      <CheckSquare className="h-4 w-4 text-terracotta-400" />
+                    ) : (
+                      <Square className="h-4 w-4 text-white/20" />
+                    )}
+                  </button>
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06] shrink-0">
                     <ExternalLink className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-white/80 truncate max-w-[280px]">
+                    <p className="text-sm font-semibold text-white/80 truncate max-w-[240px]">
                       {link.title || "Untitled"}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -93,21 +165,11 @@ export default function LinksPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="text-xs text-terracotta-400/80 font-mono hover:text-terracotta-300 truncate max-w-[280px] transition-colors"
+                        className="text-xs text-terracotta-400/80 font-mono hover:text-terracotta-300 truncate max-w-[240px] transition-colors"
                       >
                         {shortUrl}
                       </a>
-                      <button
-                        onClick={(e) => handleCopy(e, link.id, shortUrl)}
-                        className="shrink-0 text-white/30 hover:text-white/60 transition-colors"
-                        aria-label="Copy URL"
-                      >
-                        {copiedId === link.id ? (
-                          <Check className="h-3 w-3 text-emerald-400" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                      </button>
+                      <CopyButton text={shortUrl} />
                       <div className="flex items-center gap-1 text-xs text-white/20">
                         <ArrowUpRight className="h-3 w-3" />
                         {link.clicks_count ?? 0}
@@ -115,13 +177,30 @@ export default function LinksPage() {
                     </div>
                   </div>
                 </div>
-                <span className={`inline-flex items-center rounded-full border px-3 py-0.5 text-[11px] font-medium shrink-0 backdrop-blur-xl ${
-                  link.is_active
-                    ? "border-emerald-500/20 text-emerald-400 bg-emerald-500/10"
-                    : "border-white/[0.08] text-white/40 bg-white/[0.03]"
-                }`}>
-                  {link.is_active ? "Active" : "Inactive"}
-                </span>
+                <div className="flex items-center gap-4 shrink-0">
+                  {/* Sparkline */}
+                  <Sparkline
+                    data={sparklines?.[link.id] ?? []}
+                    width={48}
+                    height={18}
+                    className="hidden sm:block"
+                  />
+                  {/* QR download */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setQrLink({ id: link.id, shortCode: link.short_code, title: link.title });
+                    }}
+                    className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg text-white/20 hover:text-terracotta-400 hover:bg-white/[0.06] transition-all"
+                    title="Download QR code"
+                  >
+                    <QrCode className="h-3.5 w-3.5" />
+                  </button>
+                  {/* Status */}
+                  <StatusBadge
+                    status={link.is_active ? "active" : "inactive"}
+                  />
+                </div>
               </div>
             );
           })}
@@ -141,6 +220,46 @@ export default function LinksPage() {
           />
         </div>
       )}
+
+      {/* QR Code Dialog */}
+      <Dialog open={!!qrLink} onOpenChange={(open) => { if (!open) setQrLink(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>QR Code</DialogTitle>
+          </DialogHeader>
+          {qrLink && (
+            <div className="flex flex-col items-center gap-4 py-4">
+              <div className="flex items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
+                <QRCodeSVG
+                  id={`qr-inline-${qrLink.shortCode}`}
+                  value={`${SHORT_DOMAIN}/${qrLink.shortCode}`}
+                  size={160}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+              <p className="text-sm text-white/70 font-mono truncate max-w-full">
+                {SHORT_DOMAIN}/{qrLink.shortCode}
+              </p>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setQrLink(null)}>
+              <X className="h-4 w-4 mr-1.5" />
+              Close
+            </Button>
+            {qrLink && (
+              <Button
+                onClick={() => downloadQR(qrLink.shortCode, qrLink.title)}
+                className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/25 hover:shadow-xl hover:shadow-terracotta-500/30 hover:from-terracotta-400 hover:to-terracotta-500"
+              >
+                <Download className="h-4 w-4 mr-1.5" />
+                Download SVG
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

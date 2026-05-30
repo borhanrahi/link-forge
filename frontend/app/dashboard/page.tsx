@@ -5,6 +5,7 @@ import { Stat, EmptyState } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { useLinks, useAnalytics } from "@/hooks";
 import { Link2, BarChart3, MousePointerClick, QrCode, Layout, ArrowUpRight, ExternalLink, Plus, TrendingUp, Sparkles } from "lucide-react";
+import { OnboardingChecklist } from "@/components/onboarding-checklist";
 
 export default function DashboardPage() {
   const { data: links } = useLinks();
@@ -51,6 +52,9 @@ export default function DashboardPage() {
         <Stat label="Total Clicks" value={totalClicks.toLocaleString()} icon={<MousePointerClick className="h-4 w-4" />} accent />
         <Stat label="Today" value={todayClicks.toLocaleString()} icon={<TrendingUp className="h-4 w-4" />} />
       </div>
+
+      {/* Onboarding checklist */}
+      <OnboardingChecklist />
 
       {/* Quick actions — glass row */}
       <div className="space-y-4">

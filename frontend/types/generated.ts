@@ -34,6 +34,9 @@ export interface Link {
   is_active: boolean;
   is_cloaked: boolean;
   expires_at?: string;
+  publish_at?: string;
+  position: number;
+  tags: Tag[];
   created_at: string;
   updated_at: string;
 }
@@ -146,4 +149,65 @@ export interface QRCodeWithLink {
   scan_count: number;
   created_at: string;
   link: QRCodeLinkInfo;
+}
+
+export interface Tag {
+  id: string;
+  workspace_id: string;
+  name: string;
+  color: string;
+  created_at?: string;
+}
+
+export interface APIKey {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  name: string;
+  key_prefix: string;
+  scopes: string;
+  is_active: boolean;
+  last_used_at?: string;
+  expires_at?: string;
+  created_at?: string;
+}
+
+export interface APIKeyCreated {
+  id: string;
+  name: string;
+  key: string;
+  key_prefix: string;
+  scopes: string;
+  created_at?: string;
+}
+
+export interface ClickGoalAlert {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  link_id: string;
+  goal_clicks: number;
+  is_achieved: boolean;
+  achieved_at?: string;
+  notify_email: boolean;
+  notify_dashboard: boolean;
+  created_at?: string;
+}
+
+export interface ABTestVariant {
+  id: string;
+  name: string;
+  url: string;
+  weight: number;
+  clicks_count: number;
+}
+
+export interface ABTest {
+  id: string;
+  workspace_id: string;
+  name: string;
+  short_code: string;
+  is_active: boolean;
+  variants: ABTestVariant[];
+  created_at?: string;
 }

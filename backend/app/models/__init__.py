@@ -13,3 +13,7 @@ from app.models.invoice import Invoice
 from app.models.feature_usage import FeatureUsage
 from app.models.webhook_event import WebhookEvent
 from app.models.notification import Notification
+from app.models.tag import Tag, LinkTag
+from app.models.api_key import APIKey
+from app.models.click_goal_alert import ClickGoalAlert
+from app.models.ab_test import ABTest, ABTestVariant

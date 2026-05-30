@@ -255,6 +255,57 @@ async def link_referrers(
     ]
 
 
+@router.get("/sparklines")
+async def sparklines(
+    user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(get_active_workspace),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return last 7 days of click data for all links in the workspace."""
+    from collections import defaultdict
+
+    now = datetime.utcnow()
+    start_date = now - timedelta(days=6)
+
+    result = await db.execute(
+        select(Link.id).where(Link.workspace_id == workspace.id)
+    )
+    link_ids = [r[0] for r in result.all()]
+
+    if not link_ids:
+        return {}
+
+    # Get daily counts per link for last 7 days
+    rows = await db.execute(
+        select(
+            Click.link_id,
+            cast(Click.clicked_at, Date).label("date"),
+            func.count().label("clicks"),
+        )
+        .where(
+            Click.link_id.in_(link_ids),
+            Click.clicked_at >= start_date,
+        )
+        .group_by(Click.link_id, cast(Click.clicked_at, Date))
+        .order_by(cast(Click.clicked_at, Date))
+    )
+
+    data = defaultdict(dict)
+    for row in rows:
+        data[str(row.link_id)][str(row.date)] = row.clicks
+
+    result_map = {}
+    for lid in link_ids:
+        sid = str(lid)
+        points = []
+        for i in range(6, -1, -1):
+            day = (now - timedelta(days=i)).strftime("%Y-%m-%d")
+            points.append(data[sid].get(day, 0))
+        result_map[sid] = points
+
+    return result_map
+
+
 @router.get("/export")
 async def export_csv(
     link_id: Optional[UUID] = Query(None),

@@ -31,3 +31,7 @@ class Workspace(Base):
     subscriptions = relationship("Subscription", back_populates="workspace", cascade="all, delete-orphan")
     invoices = relationship("Invoice", back_populates="workspace", cascade="all, delete-orphan")
     feature_usage = relationship("FeatureUsage", back_populates="workspace", cascade="all, delete-orphan")
+    tags = relationship("Tag", back_populates="workspace", cascade="all, delete-orphan")
+    api_keys = relationship("APIKey", back_populates="workspace", cascade="all, delete-orphan")
+    click_goal_alerts = relationship("ClickGoalAlert", back_populates="workspace", cascade="all, delete-orphan")
+    ab_tests = relationship("ABTest", back_populates="workspace", cascade="all, delete-orphan")
