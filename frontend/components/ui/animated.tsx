@@ -195,7 +195,7 @@ export function ShimmerButton({
   };
 
   const baseClasses = cn(
-    "relative inline-flex items-center justify-center overflow-hidden rounded-xl font-medium",
+    "relative inline-flex items-center justify-center overflow-hidden rounded-xl font-medium cursor-pointer",
     "transition-all duration-300",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-500/25 focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-40",

@@ -185,7 +185,7 @@ export default function LandingPage() {
                     </ShimmerButton>
                   </Link>
                   <Link href="/pricing">
-                    <Button variant="outline" size="lg">See Pricing</Button>
+                    <Button variant="outline" size="lg" className="h-13 px-8 text-base border-neutral-300 bg-white/80 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900">See Pricing</Button>
                   </Link>
                 </div>
                 <p className="mt-4 text-xs text-neutral-400">Free forever plan. No credit card required.</p>
