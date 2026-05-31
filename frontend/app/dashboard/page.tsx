@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Stat, EmptyState } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { useLinks, useAnalytics } from "@/hooks";
-import { Link2, BarChart3, MousePointerClick, QrCode, Layout, ArrowUpRight, ExternalLink, Plus, TrendingUp, Sparkles } from "lucide-react";
+import { Link2, BarChart3, MousePointerClick, QrCode, Layout, ArrowUpRight, ExternalLink, Plus, TrendingUp } from "lucide-react";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 
 export default function DashboardPage() {
@@ -23,29 +23,21 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-10">
-      {/* Hero header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-8 lg:p-10">
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-8 lg:p-10">
         <div className="absolute -inset-x-40 -top-40 h-[600px] w-[800px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative">
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase">
-              <Sparkles className="h-3 w-3" />
-              Overview
-            </span>
-          </div>
-          <h1 className="text-5xl font-black tracking-tight">
-            <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-              Dashboard
-            </span>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            Dashboard
           </h1>
-          <p className="mt-2 text-sm text-white/40 max-w-lg font-light tracking-wide">
-            Welcome back. Here&apos;s what&apos;s happening with your links today.
+          <p className="mt-2 text-sm text-white/40 max-w-lg">
+            Welcome back. Here is what is happening with your links today.
           </p>
         </div>
       </div>
 
-      {/* Stats — glass bento grid */}
+      {/* Stats */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Total Links" value={links?.length ?? 0} icon={<Link2 className="h-4 w-4" />} accent />
         <Stat label="Active Links" value={activeLinks} icon={<BarChart3 className="h-4 w-4" />} />
@@ -56,12 +48,9 @@ export default function DashboardPage() {
       {/* Onboarding checklist */}
       <OnboardingChecklist />
 
-      {/* Quick actions — glass row */}
+      {/* Quick actions */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="h-3 w-1 rounded-full bg-terracotta-500" />
-          <h2 className="text-sm font-semibold text-white/60 tracking-wider uppercase">Quick Actions</h2>
-        </div>
+        <h2 className="text-[11px] font-semibold text-white/40 tracking-[0.15em] uppercase">Quick Actions</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           {quickActions.map((action) => {
             const Icon = action.icon;
@@ -69,10 +58,10 @@ export default function DashboardPage() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all duration-300 hover:border-terracotta-500/30 hover:bg-white/[0.06] hover:shadow-[0_0_40px_-8px] hover:shadow-terracotta-500/20"
+                className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all duration-300 hover:border-terracotta-500/30 hover:bg-white/[0.06] hover:shadow-[0_0_30px_-5px] hover:shadow-terracotta-500/15"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06] transition-all duration-300 group-hover:from-terracotta-500/30 group-hover:to-terracotta-500/10 group-hover:ring-terracotta-500/20">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-terracotta-500/10 text-terracotta-400 ring-1 ring-white/[0.06] transition-all duration-300 group-hover:bg-terracotta-500/15 group-hover:ring-terracotta-500/20">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -89,7 +78,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent links — glass panel */}
+      {/* Recent links */}
       <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
         <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
@@ -139,7 +128,7 @@ export default function DashboardPage() {
               title="No links yet"
               description="Create your first shortened link to start tracking clicks."
               action={
-                <Button className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/25 hover:shadow-xl hover:shadow-terracotta-500/30 hover:from-terracotta-400 hover:to-terracotta-500" render={<Link href="/dashboard/links/new" />}>
+                <Button className="bg-terracotta-500 text-white shadow-lg shadow-terracotta-500/25 hover:shadow-xl hover:shadow-terracotta-500/30 hover:bg-terracotta-400" render={<Link href="/dashboard/links/new" />}>
                   <Plus className="h-4 w-4 mr-1.5" />
                   Create Link
                 </Button>

@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-31T00:00:00.000Z",
+  "title": "Design System: LinkNest",
+  "extensions": {
+    "colorMeta": {
+      "ember": { "role": "primary", "displayName": "Ember", "canonical": "oklch(0.52 0.12 45)", "tonalRamp": ["oklch(0.15 0.04 45)", "oklch(0.22 0.06 45)", "oklch(0.30 0.08 45)", "oklch(0.38 0.10 45)", "oklch(0.45 0.11 45)", "oklch(0.52 0.12 45)", "oklch(0.60 0.10 45)", "oklch(0.70 0.08 45)"] },
+      "ember-deep": { "role": "primary-deep", "displayName": "Ember Deep", "canonical": "oklch(0.38 0.10 45)", "tonalRamp": [] },
+      "stone-bg": { "role": "background", "displayName": "Stone BG", "canonical": "oklch(0.071 0.005 55)", "tonalRamp": [] },
+      "stone-surface": { "role": "surface", "displayName": "Stone Surface", "canonical": "oklch(0.13 0.008 55)", "tonalRamp": [] },
+      "stone-elevated": { "role": "border", "displayName": "Stone Elevated", "canonical": "oklch(0.19 0.01 55)", "tonalRamp": [] },
+      "stone-ink": { "role": "text", "displayName": "Stone Ink", "canonical": "oklch(0.96 0.005 70)", "tonalRamp": [] },
+      "stone-muted": { "role": "text-muted", "displayName": "Stone Muted", "canonical": "oklch(0.55 0.01 55)", "tonalRamp": [] },
+      "moss": { "role": "success", "displayName": "Moss", "canonical": "oklch(0.55 0.1 155)", "tonalRamp": ["oklch(0.15 0.03 155)", "oklch(0.25 0.05 155)", "oklch(0.35 0.07 155)", "oklch(0.45 0.09 155)", "oklch(0.55 0.10 155)", "oklch(0.65 0.09 155)", "oklch(0.78 0.07 155)", "oklch(0.90 0.04 155)"] },
+      "rust": { "role": "danger", "displayName": "Rust", "canonical": "oklch(0.55 0.18 35)", "tonalRamp": [] },
+      "sky": { "role": "info", "displayName": "Sky", "canonical": "oklch(0.6 0.16 250)", "tonalRamp": [] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headlines only. Instrument Serif italic." },
+      "headline": { "displayName": "Headline", "purpose": "Major section titles." },
+      "title": { "displayName": "Title", "purpose": "Card titles, modal titles, list item primary text." },
+      "body": { "displayName": "Body", "purpose": "Paragraphs, descriptions, dashboard content. Max 75ch." },
+      "label": { "displayName": "Label", "purpose": "Stat headers, badges, table headers. Uppercase tracked." }
+    },
+    "shadows": [
+      { "name": "accent-glow", "value": "0 0 30px -5px rgba(192,96,48,0.15)", "purpose": "Hover glow on Ember-accented elements." },
+      { "name": "modal-overlay", "value": "0 0 60px -12px rgba(0,0,0,0.6)", "purpose": "Dialog and sheet containers." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for state transitions." },
+      { "name": "duration-fade", "value": "200ms", "purpose": "Opacity and background transitions." },
+      { "name": "duration-move", "value": "300ms", "purpose": "Transform and layout transitions." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ember primary action button. Used for main CTAs: Start Free, Create Link, Save.",
+      "html": "<button class=\"ds-btn-primary\">Start Free</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 20px; background: #c06030; color: #fff; font-family: Geist, system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap; } .ds-btn-primary:hover { background: #a14a28; } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(192,96,48,0.4); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary outline button. Used for See Pricing, View All, Cancel.",
+      "html": "<button class=\"ds-btn-outline\">See Pricing</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 20px; background: transparent; color: #857e77; font-family: Geist, system-ui, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid #2c2723; border-radius: 8px; cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.15s; white-space: nowrap; } .ds-btn-outline:hover { background: rgba(255,255,255,0.06); color: #fff; } .ds-btn-outline:active { transform: translateY(1px); } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(192,96,48,0.4); }"
+    },
+    {
+      "name": "Glass Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Default glass-elevated card for dashboard tiles, feature cards, info panels.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-body\"><div class=\"ds-card-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/></svg></div><h3 class=\"ds-card-title\">Short Links</h3><p class=\"ds-card-desc\">Clean, custom, trackable links your audience trusts at a glance.</p></div></div>",
+      "css": ".ds-card { border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 24px; transition: background 0.2s, border-color 0.2s, transform 0.2s; font-family: Geist, system-ui, sans-serif; } .ds-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); } .ds-card-body { display: flex; flex-direction: column; gap: 16px; } .ds-card-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: rgba(192,96,48,0.15); color: #c06030; } .ds-card-title { margin: 0; font-size: 16px; font-weight: 600; color: rgba(248,247,245,0.9); line-height: 1.4; } .ds-card-desc { margin: 0; font-size: 14px; color: #857e77; line-height: 1.6; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Glass text input for dashboard forms, search, and settings fields.",
+      "html": "<div class=\"ds-input-wrap\"><label class=\"ds-input-label\">Destination URL</label><input class=\"ds-input\" type=\"text\" placeholder=\"https://example.com/my-long-url\"/></div>",
+      "css": ".ds-input-wrap { display: flex; flex-direction: column; gap: 6px; font-family: Geist, system-ui, sans-serif; } .ds-input-label { font-size: 14px; font-weight: 500; color: rgba(248,247,245,0.8); } .ds-input { height: 40px; padding: 0 12px; background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff; font-size: 14px; font-family: Geist, system-ui, sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s; } .ds-input::placeholder { color: rgba(255,255,255,0.3); } .ds-input:focus { border-color: rgba(192,96,48,0.4); box-shadow: 0 0 0 2px rgba(192,96,48,0.2); }"
+    },
+    {
+      "name": "Stat Card",
+      "kind": "card",
+      "refersTo": "stat-default",
+      "description": "Dashboard metric stat card with label, value, and optional accent top bar.",
+      "html": "<div class=\"ds-stat\"><div class=\"ds-stat-label\"><span>Total Links</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/></svg></div><div class=\"ds-stat-value\">1,234</div></div>",
+      "css": ".ds-stat { position: relative; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 20px; font-family: Geist, system-ui, sans-serif; transition: background 0.2s, border-color 0.2s; } .ds-stat:hover { background: rgba(255,255,255,0.05); } .ds-stat-label { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(248,247,245,0.4); } .ds-stat-value { margin-top: 8px; font-size: 36px; font-weight: 900; letter-spacing: -0.03em; color: #fff; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-default",
+      "description": "Small status indicator for link state, plan tiers, and roles.",
+      "html": "<span class=\"ds-badge\">Active</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 1px 10px; border-radius: 999px; font-size: 11px; font-weight: 500; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: rgba(248,247,245,0.4); font-family: Geist, system-ui, sans-serif; white-space: nowrap; }"
+    },
+    {
+      "name": "Empty State",
+      "kind": "custom",
+      "refersTo": "empty-state",
+      "description": "Centered empty state with icon container, title, description, and optional CTA.",
+      "html": "<div class=\"ds-empty\"><div class=\"ds-empty-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"rgba(248,247,245,0.3)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/></svg></div><h3 class=\"ds-empty-title\">No links yet</h3><p class=\"ds-empty-desc\">Create your first shortened link to start tracking clicks.</p><button class=\"ds-btn-primary\">Create Link</button></div>",
+      "css": ".ds-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 64px 24px; font-family: Geist, system-ui, sans-serif; } .ds-empty-icon { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; margin-bottom: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); } .ds-empty-title { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: rgba(248,247,245,0.9); } .ds-empty-desc { margin: 0 0 24px; font-size: 14px; color: rgba(248,247,245,0.4); max-width: 280px; line-height: 1.5; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Control Room",
+    "overview": "A warm, precise command center for creators who own their links. Every metric, every link, every click at your fingertips — like a recording studio control desk where every fader, every meter, every button has a deliberate place. The interface is dark without being brooding, warm without being soft, and precise without being cold. This system explicitly rejects the generic SaaS template: no purple-to-blue gradients, no Inter font, no cards nested inside cards, no stray uppercase tracked eyebrows above every section. It favors depth through glass layering over flat surfaces or heavy shadows. The terracotta accent (Ember) is used sparingly — its rarity on any given screen is the point.",
+    "keyCharacteristics": ["Dark ambient background (Stone) with glass-elevated surfaces", "Ember (terracotta) accent used selectively, ≤10% of any screen", "Geist sans-serif for UI, Instrument Serif italic for display moments", "Glass layering: backdrop-blur + rgba borders, no heavy shadows", "Refined and tactile components with 8px radius and subtle transitions", "Confident whitespace — rhythm through spacing, not decorative graphics"],
+    "rules": [
+      { "name": "The Accent Rarity Rule", "body": "Ember covers ≤10% of any given screen. If the accent covers more, it's not accenting — it's wallpaper.", "section": "colors" },
+      { "name": "The Glass-Not-Frost Rule", "body": "Glass surfaces use backdrop-blur with rgba borders on a dark ambient base. They should read as transparent depth, not as frosted white.", "section": "colors" },
+      { "name": "The One-Family UI Rule", "body": "Geist is the sole UI typeface. Instrument Serif is reserved exclusively for display hero moments.", "section": "typography" },
+      { "name": "The No-SaaS-Starter Rule", "body": "No Inter, no system-ui stacks that read 'default startup template.' Geist with Instrument Serif italic is the pair that distinguishes LinkNest.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. Blur and glow appear only as a response to interaction.", "section": "elevation" }
+    ],
+    "dos": [
+      "Use Ember sparingly (≤10% of any screen). Selective accent = intentional design.",
+      "Use glass layering (backdrop-blur + rgba borders) for surface elevation.",
+      "Use Instrument Serif italic for hero display moments only.",
+      "Keep body text at minimum 0.9375rem with 4.5:1 contrast against Stone BG.",
+      "Design every state: empty, loading, error, hover, focus, active, disabled.",
+      "Use text-wrap: balance on headings, text-wrap: pretty on body.",
+      "Use Moss checkmarks for positive/active states.",
+      "Keep card radius at 16px — curved but not pill-shaped.",
+      "Use active:translate-y-px on buttons for tactile press feedback."
+    ],
+    "donts": [
+      "Use gradient text (background-clip: text with gradient). Solid Ember or white only.",
+      "Use glassmorphism decoratively — no random blurs that don't contain content.",
+      "Use uppercase tracked eyebrows above every section. One per page is voice; more than one is template grammar.",
+      "Use the hero-metric template (big number, small label, gradient accent).",
+      "Use identical card grids repeated endlessly. Vary card content patterns.",
+      "Use side-stripe borders (border-left >1px as accent on cards or list items).",
+      "Use bounce, elastic, or spring easing curves.",
+      "Use Inter font. Geist is the UI face; Instrument Serif is the display face.",
+      "Let text overflow its container. Test heading sizes at every breakpoint.",
+      "Use numbered section markers (01 / 02 / 03) as default scaffolding.",
+      "Use all-caps for body copy.",
+      "Let body line length exceed 75ch."
+    ]
+  }
+}

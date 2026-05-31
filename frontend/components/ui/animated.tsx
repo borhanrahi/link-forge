@@ -487,22 +487,22 @@ export function Accordion({ items, className, allowMultiple = false }: Accordion
   };
 
   return (
-    <div className={cn("divide-y divide-neutral-800", className)}>
+    <div className={cn("divide-y divide-neutral-200", className)}>
       {items.map((item, i) => {
         const isOpen = openItems.has(i);
         return (
           <div key={i} className="py-3 first:pt-0 last:pb-0">
             <button
               onClick={() => toggle(i)}
-              className="flex w-full items-center justify-between gap-4 py-3 text-left transition-colors hover:text-terracotta-400"
+              className="flex w-full items-center justify-between gap-4 py-3 text-left transition-colors hover:text-terracotta-600"
             >
-              <span className="text-base font-medium text-neutral-200">
+              <span className="text-base font-medium text-neutral-800">
                 {item.title}
               </span>
               <motion.span
                 animate={{ rotate: isOpen ? 45 : 0 }}
                 transition={{ duration: 0.2, ease: "easeInOut" }}
-                className="shrink-0 text-neutral-500"
+                className="shrink-0 text-neutral-400"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <line x1="12" y1="5" x2="12" y2="19" />
@@ -520,7 +520,7 @@ export function Accordion({ items, className, allowMultiple = false }: Accordion
                   transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
                   className="overflow-hidden"
                 >
-                  <div className="pb-4 text-sm text-neutral-400 leading-relaxed">
+                  <div className="pb-4 text-sm text-neutral-600 leading-relaxed">
                     {item.content}
                   </div>
                 </motion.div>

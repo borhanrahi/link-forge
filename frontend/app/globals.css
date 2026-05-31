@@ -166,12 +166,6 @@ body {
 }
 
 /* ─── Utility Classes ─── */
-.text-gradient {
-  background: linear-gradient(135deg, var(--color-terracotta-400), var(--color-terracotta-600));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 .glass {
   background: rgb(13 11 10 / 0.7);
   backdrop-filter: blur(12px);
@@ -182,9 +176,6 @@ body {
     linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
   background-size: 56px 56px;
-}
-.bg-radial-glow {
-  background: radial-gradient(ellipse at top, rgb(212 120 68 / 0.12), transparent 50%);
 }
 
 /* ─── Shadcn Theme Variables (Dark Mode Only) ─── */

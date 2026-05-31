@@ -1,0 +1,6 @@
+{
+  "files": ["app/page.tsx", "app/dashboard/page.tsx", "app/layout.tsx", "app/globals.css"],
+  "insertBefore": "</head>",
+  "commentSyntax": "html",
+  "cspChecked": false
+}
