@@ -327,8 +327,8 @@ export default function LandingPage() {
               {USE_CASES.map((uc) => {
                 const Icon = uc.icon;
                 return (
-                  <StaggerItem key={uc.title}>
-                    <WobbleCard intensity={4}>
+                  <StaggerItem key={uc.title} className="h-full">
+                    <WobbleCard intensity={4} containerClassName="h-full" className="h-full">
                       <div className="group h-full rounded-xl border border-neutral-200 bg-white p-6 transition-all duration-300 hover:border-neutral-300 hover:shadow-md hover:-translate-y-0.5">
                         <div className={`inline-flex items-center gap-1.5 rounded-full ${uc.badge} px-3 py-1 text-xs font-medium`}>
                           <Icon className="h-3.5 w-3.5" />
