@@ -37,43 +37,43 @@ export default function TeamPage() {
   return (
     <div className="max-w-4xl space-y-8">
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+      <div className="relative overflow-hidden rounded-3xl dash-glass border p-6 lg:p-8">
         <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
             <Sparkles className="h-3 w-3" />
             Collaboration
           </span>
           <h1 className="text-4xl font-black tracking-tight">
-            <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
+            <span className="text-foreground">
               Team
             </span>
           </h1>
-          <p className="mt-2 text-sm text-white/40 font-light">Manage workspaces and team members</p>
+          <p className="mt-2 text-sm text-muted-foreground font-light">Manage workspaces and team members</p>
         </div>
       </div>
 
       {/* Workspaces */}
       {workspacesLoading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-5 w-5 animate-spin text-white/20" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground/40" />
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(workspaces || []).length > 0 ? (
             (workspaces as any[]).map((ws: any) => (
-              <div key={ws.id} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all hover:border-terracotta-500/30 hover:shadow-[0_0_40px_-8px] hover:shadow-terracotta-500/20">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06]">
+              <div key={ws.id} className="dash-glass rounded-2xl border p-5 transition-all hover:border-terracotta-500/30 hover:shadow-[0_0_40px_-8px] hover:shadow-terracotta-500/20">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-[var(--dash-glass-border)]">
                   <Building2 className="h-5 w-5" />
                 </div>
-                <h3 className="mt-4 font-semibold text-white/80">{ws.name}</h3>
-                <div className="mt-2 flex items-center gap-2 text-sm text-white/40">
+                <h3 className="mt-4 font-semibold text-foreground/80">{ws.name}</h3>
+                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                   <span>{ws.member_count ?? members?.length ?? 0} members</span>
                   {ws.plan && (
                     <>
-                      <span className="text-white/[0.08]">&middot;</span>
-                      <span className="inline-flex items-center rounded-full border border-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-white/40 bg-white/[0.03]">
+                      <span className="text-[var(--dash-glass-border)]">&middot;</span>
+                      <span className="inline-flex items-center rounded-full border border-[var(--dash-glass-border)] px-2 py-0.5 text-[11px] font-medium text-muted-foreground bg-[var(--dash-glass-bg)]">
                         {ws.plan}
                       </span>
                     </>
@@ -82,9 +82,9 @@ export default function TeamPage() {
               </div>
             ))
           ) : (
-            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+            <div className="dash-glass rounded-2xl border">
               <EmptyState
-                icon={<Building2 className="h-5 w-5 text-white/30" />}
+                icon={<Building2 className="h-5 w-5 text-muted-foreground/60" />}
                 title="No workspaces yet"
               />
             </div>
@@ -93,9 +93,9 @@ export default function TeamPage() {
       )}
 
       {/* Members */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
-          <h3 className="font-semibold text-white/70">Workspace Members</h3>
+      <div className="dash-glass rounded-2xl border">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--dash-glass-border)]">
+          <h3 className="font-semibold text-foreground/70">Workspace Members</h3>
           <Button
             size="sm"
             onClick={() => setShowInvite(true)}
@@ -107,22 +107,22 @@ export default function TeamPage() {
         </div>
         {membersLoading ? (
           <div className="flex justify-center py-10">
-            <Loader2 className="h-5 w-5 animate-spin text-white/20" />
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground/40" />
           </div>
         ) : members && members.length > 0 ? (
-          <div className="divide-y divide-white/[0.06]">
+          <div className="divide-y divide-[var(--dash-glass-border)]">
             {(members as any[]).map((m: any, i: number) => (
-              <div key={m.id || i} className="flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-white/[0.03]">
+              <div key={m.id || i} className="flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-[var(--dash-glass-hover-bg)]">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-terracotta-400 to-terracotta-600 text-sm font-semibold text-white">
                     {(m.full_name || m.email || "U").charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white/70">
+                    <p className="text-sm font-medium text-foreground/70">
                       {m.full_name || m.email || "Unknown"}
                     </p>
                     <div className="flex items-center gap-2">
-                      <p className="text-xs text-white/30 capitalize">{m.role || "member"}</p>
+                      <p className="text-xs text-muted-foreground/60 capitalize">{m.role || "member"}</p>
                       {m.invite_status && m.invite_status !== "active" && (
                         <span className="text-[11px] text-amber-400/60">{m.invite_status}</span>
                       )}
@@ -135,7 +135,7 @@ export default function TeamPage() {
         ) : (
           <div className="px-6 py-10">
             <EmptyState
-              icon={<Users className="h-5 w-5 text-white/30" />}
+              icon={<Users className="h-5 w-5 text-muted-foreground/60" />}
               title={workspaces ? "No members found" : "Create a workspace to add members"}
             />
           </div>
@@ -145,18 +145,18 @@ export default function TeamPage() {
       {/* Invite dialog overlay */}
       {showInvite && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#0d0b0a] backdrop-blur-2xl shadow-2xl shadow-black/50 p-6">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--dash-glass-border)] bg-popover text-popover-foreground backdrop-blur-2xl shadow-2xl shadow-black/20 p-6">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20">
                   <UserPlus className="h-4 w-4" />
                 </div>
-                <h3 className="text-base font-semibold text-white/80">Invite member</h3>
+                <h3 className="text-base font-semibold text-foreground/80">Invite member</h3>
               </div>
               <button
                 type="button"
                 onClick={() => { setShowInvite(false); setInviteEmail(""); }}
-                className="text-white/30 hover:text-white/60 transition-colors"
+                className="text-muted-foreground/60 hover:text-foreground/60 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -164,17 +164,17 @@ export default function TeamPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-white/70 block mb-1.5">Email address</label>
+                <label className="text-sm font-medium text-foreground/70 block mb-1.5">Email address</label>
                 <input
                   type="email"
                   placeholder="colleague@company.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleInvite()}
-                  className="h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl px-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
+                  className="h-10 w-full rounded-xl border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
                   autoFocus
                 />
-                <p className="mt-1.5 text-xs text-white/30">
+                <p className="mt-1.5 text-xs text-muted-foreground/60">
                   They must have a LinkNest account with this email.
                 </p>
               </div>

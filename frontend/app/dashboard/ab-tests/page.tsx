@@ -49,19 +49,19 @@ export default function ABTestsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+      <div className="relative overflow-hidden rounded-3xl dash-glass border p-6 lg:p-8">
         <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
               <Sparkles className="h-3 w-3" />
               A/B Testing
             </span>
             <h1 className="text-4xl font-black tracking-tight">
-              <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">A/B Tests</span>
+              <span className="text-foreground">A/B Tests</span>
             </h1>
-            <p className="mt-2 text-sm text-white/40 font-light">Split traffic between destination URLs</p>
+            <p className="mt-2 text-sm text-muted-foreground font-light">Split traffic between destination URLs</p>
           </div>
           <Button className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/25" onClick={() => setOpen(true)}>
             <Plus className="h-4 w-4 mr-1.5" />
@@ -71,20 +71,20 @@ export default function ABTestsPage() {
       </div>
 
       {tests && tests.length > 0 ? (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl divide-y divide-white/[0.06]">
+        <div className="dash-glass rounded-2xl border divide-y divide-[var(--dash-glass-border)]">
           {tests.map((test: any) => (
             <div
               key={test.id}
-              className="flex items-center justify-between px-6 py-4 cursor-pointer transition-all duration-200 hover:bg-white/[0.03]"
+              className="flex items-center justify-between px-6 py-4 cursor-pointer transition-all duration-200 hover:bg-[var(--dash-glass-hover-bg)]"
               onClick={() => router.push(`/dashboard/ab-tests/${test.id}`)}
             >
               <div className="flex items-center gap-4 min-w-0">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06] shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-[var(--dash-glass-border)] shrink-0">
                   <FlaskConical className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white/80 truncate">{test.name}</p>
-                  <p className="text-xs text-white/40">
+                  <p className="text-sm font-semibold text-foreground/80 truncate">{test.name}</p>
+                  <p className="text-xs text-muted-foreground">
                     {test.variants?.length || 0} variants · /{test.short_code}
                     {test.variants && (
                       <span className="ml-2">
@@ -95,10 +95,9 @@ export default function ABTestsPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => toggleTest.mutate(test.id)} className="text-white/40 hover:text-white transition-colors">
+                <button onClick={() => toggleTest.mutate(test.id)} className="text-muted-foreground hover:text-foreground transition-colors">
                   {test.is_active ? <ToggleRight className="h-5 w-5 text-forest-400" /> : <ToggleLeft className="h-5 w-5" />}
-                </button>
-                <Button variant="ghost" size="icon-sm" className="text-white/20 hover:text-rust-400" onClick={() => deleteTest.mutate(test.id)}>
+                </button>                  <Button variant="ghost" size="icon-sm" className="text-muted-foreground/40 hover:text-rust-400" onClick={() => deleteTest.mutate(test.id)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -106,9 +105,9 @@ export default function ABTestsPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+        <div className="dash-glass rounded-2xl border">
           <EmptyState
-            icon={<FlaskConical className="h-6 w-6 text-white/30" />}
+            icon={<FlaskConical className="h-6 w-6 text-muted-foreground/60" />}
             title="No A/B tests"
             description="Split traffic between URLs to optimize conversions."
             action={<Button className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white" onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1.5" />Create Test</Button>}

@@ -156,21 +156,21 @@ export default function QrCodesPage() {
   return (
     <div className="space-y-6">
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+      <div className="relative overflow-hidden rounded-3xl dash-glass border p-6 lg:p-8">
         <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
               <Sparkles className="h-3 w-3" />
               QR Codes
             </span>
             <h1 className="text-4xl font-black tracking-tight">
-              <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
+              <span className="text-foreground">
                 QR Codes
               </span>
             </h1>
-            <p className="mt-2 text-sm text-white/40 font-light">Generate, customize, and download QR codes</p>
+            <p className="mt-2 text-sm text-muted-foreground font-light">Generate, customize, and download QR codes</p>
           </div>
           <Button
             onClick={() => setShowCreate(true)}
@@ -191,7 +191,7 @@ export default function QrCodesPage() {
             <DialogDescription>Create a QR code for an existing link or a new one.</DialogDescription>
           </DialogHeader>
 
-          <div className="flex rounded-xl border border-white/[0.08] p-0.5 bg-white/[0.03] backdrop-blur-xl">
+          <div className="flex rounded-xl dash-glass border p-0.5">
             {(["existing", "new"] as const).map((mode) => (
               <button
                 key={mode}
@@ -199,7 +199,7 @@ export default function QrCodesPage() {
                 className={`flex-1 rounded-[10px] px-3 py-1.5 text-sm font-medium transition-all ${
                   createMode === mode
                     ? "bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-sm"
-                    : "text-white/40 hover:text-white/60"
+                    : "text-muted-foreground hover:text-foreground/60"
                 }`}
               >
                 {mode === "existing" ? "Existing Link" : "New Link"}
@@ -221,20 +221,20 @@ export default function QrCodesPage() {
                 placeholder="https://example.com/my-long-url"
                 value={newUrl}
                 onChange={(e) => setNewUrl(e.target.value)}
-                className="h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl px-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
+                className="h-10 w-full rounded-xl border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
               />
               <input
                 type="text"
                 placeholder="Title (optional)"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl px-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
+                className="h-10 w-full rounded-xl border border-border bg-background px-3.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20"
               />
             </div>
           )}
 
           <div>
-            <label className="text-sm font-medium text-white/70 block mb-2">Color</label>
+            <label className="text-sm font-medium text-foreground/70 block mb-2">Color</label>
             <div className="flex flex-wrap items-center gap-2">
               {COLOR_PRESETS.map((preset) => (
                 <button
@@ -253,16 +253,16 @@ export default function QrCodesPage() {
               ))}
               <div className="flex items-center gap-1.5">
                 <input type="color" value={createFg} onChange={(e) => setCreateFg(e.target.value)}
-                  className="h-7 w-7 cursor-pointer rounded-lg border border-white/[0.08] bg-white/[0.03] p-0.5" title="Foreground" />
-                <span className="text-xs text-white/30">/</span>
+                  className="h-7 w-7 cursor-pointer rounded-lg border border-border bg-background p-0.5" title="Foreground" />
+                <span className="text-xs text-muted-foreground/60">/</span>
                 <input type="color" value={createBg} onChange={(e) => setCreateBg(e.target.value)}
-                  className="h-7 w-7 cursor-pointer rounded-lg border border-white/[0.08] bg-white/[0.03] p-0.5" title="Background" />
+                  className="h-7 w-7 cursor-pointer rounded-lg border border-border bg-background p-0.5" title="Background" />
               </div>
             </div>
           </div>
 
           <div className="flex justify-center">
-            <div className="flex h-28 w-28 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-2">
+            <div className="flex h-28 w-28 items-center justify-center rounded-xl dash-glass border p-2">
               <QRCodeSVG value={newUrl || "https://preview.link"} size={96} bgColor={createBg} fgColor={createFg} level="M" includeMargin={false} />
             </div>
           </div>
@@ -284,10 +284,10 @@ export default function QrCodesPage() {
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5">
-              <div className="mx-auto mb-3 h-32 w-32 animate-pulse rounded-xl bg-white/[0.06]" />
-              <div className="mx-auto mb-2 h-4 w-24 animate-pulse rounded bg-white/[0.06]" />
-              <div className="mx-auto mb-3 h-3 w-36 animate-pulse rounded bg-white/[0.06]" />
+            <div key={i} className="dash-glass rounded-2xl border p-5">
+              <div className="mx-auto mb-3 h-32 w-32 animate-pulse rounded-xl bg-muted" />
+              <div className="mx-auto mb-2 h-4 w-24 animate-pulse rounded bg-muted" />
+              <div className="mx-auto mb-3 h-3 w-36 animate-pulse rounded bg-muted" />
             </div>
           ))}
         </div>
@@ -299,8 +299,8 @@ export default function QrCodesPage() {
             const isEditing = editingColors === qr.id;
 
             return (
-              <div key={qr.id} className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all duration-300 hover:border-terracotta-500/30 hover:bg-white/[0.06] hover:shadow-[0_0_40px_-8px] hover:shadow-terracotta-500/20">
-                <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.06] p-2">
+              <div key={qr.id} className="group relative dash-glass rounded-2xl border p-5 transition-all duration-300 hover:border-terracotta-500/30 hover:bg-[var(--dash-glass-hover-bg)] hover:shadow-[0_0_40px_-8px] hover:shadow-terracotta-500/20">
+                <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-xl bg-[var(--dash-glass-bg)] border border-[var(--dash-glass-border)] p-2">
                   {isEditing ? (
                     <QRCodeSVG value={qrDataUrl} size={120} bgColor={editBg} fgColor={editFg} level="M" includeMargin={false} />
                   ) : (
@@ -308,23 +308,23 @@ export default function QrCodesPage() {
                   )}
                 </div>
 
-                <h3 className="mt-3 font-semibold text-sm text-white/80 truncate">{qr.link.title || "Untitled"}</h3>
-                <p className="text-xs text-white/30 mb-2 truncate font-mono">{shortUrl}</p>
+                <h3 className="mt-3 font-semibold text-sm text-foreground/80 truncate">{qr.link.title || "Untitled"}</h3>
+                <p className="text-xs text-muted-foreground/60 mb-2 truncate font-mono">{shortUrl}</p>
 
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="inline-flex items-center rounded-full border border-white/[0.08] px-2.5 py-0.5 text-[11px] font-medium text-white/40 bg-white/[0.03]">
+                  <span className="inline-flex items-center rounded-full border border-[var(--dash-glass-border)] px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground bg-[var(--dash-glass-bg)]">
                     {qr.scan_count} scans
                   </span>
-                  <span className="text-[11px] text-white/20 uppercase">{qr.format}</span>
+                  <span className="text-[11px] text-muted-foreground/40 uppercase">{qr.format}</span>
                 </div>
 
                 {isEditing ? (
                   <div className="space-y-2 mb-3">
                     <div className="flex items-center gap-2">
                       <input type="color" value={editFg} onChange={(e) => setEditFg(e.target.value)}
-                        className="h-6 w-6 cursor-pointer rounded-lg border border-white/[0.08] bg-white/[0.03] p-0.5" />
+                        className="h-6 w-6 cursor-pointer rounded-lg border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] p-0.5" />
                       <input type="color" value={editBg} onChange={(e) => setEditBg(e.target.value)}
-                        className="h-6 w-6 cursor-pointer rounded-lg border border-white/[0.08] bg-white/[0.03] p-0.5" />
+                        className="h-6 w-6 cursor-pointer rounded-lg border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] p-0.5" />
                     </div>
                     <div className="flex gap-1.5">
                       <Button size="sm" onClick={() => saveColors(qr.link_id)} disabled={regenerateQR.isPending}
@@ -369,7 +369,7 @@ export default function QrCodesPage() {
                     toast.success("URL copied!");
                     setTimeout(() => setCopiedId(null), 1500);
                   }}
-                  className="absolute right-3 top-3 rounded-lg p-1.5 text-white/20 opacity-0 group-hover:opacity-100 transition-all hover:text-white/60 hover:bg-white/[0.06]"
+                  className="absolute right-3 top-3 rounded-lg p-1.5 text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-all hover:text-foreground/60 hover:bg-[var(--dash-glass-hover-bg)]"
                 >
                   {copiedId === qr.id ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                 </button>
@@ -378,9 +378,9 @@ export default function QrCodesPage() {
           })}
         </div>
       ) : (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+        <div className="dash-glass rounded-2xl border">
           <EmptyState
-            icon={<QrCode className="h-6 w-6 text-white/30" />}
+            icon={<QrCode className="h-6 w-6 text-muted-foreground/60" />}
             title="No QR codes yet"
             description="Create a QR code for any of your links. Customize colors and download as SVG or PNG."
             action={

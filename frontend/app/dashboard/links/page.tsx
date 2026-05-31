@@ -45,21 +45,21 @@ export default function LinksPage() {
   return (
     <div className="space-y-6">
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+      <div className="relative overflow-hidden rounded-3xl dash-glass border p-6 lg:p-8">
         <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
               <Sparkles className="h-3 w-3" />
               Links
             </span>
             <h1 className="text-4xl font-black tracking-tight">
-              <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
+              <span className="text-foreground">
                 Links
               </span>
             </h1>
-            <p className="mt-2 text-sm text-white/40 font-light">Manage all your shortened links</p>
+            <p className="mt-2 text-sm text-muted-foreground font-light">Manage all your shortened links</p>
           </div>
           <Button className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/25 hover:shadow-xl hover:shadow-terracotta-500/30 hover:from-terracotta-400 hover:to-terracotta-500" render={<Link href="/dashboard/links/new" />}>
             <Plus className="h-4 w-4 mr-1.5" />
@@ -78,13 +78,13 @@ export default function LinksPage() {
       {/* Tag filter */}
       {tags && tags.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
-          <Tag className="h-3.5 w-3.5 text-white/30" />
+          <Tag className="h-3.5 w-3.5 text-muted-foreground/60" />
           <button
             onClick={() => setSelectedTag("")}
             className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
               selectedTag === ""
                 ? "bg-terracotta-500/20 text-terracotta-300 ring-1 ring-terracotta-500/30"
-                : "bg-white/[0.03] text-white/40 hover:text-white/60 ring-1 ring-white/[0.06]"
+                : "bg-[var(--dash-glass-bg)] text-muted-foreground hover:text-foreground/60 ring-1 ring-[var(--dash-glass-border)]"
             }`}
           >
             All
@@ -96,7 +96,7 @@ export default function LinksPage() {
               className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
                 selectedTag === tag
                   ? "bg-terracotta-500/20 text-terracotta-300 ring-1 ring-terracotta-500/30"
-                  : "bg-white/[0.03] text-white/40 hover:text-white/60 ring-1 ring-white/[0.06]"
+                  : "bg-[var(--dash-glass-bg)] text-muted-foreground hover:text-foreground/60 ring-1 ring-[var(--dash-glass-border)]"
               }`}
             >
               {tag}
@@ -108,7 +108,7 @@ export default function LinksPage() {
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex items-center gap-3 rounded-2xl border border-terracotta-500/20 bg-terracotta-500/5 backdrop-blur-xl px-4 py-3">
-          <span className="text-sm text-white/60">{selected.size} selected</span>
+          <span className="text-sm text-foreground/60">{selected.size} selected</span>
           <Button variant="ghost" size="sm" onClick={() => bulkAction.mutate({ link_ids: Array.from(selected), action: "archive" })}>
             <Archive className="h-3.5 w-3.5 mr-1" /> Archive
           </Button>
@@ -124,14 +124,14 @@ export default function LinksPage() {
 
       {/* Links list — glass panel */}
       {filtered && filtered.length > 0 ? (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl divide-y divide-white/[0.06]">
+        <div className="dash-glass rounded-2xl border divide-y divide-[var(--dash-glass-border)]">
           {filtered.map((link: any) => {
             const shortUrl = `${SHORT_DOMAIN}/${link.short_code}`;
             return (
               <div
                 key={link.id}
                 onClick={() => router.push(`/dashboard/links/${link.id}`)}
-                className="flex items-center justify-between px-6 py-4 transition-all duration-200 cursor-pointer hover:bg-white/[0.03]"
+                className="flex items-center justify-between px-6 py-4 transition-all duration-200 cursor-pointer hover:bg-[var(--dash-glass-hover-bg)]"
               >
                 <div className="flex items-center gap-4 min-w-0 flex-1">
                   <button
@@ -149,14 +149,14 @@ export default function LinksPage() {
                     {selected.has(link.id) ? (
                       <CheckSquare className="h-4 w-4 text-terracotta-400" />
                     ) : (
-                      <Square className="h-4 w-4 text-white/20" />
+                      <Square className="h-4 w-4 text-muted-foreground/40" />
                     )}
                   </button>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06] shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-[var(--dash-glass-border)] shrink-0">
                     <ExternalLink className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-white/80 truncate max-w-[240px]">
+                    <p className="text-sm font-semibold text-foreground/80 truncate max-w-[240px]">
                       {link.title || "Untitled"}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -170,7 +170,7 @@ export default function LinksPage() {
                         {shortUrl}
                       </a>
                       <CopyButton text={shortUrl} />
-                      <div className="flex items-center gap-1 text-xs text-white/20">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground/40">
                         <ArrowUpRight className="h-3 w-3" />
                         {link.clicks_count ?? 0}
                       </div>
@@ -191,7 +191,7 @@ export default function LinksPage() {
                       e.stopPropagation();
                       setQrLink({ id: link.id, shortCode: link.short_code, title: link.title });
                     }}
-                    className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg text-white/20 hover:text-terracotta-400 hover:bg-white/[0.06] transition-all"
+                    className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground/40 hover:text-terracotta-400 hover:bg-[var(--dash-glass-hover-bg)] transition-all"
                     title="Download QR code"
                   >
                     <QrCode className="h-3.5 w-3.5" />
@@ -206,9 +206,9 @@ export default function LinksPage() {
           })}
         </div>
       ) : (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
+        <div className="dash-glass rounded-2xl border">
           <EmptyState
-            icon={<Link2 className="h-6 w-6 text-white/30" />}
+            icon={<Link2 className="h-6 w-6 text-muted-foreground/60" />}
             title={search ? "No links found" : "No links yet"}
             description={search ? "Try a different search term." : "Create your first shortened link to get started."}
             action={!search && (
@@ -229,7 +229,7 @@ export default function LinksPage() {
           </DialogHeader>
           {qrLink && (
             <div className="flex flex-col items-center gap-4 py-4">
-              <div className="flex items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
+              <div className="flex items-center justify-center rounded-xl border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] p-4">
                 <QRCodeSVG
                   id={`qr-inline-${qrLink.shortCode}`}
                   value={`${SHORT_DOMAIN}/${qrLink.shortCode}`}
@@ -238,7 +238,7 @@ export default function LinksPage() {
                   includeMargin={false}
                 />
               </div>
-              <p className="text-sm text-white/70 font-mono truncate max-w-full">
+              <p className="text-sm text-foreground/70 font-mono truncate max-w-full">
                 {SHORT_DOMAIN}/{qrLink.shortCode}
               </p>
             </div>

@@ -32,36 +32,36 @@ export default function BillingPage() {
   return (
     <div className="max-w-5xl space-y-8">
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+      <div className="relative overflow-hidden rounded-3xl dash-glass border p-6 lg:p-8">
         <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-4">
             <Sparkles className="h-3 w-3" />
             Billing
           </span>
           <h1 className="text-4xl font-black tracking-tight">
-            <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
+            <span className="text-foreground">
               Billing
             </span>
           </h1>
-          <p className="mt-2 text-sm text-white/40 font-light">Manage your subscription and plan</p>
+          <p className="mt-2 text-sm text-muted-foreground font-light">Manage your subscription and plan</p>
         </div>
       </div>
 
       {/* Current plan card */}
-      <div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6">
+      <div className="dash-glass rounded-2xl border p-6">
         {subLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-white/40" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         ) : (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-white/[0.06]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta-500/20 to-terracotta-500/5 text-terracotta-400 ring-1 ring-[var(--dash-glass-border)]">
                 <CreditCard className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-lg font-semibold text-white/80 capitalize">{currentPlan} Plan</p>
-                <p className="text-sm text-white/40">
+                <p className="text-lg font-semibold text-foreground/80 capitalize">{currentPlan} Plan</p>
+                <p className="text-sm text-muted-foreground">
                   {subscription?.status === "active"
                     ? `Next billing: ${subscription.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : "N/A"}`
                     : "No active subscription"}
@@ -78,7 +78,7 @@ export default function BillingPage() {
       {/* Plan comparison */}
       {plansLoading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-white/20" />
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/40" />
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-3">
@@ -98,14 +98,14 @@ export default function BillingPage() {
                       </span>
                     </div>
                   )}
-                  <h3 className="text-lg font-semibold text-white/80">{plan.name}</h3>
+                  <h3 className="text-lg font-semibold text-foreground/80">{plan.name}</h3>
                   <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-white">{plan.price}</span>
-                    <span className="text-sm text-white/30">/month</span>
+                    <span className="text-3xl font-bold text-foreground">{plan.price}</span>
+                    <span className="text-sm text-muted-foreground/60">/month</span>
                   </div>
                   <ul className="mt-6 space-y-3">
                     {(plan.features || []).map((f: string) => (
-                      <li key={f} className="flex items-start gap-3 text-sm text-white/60">
+                      <li key={f} className="flex items-start gap-3 text-sm text-foreground/60">
                         <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
                         {f}
                       </li>

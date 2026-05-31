@@ -35,38 +35,38 @@ function LinkSelect({ value, onChange, links }: { value: string; onChange: (v: s
 
   return (
     <div ref={ref} className="relative">
-      <label className="text-xs font-medium text-white/50 mb-1.5 block">Link</label>
+      <label className="text-xs font-medium text-foreground/50 mb-1.5 block">Link</label>
       <button
         type="button"
         onClick={() => setOpen(!open)}
         className={`flex h-10 w-full items-center justify-between gap-2 rounded-xl border px-3 text-sm transition-all outline-none ${
           open
-            ? "border-terracotta-500/40 bg-white/[0.06] ring-2 ring-terracotta-500/10"
-            : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.05]"
-        } ${value ? "text-white/80" : "text-white/30"}`}
+            ? "border-terracotta-500/40 bg-muted ring-2 ring-terracotta-500/10"
+            : "border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] hover:bg-[var(--dash-glass-hover-bg)]"
+        } ${value ? "text-foreground/80" : "text-muted-foreground/60"}`}
       >
         <span className="truncate">{selected ? (selected.title || selected.short_code) : "Select a link..."}</span>
-        <ChevronDown className={`h-4 w-4 text-white/30 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 rounded-xl border border-white/[0.08] bg-[#131110] backdrop-blur-2xl shadow-2xl shadow-black/50 overflow-hidden z-50">
-          <div className="p-2 border-b border-white/[0.06]">
-            <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-2.5 h-8">
-              <Search className="h-3.5 w-3.5 text-white/25" />
+        <div className="absolute top-full left-0 right-0 mt-1.5 rounded-xl border border-[var(--dash-glass-border)] bg-popover text-popover-foreground backdrop-blur-2xl shadow-2xl shadow-black/20 overflow-hidden z-50">
+          <div className="p-2 border-b border-[var(--dash-glass-border)]">
+            <div className="flex items-center gap-2 rounded-lg bg-muted px-2.5 h-8">
+              <Search className="h-3.5 w-3.5 text-muted-foreground/50" />
               <input
                 ref={searchRef}
                 type="text"
                 placeholder="Search links..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-white/80 outline-none placeholder:text-white/25"
+                className="flex-1 bg-transparent text-sm text-foreground/80 outline-none placeholder:text-muted-foreground/50"
               />
             </div>
           </div>
           <div className="max-h-56 overflow-y-auto p-1">
             {filtered.length === 0 ? (
-              <p className="py-4 text-center text-xs text-white/30">No links found</p>
+              <p className="py-4 text-center text-xs text-muted-foreground/60">No links found</p>
             ) : (
               filtered.map((link) => (
                 <button
@@ -75,21 +75,21 @@ function LinkSelect({ value, onChange, links }: { value: string; onChange: (v: s
                   onClick={() => { onChange(link.id); setOpen(false); setSearch(""); }}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
                     value === link.id
-                      ? "bg-terracotta-500/10 text-white"
-                      : "text-white/60 hover:bg-white/[0.04] hover:text-white/80"
+                      ? "bg-terracotta-500/10 text-foreground"
+                      : "text-foreground/60 hover:bg-[var(--dash-glass-hover-bg)] hover:text-foreground/80"
                   }`}
                 >
                   <div className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
-                    value === link.id ? "bg-terracotta-500/20 text-terracotta-400" : "bg-white/[0.06] text-white/30"
+                    value === link.id ? "bg-terracotta-500/20 text-terracotta-400" : "bg-muted text-muted-foreground/60"
                   }`}>
                     <ExternalLink className="h-3 w-3" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">{link.title || "Untitled"}</p>
-                    <p className="text-[11px] text-white/30 font-mono truncate">{link.short_code}</p>
+                    <p className="text-[11px] text-muted-foreground/60 font-mono truncate">{link.short_code}</p>
                   </div>
                   {link.clicks_count > 0 && (
-                    <span className="text-[10px] text-white/25 tabular-nums shrink-0">{link.clicks_count}</span>
+                    <span className="text-[10px] text-muted-foreground/50 tabular-nums shrink-0">{link.clicks_count}</span>
                   )}
                 </button>
               ))
@@ -128,19 +128,19 @@ export default function AlertsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent backdrop-blur-xl p-6 lg:p-8">
+      <div className="relative overflow-hidden rounded-3xl dash-glass border p-6 lg:p-8">
         <div className="absolute -inset-x-40 -top-40 h-[500px] w-[700px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] px-3 py-1 text-[11px] font-semibold text-terracotta-300 tracking-[0.15em] uppercase mb-3">
               <Sparkles className="h-3 w-3" />
               Alerts
             </span>
             <h1 className="text-4xl font-black tracking-tight">
-              <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">Goal Alerts</span>
+              <span className="text-foreground">Goal Alerts</span>
             </h1>
-            <p className="mt-1.5 text-sm text-white/40 font-light">Get notified when links hit click milestones</p>
+            <p className="mt-1.5 text-sm text-muted-foreground font-light">Get notified when links hit click milestones</p>
           </div>
           <Button
             className="bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white shadow-lg shadow-terracotta-500/25 shrink-0"
@@ -154,38 +154,38 @@ export default function AlertsPage() {
 
       {/* Alerts list */}
       {alertsLoading ? (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl divide-y divide-white/[0.06]">
+        <div className="dash-glass rounded-2xl border divide-y divide-[var(--dash-glass-border)]">
           {[1, 2].map((i) => (
             <div key={i} className="flex items-center justify-between px-6 py-4">
               <div className="flex items-center gap-4">
-                <div className="h-10 w-10 animate-pulse rounded-xl bg-white/[0.06]" />
+                <div className="h-10 w-10 animate-pulse rounded-xl bg-muted" />
                 <div>
-                  <div className="h-4 w-32 animate-pulse rounded bg-white/[0.06] mb-1.5" />
-                  <div className="h-3 w-48 animate-pulse rounded bg-white/[0.04]" />
+                  <div className="h-4 w-32 animate-pulse rounded bg-muted mb-1.5" />
+                  <div className="h-3 w-48 animate-pulse rounded bg-muted/60" />
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : alerts && alerts.length > 0 ? (
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl divide-y divide-white/[0.06]">
+        <div className="dash-glass rounded-2xl border divide-y divide-[var(--dash-glass-border)]">
           {alerts.map((alert: any) => {
             const link = links?.find((l: any) => l.id === alert.link_id);
             return (
-              <div key={alert.id} className="flex items-center justify-between px-6 py-4 hover:bg-white/[0.02] transition-colors">
+              <div key={alert.id} className="flex items-center justify-between px-6 py-4 hover:bg-[var(--dash-glass-hover-bg)] transition-colors">
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-white/[0.06] shrink-0 ${
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-[var(--dash-glass-border)] shrink-0 ${
                     alert.is_achieved ? "bg-forest-500/15 text-forest-400" : "bg-terracotta-500/15 text-terracotta-400"
                   }`}>
                     {alert.is_achieved ? <CheckCircle2 className="h-4 w-4" /> : <Target className="h-4 w-4" />}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-white/80 truncate">
+                    <p className="text-sm font-semibold text-foreground/80 truncate">
                       {link?.title || link?.short_code || "Unknown link"}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <p className="text-xs text-white/35">
-                        Goal: <span className="text-white/50 font-medium">{alert.goal_clicks.toLocaleString()}</span> clicks
+                      <p className="text-xs text-muted-foreground">
+                        Goal: <span className="text-foreground/50 font-medium">{alert.goal_clicks.toLocaleString()}</span> clicks
                       </p>
                       {alert.is_achieved && (
                         <span className="inline-flex items-center rounded-full bg-forest-500/10 border border-forest-500/20 px-2 py-0.5 text-[10px] font-semibold text-forest-400">
@@ -198,7 +198,7 @@ export default function AlertsPage() {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="text-white/15 hover:text-red-400 hover:bg-red-500/10 shrink-0"
+                  className="text-muted-foreground/30 hover:text-red-400 hover:bg-red-500/10 shrink-0"
                   onClick={() => {
                     if (confirm("Delete this alert?")) {
                       deleteAlert.mutate(alert.id, { onSuccess: () => toast.success("Alert deleted") });
@@ -212,9 +212,9 @@ export default function AlertsPage() {
           })}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] backdrop-blur-xl">
+        <div className="rounded-2xl border border-dashed border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] backdrop-blur-xl">
           <EmptyState
-            icon={<Bell className="h-8 w-8 text-white/15" />}
+            icon={<Bell className="h-8 w-8 text-muted-foreground/30" />}
             title="No alerts"
             description="Set click goals on your links and get notified when they're reached."
             action={
@@ -237,7 +237,7 @@ export default function AlertsPage() {
           <div className="space-y-4 py-1">
             <LinkSelect value={linkId} onChange={setLinkId} links={activeLinks} />
             <div>
-              <label className="text-xs font-medium text-white/50 mb-1.5 block">Goal Clicks</label>
+              <label className="text-xs font-medium text-foreground/50 mb-1.5 block">Goal Clicks</label>
               <Input
                 type="number"
                 placeholder="e.g. 1000"
