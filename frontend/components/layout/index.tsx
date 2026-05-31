@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Link2, BarChart3, Layout, QrCode, Globe, Users,
   CreditCard, Settings, LogOut, User, Bell, CheckCheck, MousePointerClick,
-  Key, FlaskConical,
+  Key, FlaskConical, Hand,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser, useNotifications, useMarkAllRead, useMarkRead } from "@/hooks";
@@ -294,8 +294,9 @@ export function AppHeader() {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-              <LogOut className="h-4 w-4" />
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive focus:bg-destructive/10 group">
+              <LogOut className="h-4 w-4 group-hover:hidden" />
+              <Hand className="h-4 w-4 hidden group-hover:block" />
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>

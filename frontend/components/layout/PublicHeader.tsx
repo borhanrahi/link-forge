@@ -44,7 +44,7 @@ export function PublicHeader() {
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+                className="cursor-pointer text-sm text-neutral-500 transition-colors hover:text-neutral-900"
               >
                 Sign out
               </button>

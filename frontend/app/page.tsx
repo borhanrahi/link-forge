@@ -21,6 +21,8 @@ import {
   WobbleCard,
   Marquee,
   AnimatedCounter,
+  Particles,
+  GradientBorder,
 } from "@/components/ui/animated";
 
 const FEATURES = [
@@ -788,29 +790,56 @@ export default function LandingPage() {
         </section>
 
         {/* ════════════════════════════════════════════
-            CTA — Branded section
+            CTA — Branded dark section with particles
         ════════════════════════════════════════════ */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 py-24">
+        <section className="relative overflow-hidden bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 py-28 lg:py-36">
           <div className="pointer-events-none absolute inset-0 bg-grid opacity-[0.04]" />
-          <Reveal className="mx-auto max-w-6xl px-6 text-center relative">
-            <h2 className="text-3xl font-bold tracking-tight text-white">
-              Ready to take control of your links?
+          <Particles quantity={50} color="180 130 90" size={{ min: 2, max: 5 }} speed={{ min: 15, max: 30 }} />
+          {/* Glowing orb behind content */}
+          <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-terracotta-500/8 blur-[140px]" />
+          <Reveal className="mx-auto max-w-4xl px-6 text-center relative">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-1.5 text-xs font-medium text-terracotta-300 backdrop-blur-sm mb-6">
+              <Sparkles className="h-3.5 w-3.5 text-terracotta-400" />
+              Free forever plan — no credit card needed
+            </div>
+            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.08]">
+              Ready to take control
+              <br />
+              <span className="bg-gradient-to-r from-terracotta-300 via-terracotta-400 to-terracotta-300 bg-clip-text text-transparent">of your links?</span>
             </h2>
-            <p className="mx-auto mt-3 max-w-md text-neutral-400">
-              Join 50,000+ creators and teams who trust LinkNest.
+            <p className="mx-auto mt-5 max-w-xl text-base sm:text-lg text-neutral-400 leading-relaxed">
+              Join 50,000+ creators and marketers who trust LinkNest to manage, track, and optimize every link they share.
             </p>
-            <div className="mt-10 flex items-center justify-center gap-3">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/register">
-                <ShimmerButton size="lg" className="bg-white text-neutral-900 hover:bg-neutral-100">
-                  Get Started Free
-                  <ChevronRight className="h-4 w-4" />
-                </ShimmerButton>
+                <GradientBorder animate>
+                  <ShimmerButton size="lg" className="bg-neutral-900 text-white hover:bg-neutral-800 min-w-[210px]">
+                    Get Started Free
+                    <ChevronRight className="h-4 w-4" />
+                  </ShimmerButton>
+                </GradientBorder>
               </Link>
               <Link href="/pricing">
-                <Button variant="outline" size="lg" className="border-neutral-600 text-neutral-300 hover:bg-neutral-700 hover:text-white">
+                <Button variant="outline" size="lg" className="h-13 px-8 border-neutral-400 bg-white/90 text-neutral-800 hover:bg-white/10 hover:text-white hover:border-white/40 min-w-[180px]">
                   Compare plans
                 </Button>
               </Link>
+            </div>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-neutral-500">
+              <span className="inline-flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5 text-forest-500" />
+                No credit card required
+              </span>
+              <span className="hidden sm:inline text-neutral-700">·</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5 text-forest-500" />
+                Cancel anytime
+              </span>
+              <span className="hidden sm:inline text-neutral-700">·</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5 text-forest-500" />
+                14-day free trial on Pro
+              </span>
             </div>
           </Reveal>
         </section>

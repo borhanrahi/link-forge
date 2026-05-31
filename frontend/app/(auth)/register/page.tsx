@@ -35,22 +35,22 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-950">
+    <div className="flex min-h-screen flex-col bg-white">
       <PublicHeader />
 
       <main className="flex-1 relative flex items-center justify-center px-6 overflow-hidden pt-14">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
-        <div className="pointer-events-none absolute inset-0 bg-grid opacity-20" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgb(212 120 68)" />
+        <div className="pointer-events-none absolute inset-0 bg-grid opacity-[0.03]" />
 
         <div className="w-full max-w-sm animate-slide-up relative z-10">
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-8 shadow-sm">
-            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta-900/30 text-terracotta-400 mb-4">
+          <div className="rounded-xl border border-neutral-200 bg-white p-8 shadow-sm">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta-50 text-terracotta-500 mb-4">
               <Sparkles className="h-5 w-5" />
             </div>
-            <h1 className="text-center text-xl font-bold tracking-tight text-white">Create your account</h1>
-            <p className="mt-1 text-center text-sm text-neutral-400">Start managing your links in minutes</p>
+            <h1 className="text-center text-xl font-bold tracking-tight text-neutral-900">Create your account</h1>
+            <p className="mt-1 text-center text-sm text-neutral-500">Start managing your links in minutes</p>
             {error && (
-              <div className="mt-4 rounded-lg bg-rust-900/20 border border-rust-800 px-4 py-2.5 text-sm text-rust-300">
+              <div className="mt-4 rounded-lg bg-red-50 border border-red-200 px-4 py-2.5 text-sm text-red-600">
                 {error}
               </div>
             )}
@@ -79,19 +79,19 @@ export default function RegisterPage() {
                 required
                 minLength={6}
               />
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-neutral-900 text-white hover:bg-neutral-800" disabled={loading}>
                 {loading ? "Creating account..." : "Create account"}
               </Button>
             </form>
             <p className="mt-4 text-center text-xs text-neutral-400">
               By creating an account, you agree to our{" "}
-              <Link href="/terms" className="underline hover:text-neutral-300 transition-colors">Terms</Link> and{" "}
-              <Link href="/privacy" className="underline hover:text-neutral-300 transition-colors">Privacy Policy</Link>.
+              <Link href="/terms" className="underline text-neutral-500 hover:text-neutral-700 transition-colors">Terms</Link> and{" "}
+              <Link href="/privacy" className="underline text-neutral-500 hover:text-neutral-700 transition-colors">Privacy Policy</Link>.
             </p>
           </div>
-          <p className="mt-4 text-center text-sm text-neutral-400">
+          <p className="mt-4 text-center text-sm text-neutral-500">
             Already have an account?{" "}
-            <Link href="/login" className="text-terracotta-400 hover:text-terracotta-300 font-medium transition-colors">
+            <Link href="/login" className="text-terracotta-500 hover:text-terracotta-600 font-medium transition-colors">
               Sign in
             </Link>
           </p>
@@ -99,18 +99,18 @@ export default function RegisterPage() {
       </main>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-neutral-800 bg-neutral-950">
+      <footer className="border-t border-neutral-100 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-[11px] font-bold tracking-tight text-neutral-950">L</div>
-              <span className="text-sm font-semibold text-white">LinkNest</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 text-[11px] font-bold tracking-tight text-white">L</div>
+              <span className="text-sm font-semibold text-neutral-900">LinkNest</span>
             </div>
             <div className="flex items-center gap-6">
-              <Link href="/" className="text-xs text-neutral-400 hover:text-white">Home</Link>
-              <Link href="/features" className="text-xs text-neutral-400 hover:text-white">Features</Link>
-              <Link href="/pricing" className="text-xs text-neutral-400 hover:text-white">Pricing</Link>
-              <Link href="/login" className="text-xs text-neutral-400 hover:text-white">Sign in</Link>
+              <Link href="/" className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors">Home</Link>
+              <Link href="/features" className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors">Features</Link>
+              <Link href="/pricing" className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors">Pricing</Link>
+              <Link href="/login" className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors">Sign in</Link>
             </div>
           </div>
         </div>
