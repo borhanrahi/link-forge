@@ -122,25 +122,25 @@ function NotificationBell() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="relative flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/[0.06] transition-all"
+        className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-[var(--dash-glass-hover-bg)] transition-all"
       >
         <Bell className="h-[17px] w-[17px]" />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[14px] items-center justify-center rounded-full bg-terracotta-500 px-[3px] text-[10px] font-bold text-white ring-2 ring-[#0d0b0a]">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[14px] items-center justify-center rounded-full bg-terracotta-500 px-[3px] text-[10px] font-bold text-white ring-2 ring-background">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-white/[0.08] bg-[#0d0b0a] backdrop-blur-2xl shadow-2xl shadow-black/50 overflow-hidden z-50">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
-            <h3 className="text-sm font-semibold text-white/70">Notifications</h3>
+        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-[var(--dash-glass-border)] bg-popover text-popover-foreground backdrop-blur-2xl shadow-2xl shadow-black/20 overflow-hidden z-50">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--dash-glass-border)]">
+            <h3 className="text-sm font-semibold text-foreground/70">Notifications</h3>
             <button
               type="button"
               onClick={() => markAllRead.mutate()}
               disabled={unreadCount === 0}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer transition-all"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground/70 hover:text-foreground hover:bg-[var(--dash-glass-hover-bg)] disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer transition-all"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               Mark all read
@@ -150,40 +150,40 @@ function NotificationBell() {
           <div className="max-h-80 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-10">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/[0.08] border-t-terracotta-500" />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--dash-glass-border)] border-t-terracotta-500" />
               </div>
             ) : notifs.length === 0 ? (
               <div className="flex flex-col items-center py-10 px-4 text-center">
-                <Bell className="h-8 w-8 text-white/[0.08] mb-3" />
-                <p className="text-sm text-white/30">No notifications yet</p>
-                <p className="text-xs text-white/20 mt-1">Notifications appear when someone clicks your links</p>
+                <Bell className="h-8 w-8 text-muted-foreground/10 mb-3" />
+                <p className="text-sm text-muted-foreground/60">No notifications yet</p>
+                <p className="text-xs text-muted-foreground/40 mt-1">Notifications appear when someone clicks your links</p>
               </div>
             ) : (
-              <div className="divide-y divide-white/[0.06]">
+              <div className="divide-y divide-[var(--dash-glass-border)]">
                 {notifs.map((n: any) => (
                   <div
                     key={n.id}
-                    className={`flex gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] ${
-                      !n.read ? "bg-white/[0.02]" : ""
+                    className={`flex gap-3 px-4 py-3 transition-colors hover:bg-[var(--dash-glass-hover-bg)] ${
+                      !n.read ? "bg-[var(--dash-glass-bg)]" : ""
                     }`}
                   >
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
                       !n.read
-                        ? "bg-terracotta-500/10 text-terracotta-400"
-                        : "bg-white/[0.06] text-white/30"
+                        ? "bg-terracotta-500/10 text-terracotta-500"
+                        : "bg-muted text-muted-foreground"
                     }`}>
                       <MousePointerClick className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={`text-sm leading-snug ${!n.read ? "text-white/80 font-medium" : "text-white/50"}`}>
+                        <p className={`text-sm leading-snug ${!n.read ? "text-foreground/80 font-medium" : "text-muted-foreground/70"}`}>
                           {n.title}
                         </p>
                         {!n.read && (
                           <button
                             type="button"
                             onClick={() => markRead.mutate(n.id)}
-                            className="shrink-0 flex items-center justify-center h-7 w-7 rounded-lg text-white/20 hover:text-terracotta-400 hover:bg-white/[0.06] transition-all"
+                            className="shrink-0 flex items-center justify-center h-7 w-7 rounded-lg text-muted-foreground/40 hover:text-terracotta-500 hover:bg-[var(--dash-glass-hover-bg)] transition-all"
                             title="Mark read"
                           >
                             <CheckCheck className="h-3.5 w-3.5" />
@@ -191,9 +191,9 @@ function NotificationBell() {
                         )}
                       </div>
                       {n.message && (
-                        <p className="text-xs text-white/30 mt-0.5 truncate">{n.message}</p>
+                        <p className="text-xs text-muted-foreground/60 mt-0.5 truncate">{n.message}</p>
                       )}
-                      <p className="text-[11px] text-white/20 mt-1">
+                      <p className="text-[11px] text-muted-foreground/40 mt-1">
                         {timeAgo(n.created_at)}
                       </p>
                     </div>
@@ -247,15 +247,15 @@ export function AppHeader() {
   );
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-white/[0.06] bg-[#0a0a0a]/80 backdrop-blur-xl px-4 lg:px-6">
-        <SidebarTrigger className="-ml-1.5 size-8 text-white/40 hover:text-white" />
+    <header className="dash-header sticky top-0 z-30 flex h-14 items-center gap-3 border-b px-4 lg:px-6">
+        <SidebarTrigger className="-ml-1.5 size-8 text-muted-foreground hover:text-foreground" />
 
       {/* Page title */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         {currentPage && (
           <>
             <currentPage.icon className="h-4 w-4 text-terracotta-500 shrink-0 hidden sm:block" />
-            <h1 className="text-sm font-medium text-white/70 truncate">
+            <h1 className="text-sm font-medium text-muted-foreground truncate">
               {currentPage.label}
             </h1>
           </>
@@ -270,7 +270,7 @@ export function AppHeader() {
         {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger render={
-            <Button variant="ghost" size="sm" className="gap-2 px-1.5 text-white/40 hover:text-white" />
+            <Button variant="ghost" size="sm" className="gap-2 px-1.5 text-muted-foreground hover:text-foreground" />
           }>
             <UserAvatar name={user?.full_name} email={user?.email} />
             {user?.full_name && (
@@ -279,12 +279,12 @@ export function AppHeader() {
               </span>
             )}
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 border-white/[0.08] bg-[#0d0b0a] backdrop-blur-2xl">
+          <DropdownMenuContent align="end" className="w-48 border-[var(--dash-glass-border)] bg-popover text-popover-foreground backdrop-blur-2xl">
             <DropdownMenuGroup>
               <DropdownMenuLabel>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-white/80">{user?.full_name || "User"}</span>
-                  <span className="text-xs font-normal text-white/40 truncate">{user?.email}</span>
+                  <span className="text-sm font-medium text-foreground">{user?.full_name || "User"}</span>
+                  <span className="text-xs font-normal text-muted-foreground truncate">{user?.email}</span>
                 </div>
               </DropdownMenuLabel>
             </DropdownMenuGroup>
@@ -294,7 +294,7 @@ export function AppHeader() {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-500/10">
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive focus:bg-destructive/10">
               <LogOut className="h-4 w-4" />
               Sign out
             </DropdownMenuItem>

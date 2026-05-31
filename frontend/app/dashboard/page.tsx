@@ -24,14 +24,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-10">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-8 lg:p-10">
+      <div className="dash-glass relative overflow-hidden rounded-2xl border p-8 lg:p-10">
         <div className="absolute -inset-x-40 -top-40 h-[600px] w-[800px] rounded-full bg-terracotta-500/10 blur-[150px]" />
         <div className="absolute inset-0 bg-grid opacity-[0.03]" />
         <div className="relative">
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Dashboard
           </h1>
-          <p className="mt-2 text-sm text-white/40 max-w-lg">
+          <p className="mt-2 text-sm text-muted-foreground max-w-lg">
             Welcome back. Here is what is happening with your links today.
           </p>
         </div>
@@ -50,7 +50,7 @@ export default function DashboardPage() {
 
       {/* Quick actions */}
       <div className="space-y-4">
-        <h2 className="text-[11px] font-semibold text-white/40 tracking-[0.15em] uppercase">Quick Actions</h2>
+        <h2 className="text-[11px] font-semibold text-muted-foreground tracking-[0.15em] uppercase">Quick Actions</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           {quickActions.map((action) => {
             const Icon = action.icon;
@@ -58,19 +58,19 @@ export default function DashboardPage() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-5 transition-all duration-300 hover:border-terracotta-500/30 hover:bg-white/[0.06] hover:shadow-[0_0_30px_-5px] hover:shadow-terracotta-500/15"
+                className="dash-glass group relative rounded-2xl border p-5 transition-all duration-300 hover:border-terracotta-500/30"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-terracotta-500/10 text-terracotta-400 ring-1 ring-white/[0.06] transition-all duration-300 group-hover:bg-terracotta-500/15 group-hover:ring-terracotta-500/20">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-terracotta-500/10 text-terracotta-400 ring-1 ring-[var(--dash-glass-border)] transition-all duration-300 group-hover:bg-terracotta-500/15 group-hover:ring-terracotta-500/20">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">
+                    <p className="text-sm font-semibold text-foreground/80 group-hover:text-foreground transition-colors">
                       {action.label}
                     </p>
-                    <p className="text-xs text-white/30 group-hover:text-white/40 transition-colors">{action.desc}</p>
+                    <p className="text-xs text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">{action.desc}</p>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-white/20 transition-all duration-300 group-hover:text-terracotta-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight className="h-4 w-4 text-muted-foreground/30 transition-all duration-300 group-hover:text-terracotta-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </div>
               </Link>
             );
@@ -79,42 +79,42 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent links */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl">
-        <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-white/[0.06]">
+      <div className="dash-glass rounded-2xl border">
+        <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[var(--dash-glass-border)]">
           <div className="flex items-center gap-3">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-terracotta-500/10 text-terracotta-400">
               <TrendingUp className="h-3.5 w-3.5" />
             </div>
-            <h2 className="text-sm font-semibold text-white/70">Recent Links</h2>
+            <h2 className="text-sm font-semibold text-foreground/70">Recent Links</h2>
           </div>
-          <Button variant="ghost" size="sm" className="gap-1 text-white/40 hover:text-white" render={<Link href="/dashboard/links" />}>
+          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground" render={<Link href="/dashboard/links" />}>
             View all <ArrowUpRight className="h-3 w-3" />
           </Button>
         </div>
         {links && links.length > 0 ? (
-          <div className="divide-y divide-white/[0.06]">
+          <div className="divide-y divide-[var(--dash-glass-border)]">
             {links.slice(0, 5).map((link: any) => (
               <Link
                 key={link.id}
                 href={`/dashboard/links/${link.id}`}
-                className="flex items-center justify-between px-6 py-3.5 text-sm transition-all duration-200 hover:bg-white/[0.03]"
+                className="flex items-center justify-between px-6 py-3.5 text-sm transition-all duration-200 hover:bg-[var(--dash-glass-hover-bg)]"
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] text-white/40 shrink-0">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground shrink-0">
                     <ExternalLink className="h-3.5 w-3.5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium text-white/70 truncate max-w-[220px]">
+                    <p className="font-medium text-foreground/70 truncate max-w-[220px]">
                       {link.title || "Untitled"}
                     </p>
-                    <p className="text-xs text-white/30 font-mono truncate max-w-[180px]">
+                    <p className="text-xs text-muted-foreground/60 font-mono truncate max-w-[180px]">
                       {link.short_code}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs text-white/30">{link.clicks_count ?? 0} clicks</span>
-                  <span className="inline-flex items-center rounded-full border border-white/[0.08] px-2.5 py-0.5 text-[11px] font-medium text-white/40 bg-white/[0.03]">
+                  <span className="text-xs text-muted-foreground/60">{link.clicks_count ?? 0} clicks</span>
+                  <span className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground bg-muted/50">
                     {link.is_active ? "Active" : "Inactive"}
                   </span>
                 </div>
@@ -124,7 +124,7 @@ export default function DashboardPage() {
         ) : (
           <div className="py-16">
             <EmptyState
-              icon={<Link2 className="h-6 w-6 text-white/30" />}
+              icon={<Link2 className="h-6 w-6 text-muted-foreground" />}
               title="No links yet"
               description="Create your first shortened link to start tracking clicks."
               action={

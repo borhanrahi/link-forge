@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Moon, Sun, Monitor } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type Theme = "dark" | "light" | "system";
+type Theme = "dark" | "light";
 
 function getTheme(): Theme {
   if (typeof window === "undefined") return "dark";
-  const stored = localStorage.getItem("theme") as Theme | null;
-  return stored || "dark";
+  const stored = localStorage.getItem("theme");
+  if (stored === "dark" || stored === "light") return stored;
+  // Migrate old "system" preference to dark
+  return "dark";
 }
 
 function setTheme(theme: Theme) {
@@ -21,13 +23,7 @@ function setTheme(theme: Theme) {
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
   root.classList.remove("dark", "light");
-  
-  if (theme === "system") {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    root.classList.add(prefersDark ? "dark" : "light");
-  } else {
-    root.classList.add(theme);
-  }
+  root.classList.add(theme);
 }
 
 export function ThemeToggle() {
@@ -42,14 +38,14 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon-sm" className="text-white/40">
+      <Button variant="ghost" size="icon-sm" className="text-muted-foreground">
         <Moon className="h-4 w-4" />
       </Button>
     );
   }
 
   const cycleTheme = () => {
-    const next: Theme = theme === "dark" ? "light" : theme === "light" ? "system" : "dark";
+    const next: Theme = theme === "dark" ? "light" : "dark";
     setThemeState(next);
     setTheme(next);
   };
@@ -58,13 +54,11 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon-sm"
-      className="text-white/40 hover:text-white"
+      className="text-muted-foreground hover:text-foreground"
       onClick={cycleTheme}
-      title={`Theme: ${theme}`}
+      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
-      {theme === "dark" && <Moon className="h-4 w-4" />}
-      {theme === "light" && <Sun className="h-4 w-4" />}
-      {theme === "system" && <Monitor className="h-4 w-4" />}
+      {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
     </Button>
   );
 }

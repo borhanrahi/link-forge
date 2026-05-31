@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <QueryClientProvider client={queryClient}>
       <SidebarProvider defaultOpen={true}>
-        <div className="flex min-h-svh w-full bg-gradient-to-b from-[#0a0a0a] via-[#0d0b0a] to-[#0f0d0c]">
+        <div className="flex min-h-svh w-full bg-background">
           <AppSidebar />
           <SidebarInset className="peer-data-[variant=inset]:m-0 peer-data-[variant=inset]:rounded-none peer-data-[variant=inset]:shadow-none">
             <AppHeader />

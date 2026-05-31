@@ -72,25 +72,25 @@ export function OnboardingChecklist() {
   }
 
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6">
+    <div className="dash-glass rounded-2xl border p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-white/80">Getting Started</h3>
-          <p className="text-xs text-white/40 mt-0.5">{completedCount}/{items.length} completed</p>
+          <h3 className="text-sm font-semibold text-foreground/80">Getting Started</h3>
+          <p className="text-xs text-muted-foreground/70 mt-0.5">{completedCount}/{items.length} completed</p>
         </div>
         <button
           onClick={() => {
             setDismissed(true);
             localStorage.setItem("onboarding_dismissed", "true");
           }}
-          className="text-white/20 hover:text-white/60 transition-colors"
+          className="text-muted-foreground/30 hover:text-muted-foreground/70 transition-colors"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
       {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-white/[0.06] mb-5 overflow-hidden">
+      <div className="h-1.5 rounded-full bg-muted mb-5 overflow-hidden">
         <div
           className="h-full rounded-full bg-gradient-to-r from-terracotta-500 to-terracotta-400 transition-all duration-500"
           style={{ width: `${(completedCount / items.length) * 100}%` }}
@@ -107,22 +107,22 @@ export function OnboardingChecklist() {
               className={`flex items-center gap-3 rounded-xl p-3 transition-all group ${
                 item.completed
                   ? "opacity-50"
-                  : "hover:bg-white/[0.04] hover:border-white/[0.08]"
+                  : "hover:bg-[var(--dash-glass-hover-bg)]"
               }`}
             >
               {item.completed ? (
-                <CheckCircle2 className="h-5 w-5 text-forest-400 shrink-0" />
+                <CheckCircle2 className="h-5 w-5 text-forest-500 shrink-0" />
               ) : (
-                <Circle className="h-5 w-5 text-white/20 shrink-0 group-hover:text-terracotta-400 transition-colors" />
+                <Circle className="h-5 w-5 text-muted-foreground/30 shrink-0 group-hover:text-terracotta-500 transition-colors" />
               )}
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] text-white/40 shrink-0 group-hover:text-terracotta-400 transition-colors">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground/60 shrink-0 group-hover:text-terracotta-500 transition-colors">
                 <Icon className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className={`text-sm font-medium ${item.completed ? "text-white/40" : "text-white/70 group-hover:text-white/90"} transition-colors`}>
+                <p className={`text-sm font-medium ${item.completed ? "text-muted-foreground/60" : "text-foreground/70 group-hover:text-foreground/90"} transition-colors`}>
                   {item.label}
                 </p>
-                <p className="text-xs text-white/30">{item.description}</p>
+                <p className="text-xs text-muted-foreground/60">{item.description}</p>
               </div>
             </Link>
           );

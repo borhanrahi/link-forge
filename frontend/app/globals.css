@@ -178,6 +178,46 @@ body {
   background-size: 56px 56px;
 }
 
+/* Dashboard glass card pattern */
+.dash-glass {
+  background: var(--dash-glass-bg);
+  border-color: var(--dash-glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.dash-glass:hover {
+  background: var(--dash-glass-hover-bg);
+  border-color: var(--dash-glass-hover-border);
+}
+
+/* Dashboard header */
+.dash-header {
+  background: var(--dash-header-bg);
+  border-color: var(--dash-header-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Light mode scrollbar */
+.light ::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}
+
+/* Light mode bg-grid */
+.light .bg-grid {
+  background-image:
+    linear-gradient(rgb(0 0 0 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(0 0 0 / 0.04) 1px, transparent 1px);
+}
+
+/* Light mode hero glow */
+.light [class*="bg-terracotta-500/10 blur-["] {
+  opacity: 0.15;
+}
+
 /* ─── Shadcn Theme Variables (Dark Mode Only) ─── */
 
 @theme inline {
@@ -220,6 +260,45 @@ body {
 
 :root {
   --radius: 0.625rem;
+  --background: oklch(0.99 0.005 80);              /* white */
+  --foreground: oklch(0.17 0.01 55);                /* neutral-900 */
+  --card: oklch(0.995 0 0);                          /* white */
+  --card-foreground: oklch(0.17 0.01 55);           /* neutral-900 */
+  --popover: oklch(0.995 0 0);                       /* white */
+  --popover-foreground: oklch(0.17 0.01 55);        /* neutral-900 */
+  --primary: oklch(0.65 0.12 45);                   /* terracotta-500 */
+  --primary-foreground: oklch(0.99 0 0);            /* white */
+  --secondary: oklch(0.94 0.01 70);                 /* neutral-100 */
+  --secondary-foreground: oklch(0.17 0.01 55);      /* neutral-900 */
+  --muted: oklch(0.94 0.01 70);                     /* neutral-100 */
+  --muted-foreground: oklch(0.53 0.01 55);          /* neutral-500 */
+  --accent: oklch(0.94 0.01 70);                    /* neutral-100 */
+  --accent-foreground: oklch(0.17 0.01 55);         /* neutral-900 */
+  --destructive: oklch(0.63 0.15 30);               /* rust-500 */
+  --border: oklch(0.85 0.01 70 / 0.7);              /* neutral-200 */
+  --input: oklch(0.88 0.01 70);                     /* neutral-200 */
+  --ring: oklch(0.65 0.12 45 / 0.3);                /* terracotta-500 */
+  --chart-1: oklch(0.65 0.12 45);                   /* terracotta-500 */
+  --chart-2: oklch(0.55 0.02 170);                  /* forest-500 */
+  --chart-3: oklch(0.5 0.03 250);                   /* blue-500 */
+  --chart-4: oklch(0.6 0.08 30);                    /* rust-400 */
+  --chart-5: oklch(0.45 0.06 280);                  /* purple-600 */
+  --sidebar: oklch(0.98 0.005 70);                  /* neutral-50 */
+  --sidebar-foreground: oklch(0.25 0.01 55);        /* neutral-700 */
+  --sidebar-primary: oklch(0.65 0.12 45);           /* terracotta-500 */
+  --sidebar-primary-foreground: oklch(0.99 0 0);    /* white */
+  --sidebar-accent: oklch(0.94 0.01 70);            /* neutral-100 */
+  --sidebar-accent-foreground: oklch(0.17 0.01 55); /* neutral-900 */
+  --sidebar-border: oklch(0.85 0.01 70 / 0.5);      /* neutral-200 */
+  --sidebar-ring: oklch(0.65 0.12 45 / 0.3);        /* terracotta-500 */
+  
+  /* Dashboard glass card variables - light mode */
+  --dash-glass-bg: #ffffff;
+  --dash-glass-border: oklch(0.85 0.01 70 / 0.7);
+  --dash-glass-hover-border: oklch(0.78 0.02 55 / 0.6);
+  --dash-glass-hover-bg: #f8f7f5;
+  --dash-header-bg: rgba(255, 255, 255, 0.85);
+  --dash-header-border: oklch(0.85 0.01 70 / 0.7);
 }
 
 .dark {
@@ -254,10 +333,21 @@ body {
   --sidebar-accent-foreground: oklch(0.9 0.01 70); /* neutral-100 */
   --sidebar-border: oklch(0.2 0.01 55 / 0.5);  /* neutral-800 */
   --sidebar-ring: oklch(0.65 0.12 45 / 0.4);   /* terracotta-500 */
+  
+  /* Dashboard glass card variables - dark mode */
+  --dash-glass-bg: rgba(255, 255, 255, 0.03);
+  --dash-glass-border: rgba(255, 255, 255, 0.06);
+  --dash-glass-hover-border: rgba(255, 255, 255, 0.1);
+  --dash-glass-hover-bg: rgba(255, 255, 255, 0.05);
+  --dash-header-bg: rgba(10, 10, 10, 0.8);
+  --dash-header-border: rgba(255, 255, 255, 0.06);
 }
 
-html {
+html.dark {
   color-scheme: dark;
+}
+html.light {
+  color-scheme: light;
 }
 
 @layer base {

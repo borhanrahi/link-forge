@@ -21,18 +21,18 @@ export const Input = ({ label, error, hint, className, ...props }: InputProps) =
   return (
     <div className="space-y-1.5">
       {label && (
-        <label className="text-sm font-medium text-neutral-200">{label}</label>
+        <label className="text-sm font-medium text-foreground/80">{label}</label>
       )}
       <ShadcnInput
         className={cn(
-          "h-10 border-white/[0.08] bg-white/[0.03] backdrop-blur-xl text-white placeholder:text-white/30 focus-visible:border-terracotta-500/40 focus-visible:ring-terracotta-500/20",
-          error && "border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500/20",
+          "h-10 border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus-visible:border-terracotta-500/50 focus-visible:ring-terracotta-500/20",
+          error && "border-destructive/50 focus-visible:border-destructive focus-visible:ring-destructive/20",
           className
         )}
         {...props}
       />
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      {hint && !error && <p className="text-xs text-neutral-500">{hint}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 };
@@ -49,18 +49,18 @@ export const Textarea = ({ label, error, hint, className, ...props }: TextareaPr
   return (
     <div className="space-y-1.5">
       {label && (
-        <label className="text-sm font-medium text-neutral-200">{label}</label>
+        <label className="text-sm font-medium text-foreground/80">{label}</label>
       )}
       <ShadcnTextarea
         className={cn(
-          "border-white/[0.08] bg-white/[0.03] backdrop-blur-xl text-white placeholder:text-white/30",
-          error && "border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500/20",
+          "border-border bg-background text-foreground placeholder:text-muted-foreground/50",
+          error && "border-destructive/50 focus-visible:border-destructive focus-visible:ring-destructive/20",
           className
         )}
         {...props}
       />
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      {hint && !error && <p className="text-xs text-neutral-500">{hint}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 };
@@ -179,28 +179,28 @@ export function Stat({ label, value, icon, trend, accent }: StatProps) {
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border bg-white/[0.03] backdrop-blur-xl p-5 transition-all duration-300 hover:bg-white/[0.05]",
+        "group relative rounded-2xl border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] backdrop-blur-xl p-5 transition-all duration-300 hover:bg-[var(--dash-glass-hover-bg)]",
         accent
-          ? "border-white/[0.08] hover:border-terracotta-500/30 hover:shadow-[0_0_30px_-5px] hover:shadow-terracotta-500/15"
-          : "border-white/[0.06] hover:border-white/[0.1]",
+          ? "hover:border-terracotta-500/30 hover:shadow-[0_0_30px_-5px] hover:shadow-terracotta-500/15"
+          : "hover:border-[var(--dash-glass-hover-border)]",
       )}
     >
       {accent && (
         <div className="absolute inset-x-6 top-0 h-[2px] rounded-full bg-gradient-to-r from-transparent via-terracotta-500/60 to-transparent" />
       )}
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-white/40 tracking-[0.15em] uppercase">{label}</span>
-        {icon && <div className="text-white/20 transition-colors group-hover:text-white/40">{icon}</div>}
+        <span className="text-[11px] font-semibold text-muted-foreground tracking-[0.15em] uppercase">{label}</span>
+        {icon && <div className="text-muted-foreground/40 transition-colors group-hover:text-muted-foreground/60">{icon}</div>}
       </div>
       <div className="mt-2 flex items-baseline gap-3">
-        <p className="text-4xl font-black tracking-tight text-white tabular-nums">
+        <p className="text-4xl font-black tracking-tight text-foreground tabular-nums">
           {value}
         </p>
         {trend && (
           <span
             className={cn(
               "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-medium",
-              trend.positive ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400",
+              trend.positive ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500",
             )}
           >
             {trend.positive ? "\u2191" : "\u2193"} {trend.value}
@@ -244,7 +244,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
   return (
     <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
       {icon && (
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--dash-glass-border)] bg-[var(--dash-glass-bg)] backdrop-blur-xl">
           {icon}
         </div>
       )}
