@@ -69,6 +69,6 @@ async def revoke_api_key(
     key = result.scalar_one_or_none()
     if not key:
         raise HTTPException(status_code=404, detail="API key not found")
-    await db.delete(key)
+    key.is_active = False
     await db.commit()
     return {"message": "API key revoked"}
