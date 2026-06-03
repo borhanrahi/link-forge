@@ -166,6 +166,14 @@ body {
 }
 
 /* ─── Utility Classes ─── */
+
+/* Prevents text blur inside 3D perspective transforms (e.g. WobbleCard) */
+.text-flat {
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .glass {
   background: rgb(13 11 10 / 0.7);
   backdrop-filter: blur(12px);

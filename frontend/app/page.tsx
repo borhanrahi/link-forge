@@ -336,10 +336,10 @@ export default function LandingPage() {
                           <Icon className="h-3.5 w-3.5" />
                           {uc.title}
                         </div>
-                        <p className="mt-4 text-sm text-neutral-500 leading-relaxed">{uc.desc}</p>
+                        <p className="mt-4 text-sm text-neutral-600 leading-relaxed">{uc.desc}</p>
                         <ul className="mt-4 space-y-1.5">
                           {uc.features.map((f) => (
-                            <li key={f} className="flex items-center gap-2 text-xs text-neutral-400">
+                            <li key={f} className="flex items-center gap-2 text-xs text-neutral-500">
                               <Check className="h-3 w-3 shrink-0 text-forest-500" />
                               {f}
                             </li>
@@ -447,7 +447,7 @@ export default function LandingPage() {
                         <Icon className="h-5 w-5" />
                       </div>
                       <h3 className="mt-5 font-semibold text-neutral-800">{f.title}</h3>
-                      <p className="mt-1.5 text-sm text-neutral-500 leading-relaxed">{f.desc}</p>
+                      <p className="mt-1.5 text-sm text-neutral-600 leading-relaxed">{f.desc}</p>
                     </HoverCard>
                   </StaggerItem>
                 );

@@ -533,7 +533,7 @@ export function Accordion({ items, className, allowMultiple = false }: Accordion
   );
 }
 
-// ─── WobbleCard — Card with 3D tilt on hover ───
+// ─── WobbleCard — Card with smooth hover effect ───
 
 interface WobbleCardProps {
   children: React.ReactNode;
@@ -549,8 +549,8 @@ export function WobbleCard({
   intensity = 10,
 }: WobbleCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
+  const [translateX, setTranslateX] = useState(0);
+  const [translateY, setTranslateY] = useState(0);
   const [scale, setScale] = useState(1);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -560,14 +560,14 @@ export function WobbleCard({
     const centerY = rect.top + rect.height / 2;
     const deltaX = (e.clientX - centerX) / (rect.width / 2);
     const deltaY = (e.clientY - centerY) / (rect.height / 2);
-    setRotateX(-deltaY * intensity);
-    setRotateY(deltaX * intensity);
+    setTranslateX(deltaX * (intensity * 0.3));
+    setTranslateY(deltaY * (intensity * 0.3));
     setScale(1.02);
   };
 
   const handleMouseLeave = () => {
-    setRotateX(0);
-    setRotateY(0);
+    setTranslateX(0);
+    setTranslateY(0);
     setScale(1);
   };
 
@@ -577,10 +577,10 @@ export function WobbleCard({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        transform: `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale})`,
-        transition: "transform 0.15s ease-out",
+        transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+        transition: "transform 0.2s ease-out",
       }}
-      className={cn("will-change-transform", containerClassName)}
+      className={cn(containerClassName)}
     >
       <div className={cn("relative overflow-hidden", className)}>
         {children}
