@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies.auth import get_current_user, get_db
 from app.dependencies.workspace import get_active_workspace
-from app.dependencies.permissions import require_role
 from app.models.user import User
 from app.models.workspace import Workspace
 from app.models.workspace_member import WorkspaceMember
@@ -108,9 +107,20 @@ async def invite_member(
     workspace_id: UUID,
     body: InviteRequest,
     user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(get_active_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    await require_role(["owner", "admin"], user, await get_active_workspace(user, db), db)
+    if workspace.owner_id != user.id:
+        result = await db.execute(
+            select(WorkspaceMember).where(
+                WorkspaceMember.workspace_id == workspace.id,
+                WorkspaceMember.user_id == user.id,
+                WorkspaceMember.invite_status == "active",
+            )
+        )
+        member = result.scalar_one_or_none()
+        if not member or member.role not in ["owner", "admin"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
     result = await db.execute(select(User).where(User.email == body.email))
     target = result.scalar_one_or_none()
     if not target:
@@ -167,9 +177,20 @@ async def update_member_role(
     user_id: UUID,
     body: MemberRoleUpdate,
     user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(get_active_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    await require_role(["owner", "admin"], user, await get_active_workspace(user, db), db)
+    if workspace.owner_id != user.id:
+        result = await db.execute(
+            select(WorkspaceMember).where(
+                WorkspaceMember.workspace_id == workspace.id,
+                WorkspaceMember.user_id == user.id,
+                WorkspaceMember.invite_status == "active",
+            )
+        )
+        requester = result.scalar_one_or_none()
+        if not requester or requester.role not in ["owner", "admin"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
     result = await db.execute(
         select(WorkspaceMember).where(
             WorkspaceMember.workspace_id == workspace_id,
@@ -189,9 +210,20 @@ async def remove_member(
     workspace_id: UUID,
     user_id: UUID,
     user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(get_active_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    await require_role(["owner", "admin"], user, await get_active_workspace(user, db), db)
+    if workspace.owner_id != user.id:
+        result = await db.execute(
+            select(WorkspaceMember).where(
+                WorkspaceMember.workspace_id == workspace.id,
+                WorkspaceMember.user_id == user.id,
+                WorkspaceMember.invite_status == "active",
+            )
+        )
+        requester = result.scalar_one_or_none()
+        if not requester or requester.role not in ["owner", "admin"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
     result = await db.execute(
         select(WorkspaceMember).where(
             WorkspaceMember.workspace_id == workspace_id,
