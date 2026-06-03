@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { CheckCircle2, Circle, Link2, Layout, QrCode, Users, X } from "lucide-react";
-import { useLinks, useBioPages } from "@/hooks";
+import { useLinks, useBioPages, useQRCodes } from "@/hooks";
 import { useAuthStore } from "@/lib/auth-store";
 
 interface ChecklistItem {
@@ -19,6 +19,7 @@ export function OnboardingChecklist() {
   const [dismissed, setDismissed] = useState(false);
   const { data: links } = useLinks();
   const { data: bioPages } = useBioPages();
+  const { data: qrCodes } = useQRCodes();
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export function OnboardingChecklist() {
       description: "Create a QR code for easy sharing",
       href: "/dashboard/qr-codes",
       icon: QrCode,
-      completed: false,
+      completed: (qrCodes?.length ?? 0) > 0,
     },
     {
       id: "invite-team",
