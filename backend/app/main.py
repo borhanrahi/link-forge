@@ -1,10 +1,12 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from contextlib import asynccontextmanager
 
 from app.config import get_settings
-from app.database import engine, Base
+from app.database import Base, engine
+from app.services.geo_ip import geo_ip_service
 
 settings = get_settings()
 
@@ -13,8 +15,11 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    yield
-    await engine.dispose()
+    try:
+        yield
+    finally:
+        await engine.dispose()
+        await geo_ip_service.close()
 
 
 def create_app() -> FastAPI:
@@ -22,41 +27,76 @@ def create_app() -> FastAPI:
         title="LinkNest API",
         version="2.0",
         lifespan=lifespan,
+        docs_url="/docs" if not settings.is_production else None,
+        redoc_url="/redoc" if not settings.is_production else None,
     )
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000", "http://127.0.0.1:8000"],
+        allow_origins=settings.cors_origins,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "X-API-Key",
+            "X-User-Email",
+            "X-Workspace-Id",
+        ],
+        expose_headers=["X-Request-Id"],
+        max_age=600,
     )
 
-    from app.routers import auth, users, workspaces, links, clicks, analytics, bio_pages, bio_public, qr_codes, custom_domains, utm, billing, subscriptions, webhooks, redirect, notifications, tags, api_keys, click_goal_alerts, ab_tests, export_import
+    from app.routers import (
+        ab_tests,
+        analytics,
+        api_keys,
+        auth,
+        billing,
+        bio_pages,
+        bio_public,
+        click_goal_alerts,
+        clicks,
+        custom_domains,
+        export_import,
+        links,
+        notifications,
+        qr_codes,
+        redirect,
+        subscriptions,
+        tags,
+        users,
+        utm,
+        webhooks,
+        workspaces,
+    )
 
-    app.include_router(auth.router)
-    app.include_router(users.router)
-    app.include_router(workspaces.router)
-    app.include_router(links.router)
-    app.include_router(clicks.router)
-    app.include_router(analytics.router)
-    app.include_router(bio_pages.router)
-    app.include_router(bio_public.router)
-    app.include_router(qr_codes.router)
-    app.include_router(custom_domains.router)
-    app.include_router(utm.router)
-    app.include_router(billing.router)
-    app.include_router(subscriptions.router)
-    app.include_router(webhooks.router)
-    app.include_router(notifications.router)
-    app.include_router(tags.router)
-    app.include_router(api_keys.router)
-    app.include_router(click_goal_alerts.router)
-    app.include_router(ab_tests.router)
-    app.include_router(redirect.router)
-    app.include_router(export_import.router)
+    for router in (
+        auth.router,
+        users.router,
+        workspaces.router,
+        links.router,
+        clicks.router,
+        analytics.router,
+        bio_pages.router,
+        bio_public.router,
+        qr_codes.router,
+        custom_domains.router,
+        utm.router,
+        billing.router,
+        subscriptions.router,
+        webhooks.router,
+        notifications.router,
+        tags.router,
+        api_keys.router,
+        click_goal_alerts.router,
+        ab_tests.router,
+        redirect.router,
+        export_import.router,
+    ):
+        app.include_router(router)
 
-    @app.get("/")
+    @app.get("/", include_in_schema=False)
     async def root():
         return RedirectResponse(url="/docs")
 

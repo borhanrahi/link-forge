@@ -19,6 +19,9 @@ async def get_active_workspace(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> Workspace:
+    request.state.user_id = str(user.id)
+    request.state.api_user_id = str(user.id)
+
     # If authenticated via API key, use the key's workspace directly
     api_key: Optional[APIKey] = getattr(request.state, "api_key", None)
     if api_key is not None:
@@ -31,6 +34,7 @@ async def get_active_workspace(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Workspace not found for this API key",
             )
+        request.state.workspace_id = str(workspace.id)
         return workspace
 
     # JWT auth — resolve workspace from header or user default
@@ -59,4 +63,5 @@ async def get_active_workspace(
     if not workspace:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workspace not found")
 
+    request.state.workspace_id = str(workspace.id)
     return workspace
