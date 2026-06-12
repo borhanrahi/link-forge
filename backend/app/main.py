@@ -13,12 +13,14 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    if engine is not None:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
     try:
         yield
     finally:
-        await engine.dispose()
+        if engine is not None:
+            await engine.dispose()
         await geo_ip_service.close()
 
 

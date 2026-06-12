@@ -9,33 +9,23 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
+DATABASE_URL = (settings.database_url or "").strip()
 
-def _resolve_database_url() -> str:
-    url = (settings.database_url or "").strip()
-    if not url:
-        raise RuntimeError(
-            "DATABASE_URL is not configured. "
-            "Set it in your environment or .env file (see .env.example)."
-        )
-    if url.startswith("postgresql://"):
-        url = "postgresql+psycopg://" + url[len("postgresql://") :]
-    if not url.startswith(("postgresql+psycopg://", "postgresql+asyncpg://")):
-        raise RuntimeError(
-            "DATABASE_URL must use the 'postgresql+psycopg://' or "
-            "'postgresql+asyncpg://' scheme for async SQLAlchemy."
-        )
-    return url
-
-
-engine = create_async_engine(
-    _resolve_database_url(),
-    echo=False,
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
+engine = (
+    create_async_engine(
+        DATABASE_URL,
+        echo=False,
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=10,
+    )
+    if DATABASE_URL
+    else None
 )
-async_session_factory = async_sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
+async_session_factory = (
+    async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    if engine
+    else None
 )
 
 
@@ -44,6 +34,11 @@ class Base(DeclarativeBase):
 
 
 async def get_db() -> AsyncSession:
+    if async_session_factory is None:
+        raise RuntimeError(
+            "DATABASE_URL is not configured. "
+            "Set it in your environment or .env file (see .env.example)."
+        )
     async with async_session_factory() as session:
         try:
             yield session

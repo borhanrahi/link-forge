@@ -58,7 +58,7 @@ const tooltipContentStyle: React.CSSProperties = {
   backdropFilter: "blur(8px)",
 };
 
-const axisStyle: React.CSSProperties = {
+const axisStyle: React.SVGProps<SVGTextElement> = {
   fontSize: 11,
   fill: "rgba(255,255,255,0.4)",
 };
