@@ -92,4 +92,6 @@ coverage/
 # ─── Misc Auto-generated ───────────────────────────────────
 *.sqlite
 *.sqlite3
-.opencode
+.opencode/
+.impeccable/
+.vscode/
